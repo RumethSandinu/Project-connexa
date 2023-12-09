@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 import tensorflow as tf
 
-tf.saved_model.load('../Rumeth/sold_amount_model')
+tf.saved_model.load('../Rumeth/final_sold_amount_model')
 
 app = Flask(__name__)
 print(app)
