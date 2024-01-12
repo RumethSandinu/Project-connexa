@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 import tensorflow as tf
 
-tf.keras.models.load_model('../Rumeth/final_sold_amount_model')
+tf.keras.models.load_model('../sales_prediction_analysis/sales_prediction_model')
 
 app = Flask(__name__)
 print(app)
