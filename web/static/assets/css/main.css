@@ -1105,3 +1105,23 @@ body {
 #loginButton:hover {
   background-color: #16fd95; /* Darker blue on hover */
 }
+#registerButton {
+  /* Add styling to position the login button in the corner */
+  position: absolute;  /* Position it relative to the nearest positioned ancestor */
+  top: 63px;           /* Adjust this value to position it from the top */
+  right: 10px;         /* Adjust this value to position it from the right */
+  z-index: 1000;       /* Ensure it stays above other elements on the page */
+}
+
+/* Optional: Add some styles to make it visually appealing */
+#registerButton {
+  background-color: #1EA786; /* Blue background color */
+  color: white;              /* White text color */
+  padding: 12px 14px;         /* Padding around the text/icon */
+  border-radius: 20px;        /* Rounded corners */
+  text-decoration: none;     /* Remove underline */
+}
+
+#registerButton:hover {
+  background-color: #16fd95; /* Darker blue on hover */
+}
