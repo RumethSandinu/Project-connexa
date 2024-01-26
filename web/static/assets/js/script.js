@@ -91,3 +91,27 @@ for (let i = 0; i < productThumbnails.length; i++) {
 
   });
 }
+function togglePasswordVisibility() {
+  var passwordField = document.getElementById("password");
+  if (passwordField.type === "password") {
+    passwordField.type = "text";
+  } else {
+    passwordField.type = "password";
+  }
+}
+// JavaScript for the registration form
+
+function togglePasswordVisibility() {
+  var passwordField = document.getElementById("password");
+  var confirmPasswordField = document.getElementById("confirmPassword");
+
+  if (passwordField.type === "password") {
+    passwordField.type = "text";
+    confirmPasswordField.type = "text";
+  } else {
+    passwordField.type = "password";
+    confirmPasswordField.type = "password";
+  }
+}
+
+
