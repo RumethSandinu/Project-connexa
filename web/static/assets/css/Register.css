@@ -1,0 +1,50 @@
+/* Custom CSS for the registration form */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    border: 1px solid #0c7d75;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-image: url("../images/hero-left-bg.png"), url("../images/hero-right-bg.png");
+    background-color: var(--charleston-green);
+    background-repeat: no-repeat, no-repeat;
+    background-position: bottom left, top right;
+    color: var(--light-gray);
+  }
+  
+  .login-container h2 {
+    margin-bottom: 20px;
+  }
+  
+  .login-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .login-form button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #1EA786;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .login-form button:hover {
+    background-color: #15856e;
+  }
+
+body {
+  /* Set background image properties */
+  background-image: url("../images/cta-bg.png"); /* Adjust the path to your image */
+  background-size: cover;      /* Cover the entire viewport */
+  background-position: center;  /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-attachment: fixed; /* Fixed background */
+}
