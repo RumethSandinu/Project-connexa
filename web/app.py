@@ -6,20 +6,31 @@ import tensorflow as tf
 tf.keras.models.load_model('../sales_prediction_analysis/sales_prediction_model')
 
 app = Flask(__name__)
-print(app)
+
 
 @app.route('/')
 def index():
     return render_template("index.html")
 
-if __name__ == '__main__' :
-    app.run(debug=True)
 
-app = Flask(__name__)
+@app.route('/shop.html')
+def shop():
+    return render_template("shop.html")
+
+
+@app.route('/about.html')
+def about():
+    return render_template("about.html")
+
+
+@app.route('/contact.html')
+def contact():
+    return render_template("contact.html")
+
 
  # Load the trained model
-with open('lossRatemodel.pickle', 'rb') as file:
-    model = pickle.load(file)
+# with open('lossRatemodel.pickle', 'rb') as file:
+#     model = pickle.load(file)
 
 @app.route('/model', methods=['POST'])
 def model():
@@ -53,3 +64,7 @@ def model():
 
          # Render the result in the model.html file
         return render_template('model.html', loss_rate_prediction=loss_rate_prediction[0])
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
