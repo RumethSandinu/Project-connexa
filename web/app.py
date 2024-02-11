@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 import tensorflow as tf
 
-tf.keras.models.load_model('../sales_prediction_analysis/sales_prediction_model')
+# tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 app = Flask(__name__)
 
@@ -28,8 +28,9 @@ def blog():
 
 
 # Load the trained model
-with open('../Shamal/lossRatemodel.pickle', 'rb') as file:
+with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
+
 
 @app.route('/model', methods=['POST'])
 def model():
