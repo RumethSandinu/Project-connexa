@@ -7,30 +7,29 @@ tf.keras.models.load_model('../sales_prediction_analysis/sales_prediction_model'
 
 app = Flask(__name__)
 
-
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
 
-@app.route('/shop.html')
-def shop():
-    return render_template("shop.html")
-
-
-@app.route('/about.html')
+@app.route('/about')
 def about():
-    return render_template("about.html")
+    return render_template('about.html')
 
 
-@app.route('/contact.html')
-def contact():
-    return render_template("contact.html")
+@app.route('/shop')
+def shop():
+    return render_template('shop.html')
 
 
- # Load the trained model
-# with open('lossRatemodel.pickle', 'rb') as file:
-#     model = pickle.load(file)
+@app.route('/blog')
+def blog():
+    return render_template('blog.html')
+
+
+# Load the trained model
+with open('../Shamal/lossRatemodel.pickle', 'rb') as file:
+    model = pickle.load(file)
 
 @app.route('/model', methods=['POST'])
 def model():

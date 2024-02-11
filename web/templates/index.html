@@ -46,7 +46,8 @@
       <div class="container">
 
         <h1 class="h1">
-          <a href="index.html" class="logo">Conne<span class="span">Xa</span></a>
+          <!-- define paths using jinja2 expressions-->
+          <a href="{{ url_for('index') }}" class="logo">Conne<span class="span">Xa</span></a>
         </h1>
 
         <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
@@ -62,19 +63,19 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="index.html" class="navbar-link">Home</a>
+                <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
-              <a href="about.html" class="navbar-link">About</a>
+                <a href="{{ url_for('about') }}" class="navbar-link">About</a>
             </li>
 
             <li>
-              <a href="shop.html" class="navbar-link">Shop</a>
+                <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
             </li>
 
             <li>
-              <a href="blog.html" class="navbar-link">Blog</a>
+                <a href="{{ url_for('blog') }}" class="navbar-link">Blog</a>
             </li>
             <a href="login.html" class="btn btn-primary" id="loginButton">
               <span class="span">Sign In</span>
