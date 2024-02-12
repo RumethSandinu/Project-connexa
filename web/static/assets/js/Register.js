@@ -59,3 +59,14 @@ function togglePasswordVisibility() {
         console.error("There was a problem with the fetch operation:", error);
       });
   }
+  async function hashPassword(password) {
+    // Implement password hashing using a library like bcrypt.js or argon2
+    // For demonstration purposes, we'll use a simple synchronous hashing function
+    // Replace this with the appropriate library and asynchronous implementation
+    var encoder = new TextEncoder();
+    var data = encoder.encode(password);
+    var hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    var hashArray = Array.from(new Uint8Array(hashBuffer));
+    var hashHex = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("");
+    return hashHex;
+  }
