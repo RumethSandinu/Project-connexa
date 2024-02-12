@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import pickle
-import tensorflow as tf
+# import tensorflow as tf
 
 # tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
