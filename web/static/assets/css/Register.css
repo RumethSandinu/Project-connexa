@@ -3,15 +3,15 @@
     max-width: 400px;
     margin: 100px auto;
     padding: 20px;
-    border: 1px solid #000000;
+    border: 1px solid #48ff00;
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    background-image: url("../images/breadcumb-bg.jpg"), url("../images/breadcumb-bg.jpg");
     background-color: var(--charleston-green);
     background-repeat: no-repeat, no-repeat;
     background-position: bottom left, top right;
     color: var(black);
+    background: transparent;
   }
   
   .login-container h2 {
