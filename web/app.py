@@ -3,23 +3,34 @@ import pandas as pd
 import pickle
 import tensorflow as tf
 
-tf.keras.models.load_model('../sales_prediction_analysis/sales_prediction_model')
+# tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 app = Flask(__name__)
-print(app)
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
-if __name__ == '__main__' :
-    app.run(debug=True)
 
-app = Flask(__name__)
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
- # Load the trained model
-with open('lossRatemodel.pickle', 'rb') as file:
+
+@app.route('/shop')
+def shop():
+    return render_template('shop.html')
+
+
+@app.route('/blog')
+def blog():
+    return render_template('blog.html')
+
+
+# Load the trained model
+with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
+
 
 @app.route('/model', methods=['POST'])
 def model():
@@ -53,3 +64,7 @@ def model():
 
          # Render the result in the model.html file
         return render_template('model.html', loss_rate_prediction=loss_rate_prediction[0])
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
