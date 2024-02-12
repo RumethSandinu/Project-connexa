@@ -10,7 +10,7 @@
   <!-- 
     - favicon
   -->
-  <link rel="shortcut icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="../static/assets/images/favicon.svg" type="image/svg+xml">
 
   <!-- 
     - custom css link
@@ -46,7 +46,8 @@
       <div class="container">
 
         <h1 class="h1">
-          <a href="./index.html" class="logo">Conne<span class="span">Xa</span></a>
+          <!-- define paths using jinja2 expressions-->
+          <a href="{{ url_for('index') }}" class="logo">Conne<span class="span">Xa</span></a>
         </h1>
 
         <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
@@ -62,19 +63,19 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="index.html" class="navbar-link">Home</a>
+                <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
-              <a href="about.html" class="navbar-link">About</a>
+                <a href="{{ url_for('about') }}" class="navbar-link">About</a>
             </li>
 
             <li>
-              <a href="shop.html" class="navbar-link">Shop</a>
+                <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
             </li>
 
             <li>
-              <a href="blog.html" class="navbar-link">Blog</a>
+                <a href="{{ url_for('blog') }}" class="navbar-link">Blog</a>
             </li>
             <a href="login.html" class="btn btn-primary" id="loginButton">
               <span class="span">Sign In</span>
@@ -302,7 +303,7 @@
               It has survived not only five centuries also there leaped.
             </p>
 
-            <a href="shop.html" class="btn btn-primary">
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">
               <span class="span">Shop Now</span>
 
               <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
@@ -375,7 +376,7 @@
           <ul class="offers-list has-scrollbar">
 
             <li class="offers-item">
-              <a href="../shop.html" class="offers-card">
+              <a href="{{ url_for('shop') }}" class="offers-card">
 
                 <figure class="card-banner">
                   <img src="../static/assets/images/offer-1.png" width="292" height="230" loading="lazy"
@@ -394,7 +395,7 @@
             </li>
 
             <li class="offers-item">
-              <a href="../shop.html" class="offers-card">
+              <a href="{{ url_for('shop') }}l" class="offers-card">
 
                 <figure class="card-banner">
                   <img src="../static/assets/images/offer-2.png" width="336" height="244" loading="lazy"
