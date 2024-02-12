@@ -14,14 +14,14 @@ class ItemValidator:
     # validate item name
     def validate_name(self):
         pattern = r'^[a-zA-Z0-9_ ]+$'
-        if len(self.name) < 100:
+        if len(self.name) <= 100:
             return re.match(pattern, self.name) is not None
         return False
 
     # validate item category
     def validate_category(self):
         pattern = r'^[a-zA-Z0-9_ ]+$'
-        if len(self.category) < 100:
+        if len(self.category) <= 100:
             return re.match(pattern, self.category) is not None
         return False
 
@@ -42,7 +42,7 @@ class ItemValidator:
     # validate item description
     def validate_description(self):
         pattern = r'^[a-zA-Z0-9_ ]+$'
-        if len(self.description) < 1000:
+        if len(self.description) <= 1000:
             return re.match(pattern, self.description) is not None
         return False
 
