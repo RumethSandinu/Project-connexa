@@ -286,18 +286,44 @@
 
   </aside>
   <body id="top">
-    <!-- Registration Form Box Layout -->
-    <div class="login-container">
-      <h2>Create Your Account</h2>
+    <!-- User Type Selection -->
+    <div class="user-type-selection">
+      <label for="userType">Select User Type:</label>
+      <select id="userType" onchange="showForm()">
+        <option value="customer">Customer</option>
+        <option value="staff">Staff</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
   
-      <!-- Registration Form -->
-      <form class="login-form" id="registrationForm">
-        <label for="fullName">Full Name:</label>
-        <input type="text" id="fullName" name="fullName" required>
-  
+    <!-- Customer Registration Form -->
+    <div class="Register-container" id="customerForm">
+      <h2>Create Your Customer Account</h2>
+      <form class="register-form" id="customerRegistrationForm">
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required>
   
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required>
+  
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required>
+  
+        <label for="street">Street:</label>
+        <input type="text" id="street" name="street" required>
+  
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" required>
+  
+        <label for="province">Province:</label>
+        <input type="text" id="province" name="province" required>
+  
+        <label for="postalCode">Postal Code:</label>
+        <input type="text" id="postalCode" name="postalCode" required>
+
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
   
@@ -311,7 +337,47 @@
       </form>
     </div>
   
+    <!-- Staff Registration Form -->
+    <div class="Register-container" id="staffForm" style="display:none;">
+      <h2>Create Your Staff Account</h2>
+      <form class="register-form" id="staffRegistrationForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+  
+        <label for="staffId">Staff ID:</label>
+        <input type="text" id="staffId" name="staffId" required>
+
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required>
+
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+  
+        <button type="submit">Register</button>
+      </form>
+    </div>
+  
+    <!-- Admin Registration Form -->
+    <div class="Register-container" id="adminForm" style="display:none;">
+      <h2>Create Your Admin Account</h2>
+      <form class="register-form" id="adminRegistrationForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+  
+        <label for="adminId">Admin ID:</label>
+        <input type="text" id="adminId" name="adminId" required>
+  
+        <button type="submit">Register</button>
+      </form>
+    </div>
   </body>
+  
 
   <!-- 
     - #FOOTER
