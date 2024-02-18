@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Discount assigner with sales prediction">
+    <meta name="keywords" content="discount, sales, prediction, assigner, sale booster, connexa, CONNEXA, Connexa">
+    <meta name="author" content="Rumeth Sandinu">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ConneXa sale booster</title>
+
+  <!-- favicon -->
+  <link rel="shortcut icon" href="../static/assets/images/favicon.svg" type="image/svg+xml">
+
+  <!-- custom css link -->
+  <link rel="stylesheet" href="../static/assets/css/main.css">
+  <link rel="stylesheet" href="../static/assets/css/home.css">
+  <link rel="stylesheet" href="../static/assets/css/sale-booster.css">
+
+  <!-- google font link-->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <title>Sale booster</title>
+
+</head>
+  <body>
+
+    <h1>Sale booster</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>item_id</th>
+          <th>item_name</th>
+          <th>category</th>
+          <th>price_per_kg</th>
+          <th>quantity_kg</th>
+          <th>discount_rate</th>
+            <th>action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}</td>
+            <td>{{ row[5] }}</td>
+            <td>
+                <a href="{{ url_for('sale_booster_setup', item_id=row[0]) }}" class="navbar-link">Boost</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </body>
+</html>
