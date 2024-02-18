@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import pickle
-# import tensorflow as tf
+import mysql.connector
+import tensorflow as tf
 
 # tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 app = Flask(__name__)
+
+cnx = mysql.connector.connect(user='root', password='', host='localhost', database='connexa')
+cursor = cnx.cursor()
 
 @app.route('/')
 def index():
@@ -22,9 +26,31 @@ def shop():
     return render_template('shop.html')
 
 
+@app.route('/sale_booster')
+def sale_booster():
+    if cnx.is_connected():
+        print('Connected to database')
+    else:
+        print('Error connecting to database:', cnx.connect_error)
+    cursor.execute('SELECT item_id, item_name, category, price_per_kg, quantity_kg, discount_rate FROM item')
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
+    return render_template('sale_booster.html', rows=rows)
+
+
+@app.route('/sale_booster_setup')
+def sale_booster_setup():
+    # cursor.execute('SELECT AVG(quantity_kg) AS average_selling_per_day FROM order_item WHERE item_id = item_id AND DATE(payment_date) BETWEEN DATE_SUB(CURDATE(), INTERVAL 8 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY);')
+    # rows = cursor.fetchall()
+    # for row in rows:
+    #     print(row)
+    return render_template('sale_booster_setup.html')
+
 @app.route('/blog')
 def blog():
     return render_template('blog.html')
+
 
 
 # Load the trained model
