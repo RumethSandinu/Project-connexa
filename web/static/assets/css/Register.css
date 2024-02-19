@@ -1,5 +1,5 @@
 /* Custom CSS for the registration form */
-.login-container {
+.Register-container {
     max-width: 400px;
     margin: 100px auto;
     padding: 20px;
@@ -12,13 +12,14 @@
     background-position: bottom left, top right;
     color: var(black);
     background: transparent;
+    transition: opacity 0.5s ease-in-out;
   }
   
-  .login-container h2 {
+  .Register-container h2 {
     margin-bottom: 20px;
   }
   
-  .login-form input {
+  .register-form input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -26,7 +27,7 @@
     border: 1px solid #ccc;
   }
   
-  .login-form button {
+  .register-form button {
     padding: 10px 20px;
     border: none;
     border-radius: 20px;
@@ -36,7 +37,7 @@
     margin-top: 10px;
   }
   
-  .login-form button:hover {
+  .register-form button:hover {
     background-color: #15856e;
   }
 
@@ -47,4 +48,25 @@ body {
   background-position: center;  /* Center the image */
   background-repeat: no-repeat; /* Do not repeat the image */
   background-attachment: fixed; /* Fixed background */
+}
+.user-type-selection {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  color: #fff;
+  border-radius: 30px;
+  box-shadow: 0 0 10px rgb(255, 255, 255);
+  font-size: 18px;
+}
+.user-type-selection label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 10px;
+  color: #fff; /* text color */
+}
+
+select {
+  padding: 10px;
+  border-radius: 30px;
+  box-shadow: transparent;
 }
