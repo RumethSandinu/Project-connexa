@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request
 import pandas as pd
+import numpy as np
 import pickle
 import mysql.connector
 import tensorflow as tf
+from decimal import Decimal
 
-# tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+
+model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 app = Flask(__name__)
 
@@ -33,24 +36,34 @@ def sale_booster():
     else:
         print('Error connecting to database:', cnx.connect_error)
     cursor.execute('SELECT item_id, item_name, category, price_per_kg, quantity_kg, discount_rate FROM item')
+    # get all records to tuples
     rows = cursor.fetchall()
     for row in rows:
         print(row)
     return render_template('sale_booster.html', rows=rows)
 
 
-@app.route('/sale_booster_setup')
-def sale_booster_setup():
-    # cursor.execute('SELECT AVG(quantity_kg) AS average_selling_per_day FROM order_item WHERE item_id = item_id AND DATE(payment_date) BETWEEN DATE_SUB(CURDATE(), INTERVAL 8 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY);')
-    # rows = cursor.fetchall()
-    # for row in rows:
-    #     print(row)
-    return render_template('sale_booster_setup.html')
+# item_id is passed as an argument to the function as dynamic part of the URL
+@app.route('/sale_booster_setup/<int:item_id>')
+def sale_booster_setup(item_id):
+    # %s --> placeholder for item_id
+    cursor.execute('SELECT item_name, category, price_per_kg FROM item WHERE item_id = %s', (item_id,))
+    item_row = cursor.fetchone()
+    # unpack values to variables
+    item_name, category, price_per_kg = item_row
+
+    discount_range = np.arange(-30, 31)
+
+    for discount in discount_range:
+        # decimal to float
+        price_per_kg_float = float(Decimal(str(price_per_kg)))
+        discount_amount = price_per_kg_float * (discount / 100)
+    return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
+
 
 @app.route('/blog')
 def blog():
     return render_template('blog.html')
-
 
 
 # Load the trained model
