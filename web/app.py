@@ -5,9 +5,12 @@ import pickle
 import mysql.connector
 import tensorflow as tf
 from decimal import Decimal
+import streamlit as st
+import matplotlib.pyplot as plt
+import plotly.express as px
 
 
-model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 app = Flask(__name__)
 
@@ -43,7 +46,6 @@ def sale_booster():
     return render_template('sale_booster.html', rows=rows)
 
 
-# item_id is passed as an argument to the function as dynamic part of the URL
 @app.route('/sale_booster_setup/<int:item_id>')
 def sale_booster_setup(item_id):
     # %s --> placeholder for item_id
@@ -52,14 +54,51 @@ def sale_booster_setup(item_id):
     # unpack values to variables
     item_name, category, price_per_kg = item_row
 
-    discount_range = np.arange(-30, 31)
+    discount_range = np.arange(-30, 11)
+    sales = []
+
+    columns = pd.read_csv('../sales_analysis/column_names')
+    column_values = columns.values
+
+    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
     for discount in discount_range:
         # decimal to float
-        price_per_kg_float = float(Decimal(str(price_per_kg)))
+        price_per_kg_float = float(Decimal(price_per_kg))
         discount_amount = price_per_kg_float * (discount / 100)
-    return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
 
+        # Make prediction using the loaded model
+        input_data = np.zeros((1, 155))
+        input_data[0, unit_price_index] = price_per_kg_float + discount_amount
+
+        # Find the indices of the one-hot encoded features
+        item_name_index = np.where(column_values == f'item_name_{item_name}')[0][0]
+        category_index = np.where(column_values == f'category_name_{category}')[0][0]
+
+        # Set the one-hot encoded features to 1
+        input_data[0, item_name_index] = 1
+        input_data[0, category_index] = 1
+
+        prediction = sales_pred_model.predict(input_data)
+        sales.append(prediction[0][0])  # Assuming model output is a single value for sales
+
+    print(sales)
+
+    # Plot sales
+    plt.figure(figsize=(15, 6))
+    plt.plot(discount_range, sales)
+    plt.xlabel('Additional Price Percentage (%)')
+    plt.ylabel('Sales (kg)')
+    plt.title('Sales vs Additional Price Percentage')
+    plt.grid(True)
+    integer_ticks = np.arange(np.ceil(discount_range.min()), np.floor(discount_range.max()) + 1, dtype=int)
+    plt.xticks(integer_ticks)
+    plt.savefig('static/assets/images/sales_vs_discount.png')  # Save the plot as an image file
+    plt.close()
+
+    # Return the plot in the web page
+    return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
 
 @app.route('/blog')
 def blog():
