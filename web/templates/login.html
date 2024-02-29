@@ -290,7 +290,7 @@
     <h2>Login to Your Account</h2>
     
     <!-- Login Form -->
-    <form class="login-form" id="loginForm">
+    <form class="login-form" id="loginForm" onsubmit="login(); return false;">
       <label for="username">E-mail:</label>
       <input type="text" id="username" name="username" required>
       
@@ -303,7 +303,6 @@
       <button type="submit">Login</button>
     </form>
   </div>
-
   <!-- 
     - #FOOTER
   -->
@@ -480,6 +479,7 @@
     - custom js link
   -->
   <script src="../static/assets/js/script.js"></script>
+  <script src="../static/assets/js/Login.js"></script>
 
   <!-- 
     - ionicon link

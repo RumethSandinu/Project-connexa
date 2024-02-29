@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost Item</title>
+</head>
+<body>
+    <h1>Boost Item</h1>
+    <img src="../static/assets/images/sales_vs_discount.png" width="1500" height="600">
+    <br>
+    <br>
+    <p>Please enter - values for discounts</p>
+    <form action="/update_discount" method="post">
+    <input type="hidden" name="item_id" value="{{ item_id }}">
+    <label for="discount_percentage">Price Change Percentage:
+        <input type="number" name="discount_percentage" id="discount_percentage" required>
+    </label>
+    <button type="submit">Boost</button>
+</form>
+</body>
+</html>
