@@ -100,7 +100,12 @@ function resetForm() {
     document.getElementById("description").value = '';
     document.getElementById("discountrate").value = '';
     document.getElementById("productImage").value = '';
-    selectedRow = null;
+    
+
+     // Reset the image 
+     document.getElementById('previewImage').src = ''; 
+     document.getElementById('previewImage').style.display = 'none'; 
+     selectedRow = null;
 }
 
 // Function to display the preview of the uploaded image
