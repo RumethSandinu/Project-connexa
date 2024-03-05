@@ -3,15 +3,13 @@ import pandas as pd
 import numpy as np
 import pickle
 import mysql.connector
-import tensorflow as tf
-from decimal import Decimal
 
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import LabelEncoder
 
 from blueprints.database_handler import DatabaseHandler
 
-model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 app = Flask(__name__)
 db_handler = DatabaseHandler()
@@ -176,12 +174,9 @@ def sale_booster():
     cursor.execute('SELECT item_id, item_name, category, price_per_kg, quantity_kg, discount_rate FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
-    for row in rows:
-        print(row)
     return render_template('sale_booster.html', rows=rows)
 
 
-# item_id is passed as an argument to the function as dynamic part of the URL
 @app.route('/sale_booster_setup/<int:item_id>')
 def sale_booster_setup(item_id):
     # %s --> placeholder for item_id
@@ -190,18 +185,72 @@ def sale_booster_setup(item_id):
     # unpack values to variables
     item_name, category, price_per_kg = item_row
 
-    discount_range = np.arange(-30, 31)
+    # adjust the discount range
+    discount_range = np.arange(-30, 11)
+    sales = []
+
+    columns = pd.read_csv('../sales_analysis/column_names')
+    column_values = columns.values
+
+    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
     for discount in discount_range:
         # decimal to float
-        price_per_kg_float = float(Decimal(str(price_per_kg)))
+        price_per_kg_float = float(Decimal(price_per_kg))
         discount_amount = price_per_kg_float * (discount / 100)
+
+        # process the input data
+        input_data = np.zeros((1, 155))
+        input_data[0, unit_price_index] = price_per_kg_float + discount_amount
+        item_name_index = np.where(column_values == f'item_name_{item_name}')[0][0]
+        category_index = np.where(column_values == f'category_name_{category}')[0][0]
+        input_data[0, item_name_index] = 1
+        input_data[0, category_index] = 1
+
+        # get predictions
+        prediction = sales_pred_model.predict(input_data)
+        sales.append(prediction[0][0])
+
+    # plot sales with discount percentage
+    plt.figure(figsize=(15, 6))
+    plt.plot(discount_range, sales)
+    plt.xlabel('Additional Price Percentage (%)')
+    plt.ylabel('Sales (kg)')
+    plt.title('Sales vs Additional Price Percentage')
+    plt.grid(True)
+    integer_ticks = np.arange(np.ceil(discount_range.min()), np.floor(discount_range.max()) + 1, dtype=int)
+    plt.xticks(integer_ticks)
+    # save the plot
+    plt.savefig('static/assets/images/sales_vs_discount.png')
+    plt.close()
+
     return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
+
+
+@app.route('/update_discount', methods=['POST'])
+def update_discount():
+    # get the discount percentage and item_id from the form data
+    discount_percentage = request.form.get('discount_percentage')
+    item_id = request.form.get('item_id')
+
+    discount_percentage = float(discount_percentage)
+
+    # update the database with
+    cursor.execute('UPDATE item SET discount_rate = %s WHERE item_id = %s', (discount_percentage, item_id))
+    cnx.commit()
+
+    # Redirect to the sale_booster route after the update
+    return redirect(url_for('sale_booster'))
 
 
 @app.route('/blog')
 def blog():
     return render_template('blog.html')
+
+@app.route('/item')
+def item():
+    return render_template('staff.html')
 
 
 # Load the trained model
@@ -284,6 +333,14 @@ def loss_rate_model():
     elif request.method == 'GET':
         # Code to render the form initially
         return render_template('loss_rate_model.html')
+
+@app.route('/staff')
+def staff():
+    # Fetch data from MySQL
+    cursor.execute("SELECT staff_id, email, f_name, l_name, dob FROM staff")
+    data = cursor.fetchall()
+    columns = ['staff_id', 'email', 'f_name', 'l_name', 'dob']  # Define the columns manually
+    return render_template('staff.html', data=data, columns=columns)
 
 if __name__ == '__main__':
     app.run(debug=True)
