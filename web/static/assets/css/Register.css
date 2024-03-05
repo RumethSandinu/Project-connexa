@@ -1,72 +1,120 @@
 /* Custom CSS for the registration form */
 .Register-container {
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 20px;
-    border: 1px solid #48ff00;
+    max-width: 750px;
+    width: 100%;
+    margin: 10px auto 40px;
+    padding: 40px;
+    border: 1px solid #00ff44;
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    background-color: var(--charleston-green);
     background-repeat: no-repeat, no-repeat;
     background-position: bottom left, top right;
-    color: var(black);
-    background: transparent;
-    transition: opacity 0.5s ease-in-out;
+    color: #1cd341;
+    background: url("../images/2f06b5ee85794f1a946d.jpg") center center/cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
   }
-  
+  .Register-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  }
   .Register-container h2 {
+    margin-bottom: 20px;
+    color: rgb(0, 0, 0);
+  }
+  .Register-container .register-form{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Three columns with equal width */
+    gap: 15px;
     margin-bottom: 20px;
   }
   
   .register-form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    width: 100%; /* Each input takes the full width of its container */
+    padding: 9px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    border: 1px solid #1fe654;
+  }
+  .register-form label{
+    width: 100%; /* Each label takes the full width of its container */
+    justify-content: space-between;
+    color: #000000;
+    font-weight: bold;
   }
   
   .register-form button {
-    padding: 10px 20px;
+    padding: 10px 30px;
     border: none;
     border-radius: 20px;
-    background-color: #1EA786;
-    color: rgb(0, 0, 0);
+    background-color: #000000;
+    color: rgb(255, 252, 252);
     cursor: pointer;
-    margin-top: 10px;
+    position: absolute;
+    bottom: 10px; 
+    left: 50%;
+    transform: translateX(-50%);
+    
   }
   
   .register-form button:hover {
     background-color: #15856e;
   }
+  .show-password-icon {
+    font-size: 18px; /* Adjust the font size for the eye icon */
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #1fe654;
+  }
 
 body {
-  /* Set background image properties */
-  background-image: url("../images/cta-bg.png"); /* Adjust the path to your image */
-  background-size: cover;      /* Cover the entire viewport */
-  background-position: center;  /* Center the image */
-  background-repeat: no-repeat; /* Do not repeat the image */
-  background-attachment: fixed; /* Fixed background */
+  background-image: url("../images/cta-bg.png");
+  background-size: cover;      
+  background-position: center;  
+  background-repeat: no-repeat; 
+  background-attachment: fixed; 
 }
 .user-type-selection {
   text-align: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  color: #fff;
+  margin-bottom: 1px;
+  padding: 15px;
+  color: #1cd341;
   border-radius: 30px;
   box-shadow: 0 0 10px rgb(255, 255, 255);
   font-size: 18px;
+  position: relative;
+  overflow: hidden;
 }
+
+.user-type-selection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #00ffcc, #ff33cc);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
 .user-type-selection label {
   font-size: 16px;
   font-weight: bold;
   margin-right: 10px;
-  color: #fff; /* text color */
+  color: #ffffff; /* text color */
 }
 
 select {
   padding: 10px;
   border-radius: 30px;
   box-shadow: transparent;
+  background: transparent;
+  color: #000000;
+  border: 1px solid #179703;
+  margin: 1px auto 10px;
 }

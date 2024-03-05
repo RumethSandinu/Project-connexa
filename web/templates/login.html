@@ -63,7 +63,7 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="./index.html" class="navbar-link">Home</a>
+              <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
@@ -82,13 +82,13 @@
               <a href="../shop.html" class="navbar-link">Products</a>
             </li>
             <li>
-              <a href="model.html" class="navbar-link">Loss Rate Predictor</a>
+              <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
             </li>
 
             <li>
               <a href="../contact.html" class="navbar-link">Contact</a>
             </li>
-            <a href="Register.html" class="btn btn-primary" id="loginButton">
+            <a href="{{ url_for('register') }}" class="btn btn-primary" id="loginButton">
               <span class="span">Sign Up</span>
             </a>
             
@@ -459,10 +459,6 @@
 
   </footer>
 
-
-
-
-
   <!-- 
     - #BACK TO TOP
   -->
@@ -470,10 +466,6 @@
   <a href="#top" class="back-to-top" aria-label="Back to Top" data-back-top-btn>
     <ion-icon name="arrow-up-outline"></ion-icon>
   </a>
-
-
-
-
 
   <!-- 
     - custom js link
