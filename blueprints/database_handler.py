@@ -4,13 +4,17 @@ import mysql.connector
 
 class DatabaseHandler:
     def __init__(self):
-        self.conn = mysql.connector.connect(
-            host='localhost',  # replace with your MySQL server host
-            user='your_username',  # replace with your MySQL username
-            password='your_password',  # replace with your MySQL password
-            database='your_database'  # replace with your MySQL database name
-        )
-        self.cursor = self.conn.cursor()
+        try:
+            self.conn = mysql.connector.connect(
+                host='localhost',  # replace with your MySQL server host
+                user='root',  # replace with your MySQL username
+                password='',  # replace with your MySQL password
+                database='connexa'  # replace with your MySQL database name
+            )
+            self.cursor = self.conn.cursor()
+            print("Connected to the database successfully!")
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
 
     def insert_customer(self, customer):
         customer_data = (customer.email, customer.password, customer.f_name, customer.l_name, customer.dob,
@@ -107,6 +111,7 @@ class DatabaseHandler:
         self.cursor.execute('SELECT email, password, salt FROM admin WHERE email = %s', (email,))
         admin_data = self.cursor.fetchone()
         return admin_data
+
     def close_connection(self):
         self.cursor.close()
         self.conn.close()
