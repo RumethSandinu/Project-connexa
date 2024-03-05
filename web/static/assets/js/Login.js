@@ -1,58 +1,61 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const bodyParser = require('body-parser');
+var staffEmailDomain = "@connexa.com";
+var adminEmailDomain = "@connexa.com";
 
-const app = express();
-const PORT = 3000;
+function login() {
+  var email = document.getElementById("username").value;
+  var password = document.getElementById("password").value;
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+  // Check if the email is valid based on the user type
+  if (validateEmail(email)) {
+    var userType = getUserType(email);
 
-// Mock database for demonstration purposes
-const users = [];
-
-// Register route
-app.post('/register', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    // Hash the password before storing it
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Save user data (replace this with database storage)
-    users.push({ username, password: hashedPassword });
-
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    // Simulate a server-side authentication check
+    // In a real-world scenario, this check should be done on the server
+    authenticateUser(userType, password);
+  } else {
+    alert("Invalid email format");
   }
-});
+}
 
-// Login route
-app.post('/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
+function validateEmail(email) {
+  // Regular expression to validate email with domain "@connexa.com"
+  var regex = /^[a-zA-Z0-9._-]+@connexa\.com$/;
+  return regex.test(email);
+}
 
-    // Find the user in your database (replace this with actual database query)
-    const user = users.find((user) => user.username === username);
+function getUserType(email) {
+  // Extract the domain from the email address
+  var domain = email.substring(email.lastIndexOf("@") + 1);
 
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
-
-    // Compare the provided password with the hashed password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
-
-    res.status(200).json({ message: 'Login successful' });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+  // Determine the user type based on the domain
+  if (domain === staffEmailDomain) {
+    return "staff";
+  } else if (domain === adminEmailDomain) {
+    return "admin";
+  } else {
+    return "customer"; // Assuming other domains are customers
   }
-});
+}
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+function authenticateUser(userType, password) {
+  // Simulate a server-side authentication check
+  // In a real-world scenario, this check should be done on the server
+  if (userType === "staff" && password === "staffPasswordHash") {
+    alert("Login successful as Staff");
+    // Redirect to staff dashboard or perform additional actions for staff login
+  } else if (userType === "admin" && password === "adminPasswordHash") {
+    alert("Login successful as Admin");
+    // Redirect to admin dashboard or perform additional actions for admin login
+  } else {
+    alert("Incorrect email or password");
+  }
+}
+
+function togglePasswordVisibility() {
+  var passwordInput = document.getElementById("password");
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+  } else {
+    passwordInput.type = "password";
+  }
+}
