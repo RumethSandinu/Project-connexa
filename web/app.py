@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import pickle
+import mysql.connector
 # import tensorflow as tf
 
 # tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
@@ -25,6 +26,10 @@ def shop():
 @app.route('/blog')
 def blog():
     return render_template('blog.html')
+
+@app.route('/item')
+def item():
+    return render_template('staff.html')
 
 
 # Load the trained model
@@ -64,6 +69,30 @@ def model():
 
          # Render the result in the model.html file
         return render_template('model.html', loss_rate_prediction=loss_rate_prediction[0])
+
+# MySQL configurations
+mysql_config = {
+    'host': 'localhost',
+    'database': 'connexa',
+    'user': 'root',
+    'password': ''
+}
+# Connect to MySQL
+conn = mysql.connector.connect(**mysql_config)
+if conn.is_connected():
+    print('Connected to database')
+else:
+    print('Failed to connect to database')
+
+cursor = conn.cursor()
+
+@app.route('/staff')
+def staff():
+    # Fetch data from MySQL
+    cursor.execute("SELECT staff_id, email, f_name, l_name, dob FROM staff")
+    data = cursor.fetchall()
+    columns = ['staff_id', 'email', 'f_name', 'l_name', 'dob']  # Define the columns manually
+    return render_template('staff.html', data=data, columns=columns)
 
 
 if __name__ == '__main__':
