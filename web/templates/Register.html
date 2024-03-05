@@ -82,13 +82,13 @@
               <a href="../shop.html" class="navbar-link">Products</a>
             </li>
             <li>
-              <a href="model.html" class="navbar-link">Loss Rate Predictor</a>
+              <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
             </li>
 
             <li>
               <a href="../contact.html" class="navbar-link">Contact</a>
             </li>
-            <a href="login.html" class="btn btn-primary" id="loginButton">
+            <a href="{{ url_for('login') }}" class="btn btn-primary" id="loginButton">
               <span class="span">Sign In</span>
             </a>
             
@@ -285,7 +285,7 @@
     </div>
 
   </aside>
-  <body id="top">
+  <body id="tops">
     <!-- User Type Selection -->
     <div class="user-type-selection">
       <label for="userType">Select User Type:</label>
@@ -300,38 +300,38 @@
     <div class="Register-container" id="customerForm">
       <h2>Create Your Customer Account</h2>
       <form class="register-form" id="customerRegistrationForm">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+        <label for="email">Email</label>
+        <input type="email" id="email_customer" name="email" required>
   
-        <label for="firstName">First Name:</label>
-        <input type="text" id="firstName" name="firstName" required>
+        <label for="firstName_customer">First Name</label>
+        <input type="text" id="firstName_customer" name="firstName" required>
 
-        <label for="lastName">Last Name:</label>
-        <input type="text" id="lastName" name="lastName" required>
+        <label for="lastName_customer">Last Name</label>
+        <input type="text" id="lastName_customer" name="lastName" required>
   
-        <label for="dob">Date of Birth:</label>
-        <input type="date" id="dob" name="dob" required>
+        <label for="dob_customer">Date of Birth</label>
+        <input type="date" id="dob_customer" name="dob" required>
   
-        <label for="street">Street:</label>
-        <input type="text" id="street" name="street" required>
+        <label for="street_customer">Street</label>
+        <input type="text" id="street_customer" name="street" required>
   
-        <label for="city">City:</label>
-        <input type="text" id="city" name="city" required>
+        <label for="city_customer">City</label>
+        <input type="text" id="city_customer" name="city" required>
   
-        <label for="province">Province:</label>
-        <input type="text" id="province" name="province" required>
+        <label for="province_customer">Province</label>
+        <input type="text" id="province_customer" name="province" required>
   
-        <label for="postalCode">Postal Code:</label>
-        <input type="text" id="postalCode" name="postalCode" required>
+        <label for="postalCode_customer">Postal Code</label>
+        <input type="text" id="postalCode_customer" name="postalCode" required>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+        <label for="password">Password</label>
+        <input type="password" id="password_customer" name="password" required>
   
-        <label for="confirmPassword">Confirm Password:</label>
+        <label for="confirmPassword">Confirm Password</label>
         <input type="password" id="confirmPassword" name="confirmPassword" required>
   
-        <label for="showPassword">Show Password:</label>
-        <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
+        
+        
   
         <button type="submit">Register</button>
       </form>
@@ -341,24 +341,29 @@
     <div class="Register-container" id="staffForm" style="display:none;">
       <h2>Create Your Staff Account</h2>
       <form class="register-form" id="staffRegistrationForm">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+        <label for="email">Email</label>
+        <input type="email" id="email_staff" name="email" required>
   
-        <label for="staffId">Staff ID:</label>
+        <label for="staffId">Staff ID</label>
         <input type="text" id="staffId" name="staffId" required>
 
-        <label for="firstName">First Name:</label>
-        <input type="text" id="firstName" name="firstName" required>
+        <label for="firstName_staff">First Name</label>
+        <input type="text" id="firstName_staff" name="firstName" required>
 
-        <label for="lastName">Last Name:</label>
+        <label for="lastName">Last Name</label>
         <input type="text" id="lastName" name="lastName" required>
 
-        <label for="dob">Date of Birth:</label>
+        <label for="dob">Date of Birth</label>
         <input type="date" id="dob" name="dob" required>
 
-        <label for="password">Password:</label>
+        <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
   
+        
+
         <button type="submit">Register</button>
       </form>
     </div>
@@ -367,10 +372,10 @@
     <div class="Register-container" id="adminForm" style="display:none;">
       <h2>Create Your Admin Account</h2>
       <form class="register-form" id="adminRegistrationForm">
-        <label for="email">Email:</label>
+        <label for="email">Email</label>
         <input type="email" id="email" name="email" required>
   
-        <label for="adminId">Admin ID:</label>
+        <label for="adminId">Admin ID</label>
         <input type="text" id="adminId" name="adminId" required>
   
         <button type="submit">Register</button>
@@ -435,7 +440,7 @@
           </li>
 
           <li>
-            <a href="../about.html" class="footer-link">About Us</a>
+            <a href="{{ url_for('index') }}" class="footer-link">About Us</a>
           </li>
 
           <li>
