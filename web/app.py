@@ -1,20 +1,31 @@
+from decimal import Decimal
+
 from flask import Flask, render_template, request, url_for, redirect, session
 import pandas as pd
 import numpy as np
 import pickle
 import mysql.connector
-
+from matplotlib import pyplot as plt
+import tensorflow as tf
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import LabelEncoder
-
 from blueprints.database_handler import DatabaseHandler
+import matplotlib.pyplot as plt
+from decimal import Decimal
 
-sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+# sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+
+# with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as file:
+#     time_based_model = pickle.load(file)
 
 app = Flask(__name__)
 db_handler = DatabaseHandler()
 cnx = mysql.connector.connect(user='root', password='', host='localhost', database='connexa')
-cursor = cnx.cursor()
+
+if cnx.is_connected():
+    print('Connected to database')
+else:
+    print('Error connecting to database:', cnx.connect_error)
 
 @app.route('/')
 def index():
@@ -30,6 +41,7 @@ def about():
 def shop():
     items = get_items()
     return render_template('shop.html', items=items)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -168,26 +180,33 @@ def register_admin(form_data):
 
 @app.route('/sale_booster')
 def sale_booster():
-    if cnx.is_connected():
-        print('Connected to database')
-    else:
-        print('Error connecting to database:', cnx.connect_error)
-    cursor.execute('SELECT item_id, item_name, category, price_per_kg, quantity_kg, discount_rate FROM item')
+    cursor = cnx.cursor()
+    cursor.execute('SELECT item_id, item_name, category, price_per_kg, stock, discount_rate FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
+    # Close the cursor
+    cursor.close()
     return render_template('sale_booster.html', rows=rows)
 
 
 @app.route('/sale_booster_setup/<int:item_id>')
 def sale_booster_setup(item_id):
-    # %s --> placeholder for item_id
+    cursor = cnx.cursor()
+    # %s --> placeholder for item_id (prevent from SQL injection)
     cursor.execute('SELECT item_name, category, price_per_kg FROM item WHERE item_id = %s', (item_id,))
     item_row = cursor.fetchone()
     # unpack values to variables
     item_name, category, price_per_kg = item_row
 
+    cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM order_item WHERE item_id = %s AND order_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
+    mean_customers_past_7_days = cursor.fetchone()[0]
+    mean_customers_past_7_days = int(Decimal(mean_customers_past_7_days))
+
+    # Close the cursor
+    cursor.close()
+
     # adjust the discount range
-    discount_range = np.arange(-30, 11)
+    discount_range = np.arange(-40, 41)
     sales = []
 
     columns = pd.read_csv('../sales_analysis/column_names')
@@ -204,23 +223,37 @@ def sale_booster_setup(item_id):
         # process the input data
         input_data = np.zeros((1, 155))
         input_data[0, unit_price_index] = price_per_kg_float + discount_amount
-        item_name_index = np.where(column_values == f'item_name_{item_name}')[0][0]
-        category_index = np.where(column_values == f'category_name_{category}')[0][0]
+
+        item_name_index = None
+        category_index = None
+
+        for idx, value in enumerate(column_values):
+            if value == f'item_name_{item_name}':
+                item_name_index = idx
+            elif value == f'category_name_{category}':
+                category_index = idx
+
+        if item_name_index is None or category_index is None:
+            return render_template('item_not_available.html', item_name=item_name, category=category)
+
         input_data[0, item_name_index] = 1
         input_data[0, category_index] = 1
 
         # get predictions
         prediction = sales_pred_model.predict(input_data)
+        prediction = prediction * mean_customers_past_7_days
         sales.append(prediction[0][0])
+
+
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
-    plt.plot(discount_range, sales)
+    plt.plot(discount_range, sales, marker='o', linestyle='-', color='b')
     plt.xlabel('Additional Price Percentage (%)')
     plt.ylabel('Sales (kg)')
     plt.title('Sales vs Additional Price Percentage')
     plt.grid(True)
-    integer_ticks = np.arange(np.ceil(discount_range.min()), np.floor(discount_range.max()) + 1, dtype=int)
+    integer_ticks = np.arange(np.ceil(discount_range.min()), np.floor(discount_range.max()) + 1, 5, dtype=int)
     plt.xticks(integer_ticks)
     # save the plot
     plt.savefig('static/assets/images/sales_vs_discount.png')
@@ -229,8 +262,11 @@ def sale_booster_setup(item_id):
     return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
 
 
+
+
 @app.route('/update_discount', methods=['POST'])
 def update_discount():
+    cursor = cnx.cursor()
     # get the discount percentage and item_id from the form data
     discount_percentage = request.form.get('discount_percentage')
     item_id = request.form.get('item_id')
@@ -337,11 +373,98 @@ def loss_rate_model():
 
 @app.route('/staff')
 def staff():
-    # Fetch data from MySQL
-    cursor.execute("SELECT staff_id, email, f_name, l_name, dob FROM staff")
-    data = cursor.fetchall()
-    columns = ['staff_id', 'email', 'f_name', 'l_name', 'dob']  # Define the columns manually
-    return render_template('staff.html', data=data, columns=columns)
+    if cnx.is_connected():
+        print('Connected to database')
+    else:
+        print('Error connecting to database:', cnx.connect_error)
+    cursor.execute('SELECT staff_id, email, f_name, l_name, dob FROM staff')
+    # get all records to tuples
+    rows = cursor.fetchall()
+    return render_template('staff.html', rows=rows)
+
+@app.route('/delete_staff', methods=['POST'])
+def delete_staff():
+    staff_id = request.form['staff_id']
+    # Implement database deletion logic here
+    cursor.execute('DELETE FROM staff WHERE staff_id = %s', (staff_id,))
+    cnx.commit()
+    return redirect(url_for('staff'))
+
+
+@app.route('/update_staff', methods=['POST'])
+def update_staff():
+    staff_id = request.form['staff_id']
+    email = request.form['email']
+    f_name = request.form['f_name']
+    l_name = request.form['l_name']
+    dob = request.form['dob']
+
+    cursor.execute('UPDATE staff SET email=%s, f_name=%s, l_name=%s, dob=%s WHERE staff_id=%s',
+                   (email, f_name, l_name, dob, staff_id))
+    cnx.commit()
+
+    return redirect(url_for('staff'))
+
+# @app.route('/discount', methods=['GET', 'POST'])
+# def discount():
+#     if request.method == 'POST':
+#         # Get items and their time ranges from the form
+#         items = request.form.getlist('item_name')
+#         time_range = request.form['time']
+#
+#         # Define discount percentages based on time range
+#         if time_range == '9-12':
+#             discount_percentage = 5
+#         else:
+#             discount_percentage = 10  # Default discount for other time ranges
+#
+#         # Calculate discount for each item
+#         discounts = [discount_percentage] * len(items)
+#
+#         # Render template with the calculated discounts
+#         return render_template('discount.html', discounts=discounts)
+#
+#     # Render the form to input items and time range
+#     return render_template('discount.html')
+
+# @app.route('/discount', methods=['POST'])
+# def discount():
+#     int_features = [int(x) for x in request.form.values()]
+#     final_features = [np.array(int_features)]
+#     prediction = time_based_model.predict(final_features)
+#
+#     return render_template('discount.html'.format(prediction))
+
+# Load your data
+data = pd.read_csv('../time_based_analysis/columns')  # Replace 'sales_data.csv' with your actual data file
+
+# Load your k-means model from pickle file
+with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as f:
+    time_based_model = pickle.load(f)
+
+data['cluster'] = time_based_model.predict(data[['time', 'quantity_sold_kg', 'category_name_aquatic', 'category_name_cabbage', 'category_name_capsicum', 'category_name_flower', 'category_name_mushroom', 'category_name_solanum']])
+
+@app.route('/get_items', methods=['POST'])
+def get_items():
+    selected_time_range = request.form['time_range']  # Assuming 'time_range' is sent from the frontend
+    # Determine cluster for the selected time range
+    if selected_time_range == '9-12':
+        cluster = 0
+    elif selected_time_range == '13-16':
+        cluster = 1
+    elif selected_time_range == '17-18':
+        cluster = 2
+    elif selected_time_range == '19-22':
+        cluster = 3
+    else:
+        return "Invalid time range"
+
+    # Filter data for the selected cluster
+    cluster_data = data[data['cluster'] == cluster]
+    # Group by item and sum the quantities sold
+    items_sold = cluster_data.groupby('item_name')['quantity_sold_kg'].sum().reset_index()
+    # Sort by quantity sold in descending order
+    items_sold = items_sold.sort_values(by='quantity_sold_kg', ascending=False)
 
 def get_items():
     query = 'SELECT item_name,price_per_kg FROM item'
@@ -372,5 +495,8 @@ def discount_package():
 
 
 
+    # You can return this data to your frontend for displaying
+    return render_template('items.html', items=items_sold)
+  
 if __name__ == '__main__':
     app.run(debug=True)
