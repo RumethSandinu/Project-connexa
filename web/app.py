@@ -7,11 +7,11 @@ import pickle
 import mysql.connector
 from matplotlib import pyplot as plt
 import tensorflow as tf
-
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import LabelEncoder
-
 from blueprints.database_handler import DatabaseHandler
+import matplotlib.pyplot as plt
+from decimal import Decimal
 
 # sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
@@ -21,7 +21,11 @@ from blueprints.database_handler import DatabaseHandler
 app = Flask(__name__)
 db_handler = DatabaseHandler()
 cnx = mysql.connector.connect(user='root', password='', host='localhost', database='connexa')
-cursor = cnx.cursor()
+
+if cnx.is_connected():
+    print('Connected to database')
+else:
+    print('Error connecting to database:', cnx.connect_error)
 
 @app.route('/')
 def index():
@@ -175,26 +179,33 @@ def register_admin(form_data):
 
 @app.route('/sale_booster')
 def sale_booster():
-    if cnx.is_connected():
-        print('Connected to database')
-    else:
-        print('Error connecting to database:', cnx.connect_error)
-    cursor.execute('SELECT item_id, item_name, category, price_per_kg, quantity_kg, discount_rate FROM item')
+    cursor = cnx.cursor()
+    cursor.execute('SELECT item_id, item_name, category, price_per_kg, stock, discount_rate FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
+    # Close the cursor
+    cursor.close()
     return render_template('sale_booster.html', rows=rows)
 
 
 @app.route('/sale_booster_setup/<int:item_id>')
 def sale_booster_setup(item_id):
-    # %s --> placeholder for item_id
+    cursor = cnx.cursor()
+    # %s --> placeholder for item_id (prevent from SQL injection)
     cursor.execute('SELECT item_name, category, price_per_kg FROM item WHERE item_id = %s', (item_id,))
     item_row = cursor.fetchone()
     # unpack values to variables
     item_name, category, price_per_kg = item_row
 
+    cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM order_item WHERE item_id = %s AND order_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
+    mean_customers_past_7_days = cursor.fetchone()[0]
+    mean_customers_past_7_days = int(Decimal(mean_customers_past_7_days))
+
+    # Close the cursor
+    cursor.close()
+
     # adjust the discount range
-    discount_range = np.arange(-30, 11)
+    discount_range = np.arange(-40, 41)
     sales = []
 
     columns = pd.read_csv('../sales_analysis/column_names')
@@ -211,23 +222,37 @@ def sale_booster_setup(item_id):
         # process the input data
         input_data = np.zeros((1, 155))
         input_data[0, unit_price_index] = price_per_kg_float + discount_amount
-        item_name_index = np.where(column_values == f'item_name_{item_name}')[0][0]
-        category_index = np.where(column_values == f'category_name_{category}')[0][0]
+
+        item_name_index = None
+        category_index = None
+
+        for idx, value in enumerate(column_values):
+            if value == f'item_name_{item_name}':
+                item_name_index = idx
+            elif value == f'category_name_{category}':
+                category_index = idx
+
+        if item_name_index is None or category_index is None:
+            return render_template('item_not_available.html', item_name=item_name, category=category)
+
         input_data[0, item_name_index] = 1
         input_data[0, category_index] = 1
 
         # get predictions
         prediction = sales_pred_model.predict(input_data)
+        prediction = prediction * mean_customers_past_7_days
         sales.append(prediction[0][0])
+
+
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
-    plt.plot(discount_range, sales)
+    plt.plot(discount_range, sales, marker='o', linestyle='-', color='b')
     plt.xlabel('Additional Price Percentage (%)')
     plt.ylabel('Sales (kg)')
     plt.title('Sales vs Additional Price Percentage')
     plt.grid(True)
-    integer_ticks = np.arange(np.ceil(discount_range.min()), np.floor(discount_range.max()) + 1, dtype=int)
+    integer_ticks = np.arange(np.ceil(discount_range.min()), np.floor(discount_range.max()) + 1, 5, dtype=int)
     plt.xticks(integer_ticks)
     # save the plot
     plt.savefig('static/assets/images/sales_vs_discount.png')
@@ -236,8 +261,11 @@ def sale_booster_setup(item_id):
     return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
 
 
+
+
 @app.route('/update_discount', methods=['POST'])
 def update_discount():
+    cursor = cnx.cursor()
     # get the discount percentage and item_id from the form data
     discount_percentage = request.form.get('discount_percentage')
     item_id = request.form.get('item_id')
@@ -439,6 +467,5 @@ def get_items():
 
     # You can return this data to your frontend for displaying
     return render_template('items.html', items=items_sold)
-
 if __name__ == '__main__':
     app.run(debug=True)
