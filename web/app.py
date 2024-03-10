@@ -1,24 +1,22 @@
-from decimal import Decimal
-
 from flask import Flask, render_template, request, url_for, redirect, session
+import tensorflow as tf
 import pandas as pd
 import numpy as np
 import pickle
 import mysql.connector
-from matplotlib import pyplot as plt
-import tensorflow as tf
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import LabelEncoder
 from blueprints.database_handler import DatabaseHandler
 import matplotlib.pyplot as plt
 from decimal import Decimal
 
-# sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
-# with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as file:
-#     time_based_model = pickle.load(file)
+with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as file:
+    time_based_model = pickle.load(file)
 
 app = Flask(__name__)
+
 db_handler = DatabaseHandler()
 cnx = mysql.connector.connect(user='root', password='', host='localhost', database='connexa')
 
@@ -39,7 +37,8 @@ def about():
 
 @app.route('/shop')
 def shop():
-    return render_template('shop.html')
+    items = get_items()
+    return render_template('shop.html', items=items)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -79,6 +78,7 @@ def authenticate_user(email, password):
 
     return None
 
+
 def determine_user_type(email):
     # Example: Check the email domain to determine user type
     if email.endswith('@connexa.com'):
@@ -87,6 +87,8 @@ def determine_user_type(email):
         return 'admin'
     else:
         return 'customer'
+
+
 @app.route('/dashboard')
 def dashboard():
     # Example of a protected route that requires authentication
@@ -94,6 +96,8 @@ def dashboard():
         return f"Welcome to the dashboard, {session['user_email']}! User Type: {session['user_type']}"
     else:
         return redirect(url_for('login'))
+
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -112,6 +116,7 @@ def register():
             return redirect(url_for('login'))  # Redirect to login page after successful registration
 
     return render_template('Register.html')
+
 
 def register_customer(form_data, pbkdf2_sha256=None):
     email = form_data.get('email_customer')
@@ -145,6 +150,7 @@ def register_customer(form_data, pbkdf2_sha256=None):
         # Passwords do not match
         return False
 
+
 def register_staff(form_data, pbkdf2_sha256=None):
     email = form_data.get('email_staff')
     staff_id = form_data.get('staffId')
@@ -166,6 +172,7 @@ def register_staff(form_data, pbkdf2_sha256=None):
 
     return db_handler.insert_staff(staff)
 
+
 def register_admin(form_data):
     email = form_data.get('email')
     admin_id = form_data.get('adminId')
@@ -176,6 +183,7 @@ def register_admin(form_data):
     }
 
     return db_handler.insert_admin(admin)
+
 
 @app.route('/sale_booster')
 def sale_booster():
@@ -243,8 +251,6 @@ def sale_booster_setup(item_id):
         prediction = prediction * mean_customers_past_7_days
         sales.append(prediction[0][0])
 
-
-
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
     plt.plot(discount_range, sales, marker='o', linestyle='-', color='b')
@@ -259,8 +265,6 @@ def sale_booster_setup(item_id):
     plt.close()
 
     return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
-
-
 
 
 @app.route('/update_discount', methods=['POST'])
@@ -284,6 +288,7 @@ def update_discount():
 def blog():
     return render_template('blog.html')
 
+
 @app.route('/item')
 def item():
     return render_template('staff.html')
@@ -297,6 +302,7 @@ with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
 label_encoder = LabelEncoder()
 
 # Assuming 'model' is your machine learning model
+
 
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
@@ -370,25 +376,24 @@ def loss_rate_model():
         # Code to render the form initially
         return render_template('loss_rate_model.html')
 
+
 @app.route('/staff')
 def staff():
-    if cnx.is_connected():
-        print('Connected to database')
-    else:
-        print('Error connecting to database:', cnx.connect_error)
+    cursor = cnx.cursor()
     cursor.execute('SELECT staff_id, email, f_name, l_name, dob FROM staff')
     # get all records to tuples
     rows = cursor.fetchall()
     return render_template('staff.html', rows=rows)
 
+
 @app.route('/delete_staff', methods=['POST'])
 def delete_staff():
     staff_id = request.form['staff_id']
+    cursor = cnx.cursor()
     # Implement database deletion logic here
     cursor.execute('DELETE FROM staff WHERE staff_id = %s', (staff_id,))
     cnx.commit()
     return redirect(url_for('staff'))
-
 
 @app.route('/update_staff', methods=['POST'])
 def update_staff():
@@ -397,6 +402,7 @@ def update_staff():
     f_name = request.form['f_name']
     l_name = request.form['l_name']
     dob = request.form['dob']
+    cursor = cnx.cursor()
 
     cursor.execute('UPDATE staff SET email=%s, f_name=%s, l_name=%s, dob=%s WHERE staff_id=%s',
                    (email, f_name, l_name, dob, staff_id))
@@ -443,6 +449,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as f:
 
 data['cluster'] = time_based_model.predict(data[['time', 'quantity_sold_kg', 'category_name_aquatic', 'category_name_cabbage', 'category_name_capsicum', 'category_name_flower', 'category_name_mushroom', 'category_name_solanum']])
 
+
 @app.route('/get_items', methods=['POST'])
 def get_items():
     selected_time_range = request.form['time_range']  # Assuming 'time_range' is sent from the frontend
@@ -465,7 +472,39 @@ def get_items():
     # Sort by quantity sold in descending order
     items_sold = items_sold.sort_values(by='quantity_sold_kg', ascending=False)
 
+
+def get_items():
+    cursor = cnx.cursor()
+    query = 'SELECT item_name,price_per_kg FROM item'
+    cursor.execute(query)
+    items = cursor.fetchall()
+    return items
+
+cust_pref_model = pickle.load(open("cluster.model.pkl","rb")) # loading the model
+
+
+@app.route('/')
+def discount():
+    return render_template('discount_package.html')
+@app.route('/discount_package', methods=['POST'])
+def discount_package():
+
+    items = get_items() #gets item name and price
+    items_display = items[:10]
+
+    item_html_list = []
+    for item in items_display:
+        item_name = item['item_name']
+        price = item['price']
+        discount_html = f'<p>{item_name}: ${price} (Discounted Price: ${price * 0.9})</p>'
+        item_html_list.append(discount_html)
+
+    return render_template('discount_package.html', items_html=item_html_list)
+
     # You can return this data to your frontend for displaying
     return render_template('items.html', items=items_sold)
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
