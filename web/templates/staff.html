@@ -3,37 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySQL Data in HTML Table</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <title>Staff Details</title>
 </head>
 <body>
-    <h1>MySQL Data in HTML Table</h1>
+    <h1>Staff Details</h1>
     <table>
-        <tr>
-            {% for col in columns %}
-                <th>{{ col }}</th>
-            {% endfor %}
-        </tr>
-        {% for row in data %}
+        <thead>
             <tr>
-                {% for val in row %}
-                    <td>{{ val }}</td>
-                {% endfor %}
+                <th>Staff ID</th>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Date of Birth</th>
+                <th>Action</th>
             </tr>
-        {% endfor %}
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>
+                    <button onclick="editStaff('{{ row[0] }}', '{{ row[1] }}', '{{ row[2] }}', '{{ row[3] }}', '{{ row[4] }}')">Edit</button>
+                    <form id="deleteForm_{{ row[0] }}" action="{{ url_for('delete_staff') }}" method="post">
+                        <input type="hidden" name="staff_id" value="{{ row[0] }}">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <tr id="editRow_{{ row[0] }}" style="display: none;">
+                <td colspan="5">
+                    <form id="editForm_{{ row[0] }}" action="{{ url_for('update_staff') }}" method="post">
+                        <input type="hidden" name="staff_id" value="{{ row[0] }}">
+                        <label>Email:</label>
+                        <input type="email" name="email" value="{{ row[1] }}"><br>
+                        <label>First Name:</label>
+                        <input type="text" name="f_name" value="{{ row[2] }}"><br>
+                        <label>Last Name:</label>
+                        <input type="text" name="l_name" value="{{ row[3] }}"><br>
+                        <label>Date of Birth:</label>
+                        <input type="date" name="dob" value="{{ row[4] }}"><br>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
+
+    <script>
+        function editStaff(staffId, email, fName, lName, dob) {
+            document.getElementById('editRow_' + staffId).style.display = 'table-row';
+            document.getElementById('editForm_' + staffId).elements['email'].value = email;
+            document.getElementById('editForm_' + staffId).elements['f_name'].value = fName;
+            document.getElementById('editForm_' + staffId).elements['l_name'].value = lName;
+            document.getElementById('editForm_' + staffId).elements['dob'].value = dob;
+            document.getElementById('deleteForm_' + staffId).style.display = 'none';
+        }
+    </script>
 </body>
 </html>
