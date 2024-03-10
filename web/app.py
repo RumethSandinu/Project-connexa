@@ -28,7 +28,8 @@ def about():
 
 @app.route('/shop')
 def shop():
-    return render_template('shop.html')
+    items = get_items()
+    return render_template('shop.html', items=items)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -341,6 +342,35 @@ def staff():
     data = cursor.fetchall()
     columns = ['staff_id', 'email', 'f_name', 'l_name', 'dob']  # Define the columns manually
     return render_template('staff.html', data=data, columns=columns)
+
+def get_items():
+    query = 'SELECT item_name,price_per_kg FROM item'
+    cursor.execute(query)
+    items = cursor.fetchall()
+    return items
+
+cust_pref_model = pickle.load(open("cluster.model.pkl","rb")) # loading the model
+
+@app.route('/')
+def discount():
+    return render_template('discount_package.html')
+@app.route('/discount_package', methods=['POST'])
+def discount_package():
+
+    items = get_items() #gets item name and price
+    items_display = items[:10]
+
+    item_html_list = []
+    for item in items_display:
+        item_name = item['item_name']
+        price = item['price']
+        discount_html = f'<p>{item_name}: ${price} (Discounted Price: ${price * 0.9})</p>'
+        item_html_list.append(discount_html)
+
+    return render_template('discount_package.html', items_html=item_html_list)
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
