@@ -10,7 +10,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import LabelEncoder
 from blueprints.database_handler import DatabaseHandler
 
-sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+# sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
@@ -303,10 +303,6 @@ def blog():
     return render_template('blog.html')
 
 
-@app.route('/item')
-def item():
-    return render_template('staff.html')
-
 # Load the trained model
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
@@ -444,7 +440,7 @@ def update_staff():
 @app.route('/discount')
 def discount():
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, description, price_per_kg, quantity_kg FROM item')
+    cursor.execute('SELECT item_id, item_name, category, description, price_kg, stock, image_path FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
     return render_template('discount.html', rows=rows)
