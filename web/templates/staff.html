@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Details</title>
+    <link rel="stylesheet" href="../static/assets/css/staff.css">
 </head>
 <body>
     <h1>Staff Details</h1>
@@ -27,7 +28,7 @@
                 <td>{{ row[3] }}</td>
                 <td>{{ row[4] }}</td>
                 <td>
-                    <button onclick="editStaff('{{ row[0] }}', '{{ row[1] }}', '{{ row[2] }}', '{{ row[3] }}', '{{ row[4] }}')">Edit</button>
+                    <button onclick="toggleEditRow('{{ row[0] }}')">Edit</button>
                     <form id="deleteForm_{{ row[0] }}" action="{{ url_for('delete_staff') }}" method="post">
                         <input type="hidden" name="staff_id" value="{{ row[0] }}">
                         <button type="submit">Delete</button>
@@ -55,13 +56,17 @@
     </table>
 
     <script>
-        function editStaff(staffId, email, fName, lName, dob) {
-            document.getElementById('editRow_' + staffId).style.display = 'table-row';
-            document.getElementById('editForm_' + staffId).elements['email'].value = email;
-            document.getElementById('editForm_' + staffId).elements['f_name'].value = fName;
-            document.getElementById('editForm_' + staffId).elements['l_name'].value = lName;
-            document.getElementById('editForm_' + staffId).elements['dob'].value = dob;
-            document.getElementById('deleteForm_' + staffId).style.display = 'none';
+        function toggleEditRow(staffId) {
+            var editRow = document.getElementById('editRow_' + staffId);
+            var deleteForm = document.getElementById('deleteForm_' + staffId);
+
+            if (editRow.style.display === 'none') {
+                editRow.style.display = 'table-row';
+                deleteForm.style.display = 'none';
+            } else {
+                editRow.style.display = 'none';
+                deleteForm.style.display = 'block';
+            }
         }
     </script>
 </body>
