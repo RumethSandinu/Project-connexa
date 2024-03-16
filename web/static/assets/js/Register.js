@@ -36,13 +36,9 @@ function showForm() {
     emailInput.removeAttribute("pattern"); // Remove pattern for customer
   } else if (userType === "staff" || userType === "admin") {
     var password = prompt("Enter password:");
+    var correctPassword = userType === "staff" ? staffPassword : adminPassword;
 
-    // Check password for Staff and Admin forms
-    if (
-      (userType === "staff" && password === staffPassword) ||
-      (userType === "admin" && password === adminPassword)
-    ) {
-      // Show the selected form
+    if (password === correctPassword) {
       document.getElementById(userType + "Form").style.display = "block";
       emailInput.setAttribute("pattern", "[a-zA-Z0-9._-]+@connexa.com"); // Set pattern for staff and admin
     } else {

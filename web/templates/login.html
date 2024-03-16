@@ -290,14 +290,13 @@
     <h2>Login to Your Account</h2>
     
     <!-- Login Form -->
-    <form class="login-form" id="loginForm" onsubmit="login(); return false;">
+    <form class="login-form" id="loginForm" action="{{ url_for('login') }}" method="post">
       <label for="username">E-mail:</label>
       <input type="text" id="username" name="username" required>
       
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required>
-      
-      <label for="showPassword">Show Password:</label>
+  
       <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
 
       <button type="submit">Login</button>
