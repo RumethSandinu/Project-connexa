@@ -6,14 +6,17 @@ import pickle
 import mysql.connector
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import LabelEncoder
-from blueprints.database_handler import DatabaseHandler
 import matplotlib.pyplot as plt
 from decimal import Decimal
+
 
 sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as file:
     time_based_model = pickle.load(file)
+
+with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as file:
+    cust_pref_model = pickle.load(file)
 
 app = Flask(__name__)
 
@@ -37,7 +40,7 @@ def about():
 
 @app.route('/shop')
 def shop():
-    items = get_items()
+    items = get_shop_items()
     return render_template('shop.html', items=items)
 
 
@@ -473,36 +476,54 @@ def get_items():
     items_sold = items_sold.sort_values(by='quantity_sold_kg', ascending=False)
 
 
-def get_items():
+def get_shop_items():
     cursor = cnx.cursor()
-    query = 'SELECT item_name,price_per_kg FROM item'
+    query = 'SELECT item_name,price_per_kg,image_url FROM item'
     cursor.execute(query)
     items = cursor.fetchall()
+    cursor.close()
     return items
 
-cust_pref_model = pickle.load(open("cluster.model.pkl","rb")) # loading the model
+@app.route('/discount_package')
+def discount_section():  #discount_package.html in index?
+    items = discount_package()
+    return render_template('discount_package.html', items=items)
 
-
-@app.route('/')
-def discount():
-    return render_template('discount_package.html')
-@app.route('/discount_package', methods=['POST'])
+cluster_data = pd.read_csv('../../datasets/annex/model_building.csv')
 def discount_package():
+    cursor = cnx.cursor() #getting the latest data
+    query = 'SELECT item_name, category, quantity_sold FROM purchase ORDER BY purchase_date DESC LIMIT 1'
+    cursor.execute(query)
+    latest_purchase = cursor.fetchone()
 
-    items = get_items() #gets item name and price
-    items_display = items[:10]
+    if latest_purchase is None:
+        return "No purchase records found."
 
-    item_html_list = []
-    for item in items_display:
-        item_name = item['item_name']
-        price = item['price']
-        discount_html = f'<p>{item_name}: ${price} (Discounted Price: ${price * 0.9})</p>'
-        item_html_list.append(discount_html)
+    purchase_data = [(latest_purchase['item_name'], latest_purchase['category'], latest_purchase['quantity_sold'])]
 
-    return render_template('discount_package.html', items_html=item_html_list)
+    # Predict cluster for the purchase data
+    pred_cluster = cust_pref_model.predict(purchase_data)
 
-    # You can return this data to your frontend for displaying
-    return render_template('items.html', items=items_sold)
+    # Selecting ten items randomly using the dataset
+    count = 0
+    discount_item_names = []
+    while count < 10:
+        random_item_name = np.random.choice(cluster_data['item_name'])
+        if (cluster_data[cluster_data['item_name'] == random_item_name]['cluster'].values[0] != pred_cluster) and (
+                random_item_name not in discount_item_names):
+            count += 1
+            discount_item_names.append(random_item_name)
+
+    #the item names are used to get the item from the database
+    selected_items= []
+    for item_name in discount_item_names:
+        cursor.execute('SELECT item_name, price_per_kg,image_path FROM item WHERE item_name = %s', (item_name,))
+        item_data = cursor.fetchone()
+        selected_items.append(item_data)
+
+    cursor.close()
+
+    return selected_items
 
 
 
