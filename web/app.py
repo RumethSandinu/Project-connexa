@@ -1,26 +1,22 @@
-from decimal import Decimal
-import tf
 from flask import Flask, render_template, request, url_for, redirect, session
 import tensorflow as tf
+import pickle
 import pandas as pd
 import numpy as np
-import pickle
 import mysql.connector
+from decimal import Decimal
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder
 from blueprints.database_handler import DatabaseHandler
 
-# sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
-time_based_model = pickle.load(open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb'))
+with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
+    time_based_model = pickle.load(tb_model_file)
 
-# cust_pref_model = pickle.load(open("../customer_preference_analysis/cluster_model.pkl","rb")) # loading the model
-
-with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as file:
-    time_based_model = pickle.load(file)
-
-with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as file:
-    cust_pref_model = pickle.load(file)
+with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
+    cust_pref_model = pickle.load(prf_model_file)
 
 app = Flask(__name__)
 
@@ -71,6 +67,8 @@ def login():
 
     # If the request method is GET, render the login form
     return render_template('login.html')
+
+
 def authenticate_user(email, password):
     # Determine user type based on the email domain
     user_type = determine_user_type(email)
@@ -103,7 +101,6 @@ def dashboard():
         return f"Welcome to the dashboard, {session['user_email']}! User Type: {session['user_type']}"
     else:
         return redirect(url_for('login'))
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -144,7 +141,6 @@ def register_customer(form_data, pbkdf2_sha256=None):
     city = form_data.get('city_customer')
     province = form_data.get('province_customer')
     postal_code = form_data.get('postalCode_customer')
-
 
 
     if password == confirm_password:
@@ -520,11 +516,6 @@ def discount():
 
 
 
-
-
-
-
-
 def get_shop_items():
     cursor = cnx.cursor()
     query = 'SELECT item_name,price_per_kg,image_url FROM item'
@@ -538,7 +529,9 @@ def discount_section():  #discount_package.html in index?
     items = discount_package()
     return render_template('discount_package.html', items=items)
 
-cluster_data = pd.read_csv('../../datasets/annex/model_building.csv')
+cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
+
+
 def discount_package():
     cursor = cnx.cursor() #getting the latest data
     query = 'SELECT item_name, category, quantity_sold FROM purchase ORDER BY purchase_date DESC LIMIT 1'
@@ -573,7 +566,6 @@ def discount_package():
     cursor.close()
 
     return selected_items
-
 
 
 if __name__ == '__main__':
