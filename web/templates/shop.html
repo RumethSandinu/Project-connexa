@@ -31,8 +31,7 @@
       <div class="product-card top-product-card">
 
         <figure class="card-banner">
-          <img src="../static/assets/images/top-product-1.png" width="100" height="100" loading="lazy" alt="{{ i.item_name }}">
-          <!--Image url needs to be included-->
+          <img src="{{ i.image_path }}" width="100" height="100" loading="lazy" alt="{{ i.item_name }}">
           <div class="btn-wrapper">
 
             <button class="product-btn" aria-label="Add to Wishlist">
@@ -55,7 +54,7 @@
           </h3>
 
           <div class="price-wrapper">
-            <data class="price" value="{{ i.price }}">$ {{ i.price_per_kg }}</data>
+            <data class="price" value="{{ i.price_per_kg }}">$ {{ i.price_per_kg }}</data>
           </div>
 
           <button class="btn btn-primary">Add to Cart</button>

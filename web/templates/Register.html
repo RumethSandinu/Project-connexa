@@ -299,9 +299,9 @@
     <!-- Customer Registration Form -->
     <div class="Register-container" id="customerForm">
       <h2>Create Your Customer Account</h2>
-      <form class="register-form" id="customerRegistrationForm">
-        <label for="email">Email</label>
-        <input type="email" id="email_customer" name="email" required>
+      <form class="register-form" id="customerRegistrationForm" action="{{ url_for('register') }}" method="post">
+        <label for="email_customer">Email</label>
+        <input type="email" id="email_customer" name="email_customer" required>
   
         <label for="firstName_customer">First Name</label>
         <input type="text" id="firstName_customer" name="firstName" required>
@@ -340,9 +340,9 @@
     <!-- Staff Registration Form -->
     <div class="Register-container" id="staffForm" style="display:none;">
       <h2>Create Your Staff Account</h2>
-      <form class="register-form" id="staffRegistrationForm">
-        <label for="email">Email</label>
-        <input type="email" id="email_staff" name="email" required>
+      <form class="register-form" id="staffRegistrationForm" action="{{ url_for('register') }}" method="post">
+        <label for="email_staff">Email</label>
+        <input type="email" id="email_staff" name="email_staff" required>
   
         <label for="staffId">Staff ID</label>
         <input type="text" id="staffId" name="staffId" required>
@@ -358,9 +358,6 @@
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
-
-        <label for="confirmPassword">Confirm Password</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required>
   
         
 
@@ -371,10 +368,8 @@
     <!-- Admin Registration Form -->
     <div class="Register-container" id="adminForm" style="display:none;">
       <h2>Create Your Admin Account</h2>
-      <form class="register-form" id="adminRegistrationForm">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required>
-  
+      <form class="register-form" id="adminRegistrationForm" action="{{ url_for('register') }}" method="post">
+        
         <label for="adminId">Admin ID</label>
         <input type="text" id="adminId" name="adminId" required>
   

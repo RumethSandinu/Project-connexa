@@ -1,0 +1,105 @@
+/* Static CSS file for index.html */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    background-image: url("../images/cta-bg.png");
+    background-size: cover;      
+    background-position: center;  
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    
+}
+h2 {
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+    color: #00ff2f;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    
+}
+p{
+    text-align: center;
+    margin-top: 20px; 
+}
+
+form {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 20px;
+    background: url("../images/9757a719feaaef3.jpg") center center/cover;
+    border-radius: 10px;
+    box-shadow: 0 0 10px transparent;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Three columns with equal width */
+    gap: 15px;
+    
+}
+
+form:hover{
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    transition: font-size 0.3s ease, color 0.3s ease;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #000000;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+input[type="submit"] {
+    background-color: #000000;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    width: 100%;
+    margin: 0 auto; /* Center the submit button */
+    display: block;
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+.result-box {
+    margin-top: 20px;
+    background-color: #dff0d8;
+    border: 1px solid #3c763d;
+    color: #3c763d;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+button{
+    color: #ffffff;
+    background-color: black;
+    border-radius: 20px;
+}

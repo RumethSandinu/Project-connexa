@@ -1,13 +1,20 @@
-table, th, td 
+table
 {
-    border: 1px solid black;
+    margin: auto; /* Center the table */
     border-collapse: collapse;
+    border-radius: 20px; /* Change the border radius */
+    width: 70%;
+    background: rgb(47, 242, 226);
+    border: 1px solid rgb(255, 255, 255);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
 }
 
 th, td
 {
-    padding: 15px;
+    padding: 35px;
     text-align: left;
+    font-weight: bold;
 }
 
 .update-button
@@ -20,4 +27,26 @@ th, td
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
+}
+.nav-wrapper{
+    width: 50%;
+    margin: auto;
+}
+h2{
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 30px;
+
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    background-image: url("../images/cta-bg.png");
+    background-size: cover;      
+    background-position: center;  
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
 }

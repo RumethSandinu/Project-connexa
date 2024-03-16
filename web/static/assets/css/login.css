@@ -6,11 +6,11 @@
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    background-color: var(--charleston-green);
+    background: url("../images/2f06b5ee85794f1a946d.jpg") center center/cover;
     background-repeat: no-repeat, no-repeat;
     background-position: bottom left, top right;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     color: var(black);
-    background: transparent;
 }
 .login-container h2 {
     margin-bottom: 20px;
@@ -22,14 +22,21 @@
     border-radius: 5px;
     border: 1px solid #ccc;
 }
+.login-form label{
+  font-weight: bold;
+}
+
 .login-form button {
-    padding: 10px 20px;
+    padding: 10px 30px;
     border: none;
     border-radius: 20px;
-    background-color: #1EA786;
-    color: rgb(0, 0, 0);
+    background-color: #000000;
+    color: rgb(255, 252, 252);
     cursor: pointer;
-    margin-top: 10px;
+    position: absolute;
+    bottom: 10px; 
+    left: 50%;
+    transform: translateX(-50%);
 }
 .login-form button:hover {
     background-color: #15856e;
