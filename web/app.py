@@ -1,19 +1,26 @@
+from decimal import Decimal
+import tf
 from flask import Flask, render_template, request, url_for, redirect, session
 import tensorflow as tf
 import pandas as pd
 import numpy as np
 import pickle
 import mysql.connector
-from sklearn.exceptions import NotFittedError
-from sklearn.preprocessing import LabelEncoder
+from matplotlib import pyplot as plt
+from sklearn.linear_model import LinearRegression
 from blueprints.database_handler import DatabaseHandler
-import matplotlib.pyplot as plt
-from decimal import Decimal
 
-sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+# sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+
+time_based_model = pickle.load(open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb'))
+
+# cust_pref_model = pickle.load(open("../customer_preference_analysis/cluster_model.pkl","rb")) # loading the model
 
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as file:
     time_based_model = pickle.load(file)
+
+with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as file:
+    cust_pref_model = pickle.load(file)
 
 app = Flask(__name__)
 
@@ -37,7 +44,7 @@ def about():
 
 @app.route('/shop')
 def shop():
-    items = get_items()
+    items = get_shop_items()
     return render_template('shop.html', items=items)
 
 
@@ -60,7 +67,7 @@ def login():
 
         # If authentication fails, show an error message
         error_message = "Invalid email or password. Please try again."
-        return render_template('login.html', error_message=error_message)
+        return render_template('Register.html', error_message=error_message)
 
     # If the request method is GET, render the login form
     return render_template('login.html')
@@ -100,25 +107,33 @@ def dashboard():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register():
+def register(pbkdf2_sha256=None):
+    result = None
     if request.method == 'POST':
-        email = request.form.get('email')
         user_type = request.form.get('userType')
 
         if user_type == 'customer':
-            result = register_customer(request.form)
+            result = register_customer(request.form, pbkdf2_sha256=pbkdf2_sha256)
         elif user_type == 'staff':
-            result = register_staff(request.form)
+            result = register_staff(request.form, pbkdf2_sha256=pbkdf2_sha256)
         elif user_type == 'admin':
             result = register_admin(request.form)
+        else:
+            print("hello")
 
         if result:
             return redirect(url_for('login'))  # Redirect to login page after successful registration
+
+    elif request.method == 'GET':
+        # Code to render the form initially
+        return render_template('Register.html')
 
     return render_template('Register.html')
 
 
 def register_customer(form_data, pbkdf2_sha256=None):
+    print("Form Data in register_customer function:", form_data)
+
     email = form_data.get('email_customer')
     password = form_data.get('password_customer')
     confirm_password = form_data.get('confirmPassword')
@@ -129,6 +144,8 @@ def register_customer(form_data, pbkdf2_sha256=None):
     city = form_data.get('city_customer')
     province = form_data.get('province_customer')
     postal_code = form_data.get('postalCode_customer')
+
+
 
     if password == confirm_password:
         hashed_password = pbkdf2_sha256.hash(password)
@@ -144,6 +161,7 @@ def register_customer(form_data, pbkdf2_sha256=None):
             'province': province,
             'postal_code': postal_code
         }
+        print(customer)
 
         return db_handler.insert_customer(customer)
     else:
@@ -293,7 +311,6 @@ def blog():
 def item():
     return render_template('staff.html')
 
-
 # Load the trained model
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
@@ -308,13 +325,6 @@ label_encoder = LabelEncoder()
 def loss_rate_model():
     if request.method == 'POST':
         try:
-            # Read CSV file and select only the relevant columns
-            relevant_columns = ['Month', 'quantity_sold_kg', 'unit_selling_price_rmb/kg', 'wholesale_price_(rmb/kg)',
-                                 'total_sales', 'category_name', 'item_name', 'discount', 'sale_or_return']
-            csv_data = pd.read_csv('../../datasets/cleaned_loss_rate_dataset.csv', usecols=relevant_columns)
-            # Rearrange the columns in the order specified
-            csv_data = csv_data[['Month', 'quantity_sold_kg', 'unit_selling_price_rmb/kg', 'wholesale_price_(rmb/kg)',
-                                 'total_sales', 'category_name', 'item_name', 'discount', 'sale_or_return']]
             # Get form data
             month = int(request.form['Month'])
             quantity_sold_kg = float(request.form['quantity_sold_kg'])
@@ -326,46 +336,71 @@ def loss_rate_model():
             discount = request.form['discount']
             sale_or_return = request.form['sale_or_return']
 
-            # Store form data in a Python list
-            form_data = [
-                month,
-                quantity_sold_kg,
-                unit_selling_price,
-                wholesale_price,
-                total_sales,
-                category_name,
-                item_name,
-                1 if discount == 'Yes' else 0,
-                1 if sale_or_return == 'Return' else 0
+            # Load the column names used during training
+            columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names.csv')
+            column_loss_rate_values = columns_loss_rate.values.flatten()
+
+            # Debugging print statement to check loaded column names
+            print("Column names used during training:", column_loss_rate_values)
+
+            # Adjusting required columns based on encoding
+            required_columns = [
+                f'category_name_{category_name}',
+                f'item_name_{item_name}',
+                f'discount_{discount}',
+                f'sale_or_return_{sale_or_return}'
             ]
 
-            # Create a DataFrame for prediction with explicit columns and order
-            input_data = pd.DataFrame([form_data], columns=relevant_columns)
+            # Debugging print statement to check required columns
+            print("Required columns:", required_columns)
 
-            print("Input Data Columns:", input_data.columns.tolist())
-            print("CSV Data Columns:", csv_data.columns.tolist())
+            # Check if all required columns are present
+            if not all(col in column_loss_rate_values for col in required_columns):
+                raise ValueError("One or more required columns not found in the loaded column names.")
 
-            # Encode categorical names in the CSV data
-            encoded_csv_data = csv_data.apply(lambda x: label_encoder.fit_transform(x) if x.dtype == 'O' else x)
+            # Prepare input data as a NumPy array with zeros
+            print(len(column_loss_rate_values))
+            input_data = np.zeros((1, len(column_loss_rate_values)))
 
-            # Ensure that the input data and encoded CSV data match
-            assert input_data.columns.tolist() == encoded_csv_data.columns.tolist(), "Input data and encoded CSV data columns do not match"
+            # Set the corresponding column values to non-zero based on the form data
+            for col in required_columns:
+                input_data[0, np.where(column_loss_rate_values == col)[0][0]] = 1
 
-            try:
-                encoded_input_data = input_data.apply(lambda x: label_encoder.transform(x) if x.dtype == 'O' else x)
-            except NotFittedError as e:
-                # If LabelEncoder is not fitted, fit it on the entire dataset and then transform the input data
-                label_encoder.fit(encoded_csv_data.astype(str))
-                encoded_input_data = input_data.apply(lambda x: label_encoder.transform(x) if x.dtype == 'O' else x)
+            # Set numerical values in the input data
+            input_data[0, 0] = month
+            input_data[0, 1] = quantity_sold_kg
+            input_data[0, 2] = unit_selling_price
+            input_data[0, 3] = wholesale_price
+            input_data[0, 4] = total_sales
 
-            print(encoded_csv_data)
-            print(encoded_input_data)
+            # Debugging print statement to check loaded column names
+            print("Column names used during training:", column_loss_rate_values)
 
-            # Make prediction
-            loss_rate_prediction = model.predict(encoded_input_data)
+            # Debugging print statement to check received form data
+            print("Received form data:", input_data)
 
-            # Render the result in the loss_rate_model.html file
-            return render_template('loss_rate_model.html', loss_rate_prediction=loss_rate_prediction[0], form_data=form_data)
+            # Debugging print statements to check missing columns
+            missing_columns = [col for col in required_columns if col not in column_loss_rate_values]
+            print("Missing columns:", missing_columns)
+
+            # Load the trained model and label encoder
+            with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
+                loss_rate_model = pickle.load(file)
+            # Check if the loaded model is an instance of LinearRegression
+            if isinstance(loss_rate_model, LinearRegression):
+                # Perform prediction
+                prediction = loss_rate_model.predict(input_data)
+
+                # Print the prediction
+                print("Prediction:", prediction)
+
+                # Render the result.html template with the predicted value
+                return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0])
+
+            else:
+                print("The loaded object is not a LinearRegression model. Check the model file.")
+                # Handle the case where the loaded model is not a LinearRegression model
+                return render_template('error.html', error_message="Invalid model type")
 
         except Exception as e:
             # Handle the exception, e.g., log the error, show an error message, or redirect to an error page
@@ -410,99 +445,134 @@ def update_staff():
 
     return redirect(url_for('staff'))
 
-# @app.route('/discount', methods=['GET', 'POST'])
+@app.route('/discount')
+def discount():
+    cursor = cnx.cursor()
+    cursor.execute('SELECT item_id, item_name, category, description, price_per_kg, quantity_kg FROM item')
+    # get all records to tuples
+    rows = cursor.fetchall()
+    return render_template('discount.html', rows=rows)
+
+
+# discount_rates = {
+#     0: 0.1,  # Discount rate for cluster 0
+#     1: 0.15,  # Discount rate for cluster 1
+#     2: 0.2,  # Discount rate for cluster 2
+#     3: 0.25  # Discount rate for cluster 3
+# }
+#
+# @app.route('/discount', methods=['GET','POST'])
 # def discount():
 #     if request.method == 'POST':
-#         # Get items and their time ranges from the form
-#         items = request.form.getlist('item_name')
-#         time_range = request.form['time']
+#         try:
+#             # Get from data
+#             item_time = int(request.form['time'])
+#             item_quantity_sold_kg = float(request.form['quantity_sold_kg'])
+#             item_category_name = request.form['category_name']
+#             discount_item_name = request.form['item_name']
 #
-#         # Define discount percentages based on time range
-#         if time_range == '9-12':
-#             discount_percentage = 5
-#         else:
-#             discount_percentage = 10  # Default discount for other time ranges
+#             # Load the column names
+#             item_column_names = pd.read_csv('../time_based_analysis/item_columns_names.csv')
+#             item_column_name_values = item_column_names.values.flatten()
 #
-#         # Calculate discount for each item
-#         discounts = [discount_percentage] * len(items)
+#             print("Column name used during training:", item_column_name_values)
 #
-#         # Render template with the calculated discounts
-#         return render_template('discount.html', discounts=discounts)
+#             # Adjust required columns
+#             dis_rate_required_col = [
+#                 f'item_name_{discount_item_name}',
+#                 f'category_name_{item_category_name}'
+#             ]
 #
-#     # Render the form to input items and time range
-#     return render_template('discount.html')
-
-# @app.route('/discount', methods=['POST'])
-# def discount():
-#     int_features = [int(x) for x in request.form.values()]
-#     final_features = [np.array(int_features)]
-#     prediction = time_based_model.predict(final_features)
+#             print("Required columns:", dis_rate_required_col)
 #
-#     return render_template('discount.html'.format(prediction))
+#             if not all(colu in item_column_name_values for colu in dis_rate_required_col):
+#                 raise ValueError("Bla bla")
+#
+#             # Input data as numpy array
+#             print(len(item_column_name_values))
+#             item_input_data = np.zeros((1, len(item_column_name_values)))
+#
+#             for colu in dis_rate_required_col:
+#                 item_input_data[0, np.where(item_column_name_values == colu)[0][0]] = 1
+#
+#             # Set numerical values
+#             item_input_data[0, 0] = item_time
+#             item_input_data[0, 1] = item_quantity_sold_kg
+#
+#             print(" used column name during train:", item_column_name_values)
+#
+#             print("Received data:", item_input_data)
+#
+#             cluster = time_based_model.predict(item_input_data)[0]
+#
+#             # Assign discount rate based on cluster
+#             discount_rate = discount_rates[cluster]
+#
+#             return render_template('discount_rate.html', discount_rate=discount_rate)
+#
+#         except Exception as e:
+#             print(f'Error processing data: {e}')
+#             return render_template("item_error.html")
+#
+#
+#     elif request.method == 'GET':
+#         return render_template('discount.html')
 
-# Load your data
-data = pd.read_csv('../time_based_analysis/columns')  # Replace 'sales_data.csv' with your actual data file
-
-# Load your k-means model from pickle file
-with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as f:
-    time_based_model = pickle.load(f)
-
-data['cluster'] = time_based_model.predict(data[['time', 'quantity_sold_kg', 'category_name_aquatic', 'category_name_cabbage', 'category_name_capsicum', 'category_name_flower', 'category_name_mushroom', 'category_name_solanum']])
 
 
-@app.route('/get_items', methods=['POST'])
-def get_items():
-    selected_time_range = request.form['time_range']  # Assuming 'time_range' is sent from the frontend
-    # Determine cluster for the selected time range
-    if selected_time_range == '9-12':
-        cluster = 0
-    elif selected_time_range == '13-16':
-        cluster = 1
-    elif selected_time_range == '17-18':
-        cluster = 2
-    elif selected_time_range == '19-22':
-        cluster = 3
-    else:
-        return "Invalid time range"
-
-    # Filter data for the selected cluster
-    cluster_data = data[data['cluster'] == cluster]
-    # Group by item and sum the quantities sold
-    items_sold = cluster_data.groupby('item_name')['quantity_sold_kg'].sum().reset_index()
-    # Sort by quantity sold in descending order
-    items_sold = items_sold.sort_values(by='quantity_sold_kg', ascending=False)
 
 
-def get_items():
+
+
+
+def get_shop_items():
     cursor = cnx.cursor()
-    query = 'SELECT item_name,price_per_kg FROM item'
+    query = 'SELECT item_name,price_per_kg,image_url FROM item'
     cursor.execute(query)
     items = cursor.fetchall()
+    cursor.close()
     return items
 
-cust_pref_model = pickle.load(open("cluster.model.pkl","rb")) # loading the model
+@app.route('/discount_package')
+def discount_section():  #discount_package.html in index?
+    items = discount_package()
+    return render_template('discount_package.html', items=items)
 
-
-@app.route('/')
-def discount():
-    return render_template('discount_package.html')
-@app.route('/discount_package', methods=['POST'])
+cluster_data = pd.read_csv('../../datasets/annex/model_building.csv')
 def discount_package():
+    cursor = cnx.cursor() #getting the latest data
+    query = 'SELECT item_name, category, quantity_sold FROM purchase ORDER BY purchase_date DESC LIMIT 1'
+    cursor.execute(query)
+    latest_purchase = cursor.fetchone()
 
-    items = get_items() #gets item name and price
-    items_display = items[:10]
+    if latest_purchase is None:
+        return "No purchase records found."
 
-    item_html_list = []
-    for item in items_display:
-        item_name = item['item_name']
-        price = item['price']
-        discount_html = f'<p>{item_name}: ${price} (Discounted Price: ${price * 0.9})</p>'
-        item_html_list.append(discount_html)
+    purchase_data = [(latest_purchase['item_name'], latest_purchase['category'], latest_purchase['quantity_sold'])]
 
-    return render_template('discount_package.html', items_html=item_html_list)
+    # Predict cluster for the purchase data
+    pred_cluster = cust_pref_model.predict(purchase_data)
 
-    # You can return this data to your frontend for displaying
-    return render_template('items.html', items=items_sold)
+    # Selecting ten items randomly using the dataset
+    count = 0
+    discount_item_names = []
+    while count < 10:
+        random_item_name = np.random.choice(cluster_data['item_name'])
+        if (cluster_data[cluster_data['item_name'] == random_item_name]['cluster'].values[0] != pred_cluster) and (
+                random_item_name not in discount_item_names):
+            count += 1
+            discount_item_names.append(random_item_name)
+
+    #the item names are used to get the item from the database
+    selected_items= []
+    for item_name in discount_item_names:
+        cursor.execute('SELECT item_name, price_per_kg,image_path FROM item WHERE item_name = %s', (item_name,))
+        item_data = cursor.fetchone()
+        selected_items.append(item_data)
+
+    cursor.close()
+
+    return selected_items
 
 
 
