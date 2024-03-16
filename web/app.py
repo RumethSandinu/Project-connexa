@@ -6,7 +6,7 @@ import pickle
 import mysql.connector
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import LabelEncoder
-from ..blueprints.database_handler import DatabaseHandler
+from blueprints.database_handler import DatabaseHandler
 import matplotlib.pyplot as plt
 from decimal import Decimal
 
