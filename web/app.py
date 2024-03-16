@@ -10,10 +10,11 @@ from blueprints.database_handler import DatabaseHandler
 import matplotlib.pyplot as plt
 from decimal import Decimal
 
-sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+# sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
 
-with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as file:
-    time_based_model = pickle.load(file)
+time_based_model = pickle.load(open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb'))
+
+# cust_pref_model = pickle.load(open("../customer_preference_analysis/cluster_model.pkl","rb")) # loading the model
 
 app = Flask(__name__)
 
@@ -410,67 +411,84 @@ def update_staff():
 
     return redirect(url_for('staff'))
 
-# @app.route('/discount', methods=['GET', 'POST'])
+@app.route('/discount')
+def discount():
+    cursor = cnx.cursor()
+    cursor.execute('SELECT item_id, item_name, category, description, price_per_kg, quantity_kg FROM item')
+    # get all records to tuples
+    rows = cursor.fetchall()
+    return render_template('discount.html', rows=rows)
+
+
+# discount_rates = {
+#     0: 0.1,  # Discount rate for cluster 0
+#     1: 0.15,  # Discount rate for cluster 1
+#     2: 0.2,  # Discount rate for cluster 2
+#     3: 0.25  # Discount rate for cluster 3
+# }
+#
+# @app.route('/discount', methods=['GET','POST'])
 # def discount():
 #     if request.method == 'POST':
-#         # Get items and their time ranges from the form
-#         items = request.form.getlist('item_name')
-#         time_range = request.form['time']
+#         try:
+#             # Get from data
+#             item_time = int(request.form['time'])
+#             item_quantity_sold_kg = float(request.form['quantity_sold_kg'])
+#             item_category_name = request.form['category_name']
+#             discount_item_name = request.form['item_name']
 #
-#         # Define discount percentages based on time range
-#         if time_range == '9-12':
-#             discount_percentage = 5
-#         else:
-#             discount_percentage = 10  # Default discount for other time ranges
+#             # Load the column names
+#             item_column_names = pd.read_csv('../time_based_analysis/item_columns_names.csv')
+#             item_column_name_values = item_column_names.values.flatten()
 #
-#         # Calculate discount for each item
-#         discounts = [discount_percentage] * len(items)
+#             print("Column name used during training:", item_column_name_values)
 #
-#         # Render template with the calculated discounts
-#         return render_template('discount.html', discounts=discounts)
+#             # Adjust required columns
+#             dis_rate_required_col = [
+#                 f'item_name_{discount_item_name}',
+#                 f'category_name_{item_category_name}'
+#             ]
 #
-#     # Render the form to input items and time range
-#     return render_template('discount.html')
-
-# @app.route('/discount', methods=['POST'])
-# def discount():
-#     int_features = [int(x) for x in request.form.values()]
-#     final_features = [np.array(int_features)]
-#     prediction = time_based_model.predict(final_features)
+#             print("Required columns:", dis_rate_required_col)
 #
-#     return render_template('discount.html'.format(prediction))
+#             if not all(colu in item_column_name_values for colu in dis_rate_required_col):
+#                 raise ValueError("Bla bla")
+#
+#             # Input data as numpy array
+#             print(len(item_column_name_values))
+#             item_input_data = np.zeros((1, len(item_column_name_values)))
+#
+#             for colu in dis_rate_required_col:
+#                 item_input_data[0, np.where(item_column_name_values == colu)[0][0]] = 1
+#
+#             # Set numerical values
+#             item_input_data[0, 0] = item_time
+#             item_input_data[0, 1] = item_quantity_sold_kg
+#
+#             print(" used column name during train:", item_column_name_values)
+#
+#             print("Received data:", item_input_data)
+#
+#             cluster = time_based_model.predict(item_input_data)[0]
+#
+#             # Assign discount rate based on cluster
+#             discount_rate = discount_rates[cluster]
+#
+#             return render_template('discount_rate.html', discount_rate=discount_rate)
+#
+#         except Exception as e:
+#             print(f'Error processing data: {e}')
+#             return render_template("item_error.html")
+#
+#
+#     elif request.method == 'GET':
+#         return render_template('discount.html')
 
-# Load your data
-data = pd.read_csv('../time_based_analysis/columns')  # Replace 'sales_data.csv' with your actual data file
-
-# Load your k-means model from pickle file
-with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as f:
-    time_based_model = pickle.load(f)
-
-data['cluster'] = time_based_model.predict(data[['time', 'quantity_sold_kg', 'category_name_aquatic', 'category_name_cabbage', 'category_name_capsicum', 'category_name_flower', 'category_name_mushroom', 'category_name_solanum']])
 
 
-@app.route('/get_items', methods=['POST'])
-def get_items():
-    selected_time_range = request.form['time_range']  # Assuming 'time_range' is sent from the frontend
-    # Determine cluster for the selected time range
-    if selected_time_range == '9-12':
-        cluster = 0
-    elif selected_time_range == '13-16':
-        cluster = 1
-    elif selected_time_range == '17-18':
-        cluster = 2
-    elif selected_time_range == '19-22':
-        cluster = 3
-    else:
-        return "Invalid time range"
 
-    # Filter data for the selected cluster
-    cluster_data = data[data['cluster'] == cluster]
-    # Group by item and sum the quantities sold
-    items_sold = cluster_data.groupby('item_name')['quantity_sold_kg'].sum().reset_index()
-    # Sort by quantity sold in descending order
-    items_sold = items_sold.sort_values(by='quantity_sold_kg', ascending=False)
+
+
 
 
 def get_items():
