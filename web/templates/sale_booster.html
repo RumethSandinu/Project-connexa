@@ -26,39 +26,106 @@
 
   <title>Sale booster</title>
 
-</head>
-  <body>
+  <body id="top">
 
-    <h1>Sale booster</h1>
-
-    <table>
-      <thead>
-        <tr>
-          <th>item_id</th>
-          <th>item_name</th>
-          <th>category</th>
-          <th>price_per_kg</th>
-          <th>quantity_kg</th>
-          <th>discount_rate</th>
-            <th>action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in rows %}
+    <!--- #HEADER  -->
+  
+    <header class="header" data-header>
+  
+      <div class="top-bar">
+        <div class="container">
+          <p>Get membership and enjoy unlimited personalized discounts</p>
+        </div>
+      </div>
+  
+      <div class="nav-wrapper">
+        <div class="container">
+  
+          <h1 class="h1">
+            <a href="./index.html" class="logo">Conne<span class="span">Xa</span></a>
+          </h1>
+  
+          <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
+            <ion-icon name="menu-outline"></ion-icon>
+          </button>
+  
+          <nav class="navbar" data-navbar>
+  
+            <button class="nav-close-btn" aria-label="Close Menu" data-nav-close-btn>
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+  
+            <ul class="navbar-list">
+  
+              <li>
+                <a href="./index.html" class="navbar-link">Home</a>
+              </li>
+  
+              <li>
+                <a href="../about.html" class="navbar-link">About</a>
+              </li>
+  
+              <li>
+                <a href="../shop.html" class="navbar-link">Shop</a>
+              </li>
+  
+              <li>
+                <a href="../blog.html" class="navbar-link">Blog</a>
+              </li>
+  
+              <li>
+                <a href="../shop.html" class="navbar-link">Products</a>
+              </li>
+  
+              <li>
+                <a href="../contact.html" class="navbar-link">Contact</a>
+              
+  
+            </ul>
+  
+          </nav>
+        </div>
+      </div>
+  
+    </header>
+    <body>
+  
+      <h2>Sale booster</h2>
+  
+      <table>
+        <thead>
           <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
-            <td>{{ row[4] }}</td>
-            <td>{{ row[5] }}</td>
-            <td>
-                <a href="{{ url_for('sale_booster_setup', item_id=row[0]) }}" class="navbar-link">Boost</a>
-            </td>
+            <th>item_id</th>
+            <th>item_name</th>
+            <th>category</th>
+            <th>price_per_kg</th>
+            <th>quantity_kg</th>
+            <th>discount_rate</th>
+              <th>action</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>{{ row[0] }}</td>
+              <td>{{ row[1] }}</td>
+              <td>{{ row[2] }}</td>
+              <td>{{ row[3] }}</td>
+              <td>{{ row[4] }}</td>
+              <td>{{ row[5] }}</td>
+              <td>
+                  <a href="{{ url_for('sale_booster_setup', item_id=row[0]) }}" class="navbar-link">Boost</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  
+    </body>
+  
+    
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  
   </body>
 </html>

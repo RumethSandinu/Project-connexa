@@ -22,7 +22,7 @@ class DatabaseHandler:
 
         try:
             self.cursor.execute('''
-                INSERT INTO Customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', customer_data)
             self.conn.commit()
             return True  # Success
@@ -35,7 +35,7 @@ class DatabaseHandler:
 
         try:
             self.cursor.execute('''
-                INSERT INTO Staff VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO staff VALUES (%s, %s, %s, %s, %s, %s)
             ''', staff_data)
             self.conn.commit()
             return True  # Success
@@ -48,7 +48,7 @@ class DatabaseHandler:
 
         try:
             self.cursor.execute('''
-                INSERT INTO Admin VALUES (%s, %s)
+                INSERT INTO admin VALUES (%s, %s)
             ''', admin_data)
             self.conn.commit()
             return True  # Success
@@ -72,10 +72,13 @@ class DatabaseHandler:
     def authenticate_customer(self, email, password):
         customer_data = self.get_customer_by_email(email)
 
-        if customer_data and self.verify_password(password, customer_data[1], customer_data[2]):
-            return customer_data
-        else:
-            return None
+        print("Customer Data:", customer_data)
+
+        if customer_data and len(customer_data) >= 3:
+            if self.verify_password(password, customer_data[1], customer_data[2]):
+                return customer_data
+            else:
+                return None
 
     def authenticate_staff(self, email, password):
         staff_data = self.get_staff_by_email(email)
@@ -98,17 +101,17 @@ class DatabaseHandler:
         return hashed_password == input_password_hash
 
     def get_customer_by_email(self, email):
-        self.cursor.execute('SELECT email, password, salt FROM customer WHERE email = %s', (email,))
+        self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s', (email,))
         customer_data = self.cursor.fetchone()
         return customer_data
 
     def get_staff_by_email(self, email):
-        self.cursor.execute('SELECT email, password, salt FROM staff WHERE email = %s', (email,))
+        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s', (email,))
         staff_data = self.cursor.fetchone()
         return staff_data
 
     def get_admin_by_email(self, email):
-        self.cursor.execute('SELECT email, password, salt FROM admin WHERE email = %s', (email,))
+        self.cursor.execute('SELECT email, password FROM admin WHERE email = %s', (email,))
         admin_data = self.cursor.fetchone()
         return admin_data
 
