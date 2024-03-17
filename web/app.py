@@ -40,7 +40,11 @@ def about():
 
 @app.route('/shop')
 def shop():
-    items = get_shop_items()
+    cursor = cnx.cursor()
+    query = 'SELECT item_name, price_kg, image_path FROM item'
+    cursor.execute(query)
+    items = cursor.fetchall()
+    cursor.close()
     return render_template('shop.html', items=items)
 
 
@@ -202,7 +206,7 @@ def register_admin(form_data):
 @app.route('/sale_booster')
 def sale_booster():
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, price_per_kg, stock, discount_rate FROM item')
+    cursor.execute('SELECT item_id, item_name, category, price_kg, stock, discount_rate FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
     # Close the cursor
@@ -214,12 +218,12 @@ def sale_booster():
 def sale_booster_setup(item_id):
     cursor = cnx.cursor()
     # %s --> placeholder for item_id (prevent from SQL injection)
-    cursor.execute('SELECT item_name, category, price_per_kg FROM item WHERE item_id = %s', (item_id,))
+    cursor.execute('SELECT item_name, category, price_kg FROM item WHERE item_id = %s', (item_id,))
     item_row = cursor.fetchone()
     # unpack values to variables
     item_name, category, price_per_kg = item_row
 
-    cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM order_item WHERE item_id = %s AND order_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
+    cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
     mean_customers_past_7_days = cursor.fetchone()[0]
     mean_customers_past_7_days = int(Decimal(mean_customers_past_7_days))
 
@@ -444,7 +448,7 @@ def update_staff():
 @app.route('/discount')
 def discount():
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, description, price_per_kg, quantity_kg FROM item')
+    cursor.execute('SELECT item_id, item_name, category, description, price_kg, quantity_kg FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
     return render_template('discount.html', rows=rows)
@@ -514,16 +518,6 @@ def discount():
 #     elif request.method == 'GET':
 #         return render_template('discount.html')
 
-
-
-def get_shop_items():
-    cursor = cnx.cursor()
-    query = 'SELECT item_name,price_per_kg,image_url FROM item'
-    cursor.execute(query)
-    items = cursor.fetchall()
-    cursor.close()
-    return items
-
 @app.route('/discount_package')
 def discount_section():  #discount_package.html in index?
     items = discount_package()
@@ -559,7 +553,7 @@ def discount_package():
     #the item names are used to get the item from the database
     selected_items= []
     for item_name in discount_item_names:
-        cursor.execute('SELECT item_name, price_per_kg,image_path FROM item WHERE item_name = %s', (item_name,))
+        cursor.execute('SELECT item_name, price_kg,image_path FROM item WHERE item_name = %s', (item_name,))
         item_data = cursor.fetchone()
         selected_items.append(item_data)
 
