@@ -7,16 +7,21 @@ import mysql.connector
 from decimal import Decimal
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import LabelEncoder
 from blueprints.database_handler import DatabaseHandler
 
-sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
+    cust_pref_model = pickle.load(prf_model_file)
 
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
 
-with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
-    cust_pref_model = pickle.load(prf_model_file)
+with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
+    model = pickle.load(file)
+
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+
+cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
+sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
 
 app = Flask(__name__)
 
@@ -40,8 +45,12 @@ def about():
 
 @app.route('/shop')
 def shop():
-    items = get_shop_items()
-    return render_template('shop.html', items=items)
+    cursor = cnx.cursor()
+    query = 'SELECT item_name, price_kg, image_path FROM item'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    cursor.close()
+    return render_template('shop.html', rows=rows)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -202,7 +211,7 @@ def register_admin(form_data):
 @app.route('/sale_booster')
 def sale_booster():
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, price_per_kg, stock, discount_rate FROM item')
+    cursor.execute('SELECT item_id, item_name, category, price_kg, stock, discount_rate FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
     # Close the cursor
@@ -214,12 +223,12 @@ def sale_booster():
 def sale_booster_setup(item_id):
     cursor = cnx.cursor()
     # %s --> placeholder for item_id (prevent from SQL injection)
-    cursor.execute('SELECT item_name, category, price_per_kg FROM item WHERE item_id = %s', (item_id,))
+    cursor.execute('SELECT item_name, category, price_kg FROM item WHERE item_id = %s', (item_id,))
     item_row = cursor.fetchone()
     # unpack values to variables
     item_name, category, price_per_kg = item_row
 
-    cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM order_item WHERE item_id = %s AND order_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
+    cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
     mean_customers_past_7_days = cursor.fetchone()[0]
     mean_customers_past_7_days = int(Decimal(mean_customers_past_7_days))
 
@@ -230,8 +239,7 @@ def sale_booster_setup(item_id):
     discount_range = np.arange(-40, 41)
     sales = []
 
-    columns = pd.read_csv('../sales_analysis/column_names')
-    column_values = columns.values
+    column_values = sales_pred_columns.values
 
     # Find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
@@ -306,13 +314,6 @@ def blog():
 @app.route('/item')
 def item():
     return render_template('staff.html')
-
-# Load the trained model
-with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
-    model = pickle.load(file)
-
-# Assuming you have a label encoder instance
-label_encoder = LabelEncoder()
 
 # Assuming 'model' is your machine learning model
 
@@ -444,7 +445,7 @@ def update_staff():
 @app.route('/discount')
 def discount():
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, description, price_per_kg, quantity_kg FROM item')
+    cursor.execute('SELECT item_id, item_name, category, description, price_kg, quantity_kg FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
     return render_template('discount.html', rows=rows)
@@ -514,34 +515,17 @@ def discount():
 #     elif request.method == 'GET':
 #         return render_template('discount.html')
 
-
-
-def get_shop_items():
-    cursor = cnx.cursor()
-    query = 'SELECT item_name,price_per_kg,image_url FROM item'
-    cursor.execute(query)
-    items = cursor.fetchall()
-    cursor.close()
-    return items
-
 @app.route('/discount_package')
 def discount_section():  #discount_package.html in index?
-    items = discount_package()
-    return render_template('discount_package.html', items=items)
-
-cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
-
-
-def discount_package():
     cursor = cnx.cursor() #getting the latest data
-    query = 'SELECT item_name, category, quantity_sold FROM purchase ORDER BY purchase_date DESC LIMIT 1'
+    query = 'SELECT item_name, category, quantity_kg FROM purchase ORDER BY sale_date DESC LIMIT 1'
     cursor.execute(query)
     latest_purchase = cursor.fetchone()
 
     if latest_purchase is None:
         return "No purchase records found."
 
-    purchase_data = [(latest_purchase['item_name'], latest_purchase['category'], latest_purchase['quantity_sold'])]
+    purchase_data = [(latest_purchase['item_name'], latest_purchase['category'], latest_purchase['quantity_kg'])]
 
     # Predict cluster for the purchase data
     pred_cluster = cust_pref_model.predict(purchase_data)
@@ -559,13 +543,11 @@ def discount_package():
     #the item names are used to get the item from the database
     selected_items= []
     for item_name in discount_item_names:
-        cursor.execute('SELECT item_name, price_per_kg,image_path FROM item WHERE item_name = %s', (item_name,))
+        cursor.execute('SELECT item_name, price_kg,image_path FROM item WHERE item_name = %s', (item_name,))
         item_data = cursor.fetchone()
         selected_items.append(item_data)
-
     cursor.close()
-
-    return selected_items
+    return render_template('discount_package.html', rows=selected_items)
 
 
 if __name__ == '__main__':
