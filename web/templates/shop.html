@@ -26,12 +26,12 @@
 <body>
     <ul class="top-product-list grid-list">
 
-    {% for item in items %}
+    {% for row in rows %}
     <li class="top-product-item">
       <div class="product-card top-product-card">
 
         <figure class="card-banner">
-          <img src="/static/assets/product-images/{{ item.image_path }}" width="100" height="100" loading="lazy" alt="{{ item.item_name }}">
+          <img src="/static/assets/product-images/{{ row[2] }}" width="100" height="100" loading="lazy" alt="{{ row[2] }}">
           <div class="btn-wrapper">
 
             <button class="product-btn" aria-label="Add to Wishlist">
@@ -50,11 +50,11 @@
         <div class="card-content">
 
           <h3 class="h4 card-title">
-            <a>{{ item.item_name }}</a> <!-- Clickable link was removed because we are not doing it -->
+            <a>{{ row[0] }}</a> <!-- Clickable link was removed because we are not doing it -->
           </h3>
 
           <div class="price-wrapper">
-            <data class="price" value="{{ item.price_kg }}">$ {{ item.price_kg }}</data>
+            <data class="price" value="{{ row[1] }}">$ {{ row[1] }}</data>
           </div>
 
           <button class="btn btn-primary">Add to Cart</button>
