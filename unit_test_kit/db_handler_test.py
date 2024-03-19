@@ -1,9 +1,9 @@
 import unittest
 
-from blueprints.Admin import Admin
-from blueprints.Customer import Customer
-from blueprints.Staff import Staff
-from blueprints.database_handler import DatabaseHandler
+from blueprints.admin import Admin
+from blueprints.customer import Customer
+from blueprints.staff import Staff
+from blueprints.db_handler import DatabaseHandler
 
 
 class TestDatabaseHandler(unittest.TestCase):

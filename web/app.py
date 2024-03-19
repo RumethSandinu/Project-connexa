@@ -7,7 +7,7 @@ import mysql.connector
 from decimal import Decimal
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
-from blueprints.database_handler import DatabaseHandler
+from blueprints.db_handler import DatabaseHandler
 
 with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
     cust_pref_model = pickle.load(prf_model_file)

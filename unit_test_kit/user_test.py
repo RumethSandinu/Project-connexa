@@ -1,6 +1,6 @@
 import unittest
 
-from blueprints.User import User
+from blueprints.user import User
 
 
 class TestUser(unittest.TestCase):
