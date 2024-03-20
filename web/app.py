@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import tensorflow as tf
+import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -7,7 +7,7 @@ import mysql.connector
 from decimal import Decimal
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
-from blueprints.database_handler import DatabaseHandler
+from blueprints.db_handler import DatabaseHandler
 
 with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
     cust_pref_model = pickle.load(prf_model_file)
@@ -18,7 +18,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
