@@ -86,7 +86,10 @@
 
     <h1>Sale booster</h1>
 
-    <table>
+    <!-- Add search input field -->
+    <input type="text" id="searchInput" placeholder="Search by item name">
+
+    <table id="itemsTable">
         <thead>
             <tr>
                 <th>item_id</th>
@@ -114,9 +117,33 @@
             {% endfor %}
         </tbody>
     </table>
+    <script>
+        // JavaScript for filtering table rows based on item name
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const table = document.getElementById('itemsTable');
+            const rows = table.getElementsByTagName('tr');
 
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+            searchInput.addEventListener('input', function() {
+                const searchText = searchInput.value.toLowerCase();
+
+                // Loop through all table rows and hide those that don't match the search query
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const itemName = row.getElementsByTagName('td')[1]; // Assuming item name is in the second column
+
+                    if (itemName) {
+                        const itemNameText = itemName.textContent.toLowerCase();
+                        if (itemNameText.includes(searchText)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
