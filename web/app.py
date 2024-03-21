@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import tf_keras as tf
+# import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -8,6 +8,7 @@ from decimal import Decimal
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
 from blueprints.db_handler import DatabaseHandler
+import datetime
 
 with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
     cust_pref_model = pickle.load(prf_model_file)
@@ -18,10 +19,11 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+# sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
+time_model = pd.read_csv('../time_based_analysis/time_model.csv')
 
 app = Flask(__name__)
 
@@ -445,10 +447,13 @@ def update_staff():
 @app.route('/discount')
 def discount():
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, description, price_kg, quantity_kg FROM item')
+    cursor.execute('SELECT item_id, item_name, category, description, price_kg, stock, discount_rate, image_path FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
+    current_time = datetime.datetime.now()
+    current_hour = current_time.hour
     return render_template('discount.html', rows=rows)
+
 
 
 # discount_rates = {
