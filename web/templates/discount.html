@@ -97,27 +97,7 @@
                 <td>{{ row[3] }}</td>
                 <td>{{ row[4] }}</td>
                 <td>{{ row[5] }}</td>
-                <td>{{ row[6] }} <button class="get-rates-button" onclick="getRate('{{ row[0] }}')">Get Rates</button></td>
-
-                <script>
-                    function getRate(itemId) {
-                        // Make an AJAX request to update the discount rate
-                        var xhr = new XMLHttpRequest();
-                        xhr.open("POST", "/discount", true);
-                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        xhr.onreadystatechange = function () {
-                            if (xhr.readyState === 4 && xhr.status === 200) {
-                                var response = JSON.parse(xhr.responseText);
-                                var discountRateCell = document.querySelector("tr[data-item-id='" + itemId + "'] td.discount-rate");
-                                if (discountRateCell) {
-                                discountRateCell.textContent = response.discount_rate;
-                            }
-                        };
-                        xhr.send("item_id=" + encodeURIComponent(itemId));
-                    }
-                    }
-                </script>
-
+                <td class="discount-rate">{{ row[6] }} <button class="get-rates-button" onclick="getRate(this)" data-default-discount="{{ default_discount }}">Get Rate</button></td>
                 <td><img src="{{ row[7] }}" alt="Image" width="100" height="100"></td>
             </tr>
         {% endfor %}
@@ -143,6 +123,21 @@
                 }
             }
         }
+         function getRate(button) {
+            // Get the parent cell of the clicked button
+            var cell = button.parentNode;
+
+            // Get the default discount value from the data attribute of the button
+            var defaultDiscount = button.getAttribute('data-default-discount');
+
+            // Create a new element to display the default discount value
+            var defaultDiscountElement = document.createElement('span');
+            defaultDiscountElement.textContent = defaultDiscount;
+
+            // Append the default discount value next to the button
+            cell.appendChild(defaultDiscountElement);
+        }
+
     </script>
 </body>
 </html>
