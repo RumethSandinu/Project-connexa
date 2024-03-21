@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-# import tf_keras as tf
+import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -19,7 +19,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-# sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
@@ -455,7 +455,6 @@ def discount():
     return render_template('discount.html', rows=rows)
 
 
-
 # discount_rates = {
 #     0: 0.1,  # Discount rate for cluster 0
 #     1: 0.15,  # Discount rate for cluster 1
@@ -520,17 +519,18 @@ def discount():
 #     elif request.method == 'GET':
 #         return render_template('discount.html')
 
+
 @app.route('/discount_package')
 def discount_package():  #discount_package.html in index?
     cursor = cnx.cursor() #getting the latest data
-    query = 'SELECT item_name, category, quantity_kg FROM purchase ORDER BY sale_date DESC LIMIT 1'
+    query = 'SELECT item_id, quantity_kg FROM purchase ORDER BY sale_date DESC LIMIT 1'
     cursor.execute(query)
     latest_purchase = cursor.fetchone()
 
     if latest_purchase is None:
         return "No purchase records found."
 
-    purchase_data = [(latest_purchase['item_name'], latest_purchase['category'], latest_purchase['quantity_kg'])]
+    purchase_data = [(latest_purchase[0], latest_purchase[1])]
 
     # Predict cluster for the purchase data
     pred_cluster = cust_pref_model.predict(purchase_data)
@@ -548,7 +548,7 @@ def discount_package():  #discount_package.html in index?
     #the item names are used to get the item from the database
     selected_items= []
     for item_name in discount_item_names:
-        cursor.execute('SELECT item_name, price_kg,image_path FROM item WHERE item_name = %s', (item_name,))
+        cursor.execute('SELECT item_name, price_kg,image_path FROM item INNER JOIN purchase ON item.item_id = purchase.item_id WEHERE item_name = %s', (item_name,))
         item_data = cursor.fetchone()
         selected_items.append(item_data)
     cursor.close()
