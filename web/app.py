@@ -521,7 +521,7 @@ def discount():
 #         return render_template('discount.html')
 
 @app.route('/discount_package')
-def discount_section():  #discount_package.html in index?
+def discount_package():  #discount_package.html in index?
     cursor = cnx.cursor() #getting the latest data
     query = 'SELECT item_name, category, quantity_kg FROM purchase ORDER BY sale_date DESC LIMIT 1'
     cursor.execute(query)
