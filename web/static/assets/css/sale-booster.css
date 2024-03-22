@@ -1,52 +1,85 @@
-table
-{
-    margin: auto; /* Center the table */
-    border-collapse: collapse;
-    border-radius: 20px; /* Change the border radius */
-    width: 70%;
-    background: rgb(47, 242, 226);
-    border: 1px solid rgb(255, 255, 255);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Sale Booster Styles */
 
-}
-
-th, td
-{
-    padding: 35px;
-    text-align: left;
-    font-weight: bold;
-}
-
-.update-button
-{
-    background-color: #1e8fd9;
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-}
-.nav-wrapper{
-    width: 50%;
-    margin: auto;
-}
-h2{
-    font-weight: bold;
-    text-align: center;
-    margin-top: 20px;
-    font-size: 30px;
-
-}
+/* Body Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Roboto', sans-serif; /* Setting the font family */
     margin: 0;
     padding: 0;
-    background-image: url("../images/cta-bg.png");
-    background-size: cover;      
-    background-position: center;  
-    background-repeat: no-repeat; 
-    background-attachment: fixed; 
+}
+
+/* Header Styles */
+.header {
+    background-color: #f8f9fa; /* Setting background color */
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adding a shadow */
+}
+
+.top-bar p {
+    margin: 0; /* Removing margin */
+}
+
+.navbar {
+    display: none; /* Hiding the navbar initially */
+}
+
+.navbar-list {
+    list-style: none; /* Removing bullet points from the list */
+}
+
+.navbar-link {
+    text-decoration: none; /* Removing underline from links */
+    color: #333; /* Setting link color */
+}
+
+.navbar-link:hover {
+    color: #007bff; /* Changing link color on hover */
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Collapsing table borders */
+    margin-top: 20px; /* Adding some space */
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Adding bottom border to cells */
+}
+
+th {
+    background-color: #f2f2f2; /* Setting background color for table header */
+}
+
+/* Action Link Styles */
+.navbar-link.boost {
+    background-color: #007bff; /* Setting background color */
+    color: #fff; /* Setting text color */
+    padding: 5px 10px; /* Adding padding */
+    border-radius: 5px; /* Adding border radius */
+    text-decoration: none; /* Removing underline */
+}
+
+.navbar-link.boost:hover {
+    background-color: #0056b3; /* Changing background color on hover */
+}
+ /* CSS for styling the search bar */
+#searchInput {
+    padding: 10px;
+    width: 100%; /* Set the width of the search input to match the website width */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+
+#searchInput:focus {
+    outline: none; /* Remove outline when focused */
+    border-color: #007bff; /* Change border color when focused */
+}
+
+#searchInput::placeholder {
+    color: #999; /* Set placeholder color */
 }

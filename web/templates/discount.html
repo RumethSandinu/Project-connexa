@@ -99,6 +99,16 @@
                 <td>{{ row[5] }}</td>
                 <td class="discount-rate">{{ row[6] }} <button class="get-rates-button" onclick="getRate(this)" data-default-discount="{{ default_discount }}">Get Rate</button></td>
                 <td><img src="{{ row[7] }}" alt="Image" width="100" height="100"></td>
+                <td>{{ row[6] }} <button class="get-rates-button" onclick="getRate('{{ row[0] }}')">Get Rates</button></td>
+
+                <script>
+                    function getRate(itemId)
+                    {
+
+                    }
+                </script>
+
+                <td><img src="/static/assets/product-images/{{ row[7] }}" alt="Image" width="100" height="100"></td>
             </tr>
         {% endfor %}
         </tbody>

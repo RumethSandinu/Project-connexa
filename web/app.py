@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-# import tf_keras as tf
+import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -19,7 +19,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-# sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
@@ -468,7 +468,6 @@ def update_discount_route():
 
     return redirect(url_for('discount'))
 
-
 # discount_rates = {
 #     0: 0.1,  # Discount rate for cluster 0
 #     1: 0.15,  # Discount rate for cluster 1
@@ -533,38 +532,52 @@ def update_discount_route():
 #     elif request.method == 'GET':
 #         return render_template('discount.html')
 
+
 @app.route('/discount_package')
-def discount_section():  #discount_package.html in index?
-    cursor = cnx.cursor() #getting the latest data
-    query = 'SELECT item_name, category, quantity_kg FROM purchase ORDER BY sale_date DESC LIMIT 1'
+def discount_package():
+    cursor = cnx.cursor() # Getting the latest data
+    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category \
+             FROM purchase p \
+             JOIN item i ON p.item_id = i.item_id \
+             ORDER BY p.sale_date DESC LIMIT 1'
     cursor.execute(query)
     latest_purchase = cursor.fetchone()
 
     if latest_purchase is None:
         return "No purchase records found."
 
-    purchase_data = [(latest_purchase['item_name'], latest_purchase['category'], latest_purchase['quantity_kg'])]
+    item_id, quantity_kg, item_name, category = latest_purchase
+    purchase = [item_name, category, quantity_kg]
+    purchase_array = np.array([purchase])
+    pred_cluster = cust_pref_model.predict(purchase_array, categorical=[0, 1])
 
-    # Predict cluster for the purchase data
-    pred_cluster = cust_pref_model.predict(purchase_data)
 
     # Selecting ten items randomly using the dataset
     count = 0
     discount_item_names = []
     while count < 10:
         random_item_name = np.random.choice(cluster_data['item_name'])
-        if (cluster_data[cluster_data['item_name'] == random_item_name]['cluster'].values[0] != pred_cluster) and (
-                random_item_name not in discount_item_names):
+        if (cluster_data[cluster_data['item_name'] == random_item_name]['cluster'].values[0] != pred_cluster) and (random_item_name not in discount_item_names):
             count += 1
             discount_item_names.append(random_item_name)
 
     #the item names are used to get the item from the database
     selected_items= []
     for item_name in discount_item_names:
-        cursor.execute('SELECT item_name, price_kg,image_path FROM item WHERE item_name = %s', (item_name,))
+        cursor.execute('SELECT item_name, price_kg, image_path FROM item WHERE item_name = %s', (item_name,))
         item_data = cursor.fetchone()
         selected_items.append(item_data)
     cursor.close()
+
+    print(f"Fetched {len(selected_items)} items for discounts.")
+    print("Details of selected items for discounts:")
+    for item in selected_items:
+        if item:  # Check if item is not None
+            item_name, price_kg, image_path = item
+            print(f"Item Name: {item_name}, Price/kg: {price_kg}, Image Path: {image_path}")
+        else:
+            print("An item's details could not be fetched.")
+
     return render_template('discount_package.html', rows=selected_items)
 
 
