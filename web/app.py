@@ -450,10 +450,23 @@ def discount():
     cursor.execute('SELECT item_id, item_name, category, description, price_kg, stock, discount_rate, image_path FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
+    default_discount = 5
+
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
-    return render_template('discount.html', rows=rows)
+    return render_template('discount.html', default_discount=default_discount, rows=rows)
 
+
+@app.route('/update_discount', methods=['POST'])
+def update_discount_route():
+    item_id = request.form['item_id']
+    discount_rate = request.form['discount_rate']
+
+    cursor = cnx.cursor()
+    cursor.execute('UPDATE item SET discount_rate=%s WHERE item_id=%s', (discount_rate, item_id))
+    cnx.commit()
+
+    return redirect(url_for('discount'))
 
 # discount_rates = {
 #     0: 0.1,  # Discount rate for cluster 0
