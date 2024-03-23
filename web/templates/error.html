@@ -8,5 +8,11 @@
 <body>
     <h1>Error</h1>
     <p>{{ error_message }}</p>
+    {% if error_message %}
+    <div class="alert alert-danger" role="alert">
+    {{ error_message }}
+    </div>
+    {% endif %}
+
 </body>
 </html>
