@@ -5,7 +5,7 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    background-image: url("../images/cta-bg.png");
+    background-image: url("../images/bg_art.png");
     background-size: cover;      
     background-position: center;  
     background-repeat: no-repeat; 
@@ -21,7 +21,7 @@ h2 {
     text-align: center;
     margin-top: 20px;
     font-style: italic;
-    color: #00ff2f;
+    color: #000000;
     font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     
 }
@@ -34,7 +34,7 @@ form {
     max-width: 700px;
     margin: 20px auto;
     padding: 20px;
-    background: url("../images/9757a719feaaef3.jpg") center center/cover;
+    background: url("../images/cta-bg.png") center center/cover;
     border-radius: 10px;
     box-shadow: 0 0 10px transparent;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -43,6 +43,12 @@ form {
     grid-template-columns: repeat(2, 1fr); /* Three columns with equal width */
     gap: 15px;
     
+    
+}
+
+form::before{
+    backdrop-filter: blur(20px); /* Adjust the blur radius as needed */
+    z-index: -1;
 }
 
 form:hover{

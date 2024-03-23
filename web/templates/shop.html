@@ -15,7 +15,7 @@
   <!-- custom css link -->
   <link rel="stylesheet" href="../static/assets/css/main.css">
   <link rel="stylesheet" href="../static/assets/css/home.css">
-
+  <link rel="stylesheet" href="../static/assets/css/shop.css">
   <!-- google font link-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +24,20 @@
 
 
 <body>
+    <div class="banner">
+        <div class="banner-left">
+            <img src="../static/assets/images/partner-left-bg.png" alt="bg-art">
+        </div>
+
+        <div class="banner-center">
+            <img src="../static/assets/images/connexa_logo.png" alt="logo">
+            <p>-- Where Loyalty Equals Savings! --</p>
+        </div>
+
+        <div class="banner-right">
+            <img src="../static/assets/images/partner-right-bg.png" alt="bg-art">
+        </div>
+    </div>
     <ul class="top-product-list grid-list">
 
     {% for row in rows %}
@@ -54,7 +68,7 @@
           </h3>
 
           <div class="price-wrapper">
-            <data class="price" value="{{ row[1] }}">$ {{ row[1] }}</data>
+            <data class="price" value="{{ row[1] }}">¥ {{ row[1] }}</data>
           </div>
 
           <button class="btn btn-primary">Add to Cart</button>
