@@ -14,8 +14,8 @@
     background: url("../images/cta-bg.png") center center/cover;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
-
   }
+  
   .Register-container:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
@@ -74,7 +74,7 @@
 
   body {
     background-image: url("../images/mart.jpg");
-    background-size: auto 55%; /* Set width to auto and height to 100% */
+    background-size: auto 70%; /* Set width to auto and height to 100% */
     background-position: right center; /* Align background image to the left and center vertically */
     background-repeat: no-repeat; 
     background-attachment: fixed; 
