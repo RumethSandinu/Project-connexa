@@ -2,12 +2,12 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #ffffff;
     margin: 0;
     padding: 0;
-    background-image: url("../images/2f06b5ee85794f1a946d.jpg");
-    background-size: cover;      
-    background-position: center;  
+    background-image: url("../images/bg_loss.jpg");
+    background-size: auto 90%;      
+    background-position: left center;  
     background-repeat: no-repeat; 
     background-attachment: fixed; 
 }
@@ -42,6 +42,7 @@ form {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* Three columns with equal width */
     gap: 15px;
+    border: 1px solid #1fe654;
     
     
 }
@@ -62,13 +63,14 @@ label {
     margin-bottom: 8px;
     font-weight: bold;
     transition: font-size 0.3s ease, color 0.3s ease;
+    
 }
 
 input {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #000000;
+    border: 1px solid #1fe654;
     border-radius: 20px;
     box-sizing: border-box;
 }
