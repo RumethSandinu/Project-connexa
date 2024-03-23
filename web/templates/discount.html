@@ -97,15 +97,7 @@
                 <td>{{ row[3] }}</td>
                 <td>{{ row[4] }}</td>
                 <td>{{ row[5] }}</td>
-                <td>{{ row[6] }} <button class="get-rates-button" onclick="getRate('{{ row[0] }}')">Get Rates</button></td>
-
-                <script>
-                    function getRate(itemId)
-                    {
-
-                    }
-                </script>
-
+                <td class="discount-rate">{{ row[6] }} <button class="get-rates-button" onclick="getRate(this)" data-default-discount="{{ default_discount }}">Get Rate</button></td>
                 <td><img src="/static/assets/product-images/{{ row[7] }}" alt="Image" width="100" height="100"></td>
             </tr>
         {% endfor %}
@@ -131,6 +123,21 @@
                 }
             }
         }
+         function getRate(button) {
+            // Get the parent cell of the clicked button
+            var cell = button.parentNode;
+
+            // Get the default discount value from the data attribute of the button
+            var defaultDiscount = button.getAttribute('data-default-discount');
+
+            // Create a new element to display the default discount value
+            var defaultDiscountElement = document.createElement('span');
+            defaultDiscountElement.textContent = defaultDiscount;
+
+            // Append the default discount value next to the button
+            cell.appendChild(defaultDiscountElement);
+        }
+
     </script>
 </body>
 </html>

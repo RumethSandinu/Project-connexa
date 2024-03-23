@@ -79,6 +79,8 @@ class DatabaseHandler:
                 return customer_data
             else:
                 return None
+        else:
+            return "You cannot log in. Please check your email and try again."
 
     def authenticate_staff(self, email, password):
         staff_data = self.get_staff_by_email(email)
@@ -97,12 +99,14 @@ class DatabaseHandler:
             return None
 
     def verify_password(self, input_password, hashed_password, salt):
-        input_password_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), salt, 100000)
+        input_password_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), salt, 128)
+        print("puka")
         return hashed_password == input_password_hash
 
     def get_customer_by_email(self, email):
         self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s', (email,))
         customer_data = self.cursor.fetchone()
+        print("shamal")
         return customer_data
 
     def get_staff_by_email(self, email):

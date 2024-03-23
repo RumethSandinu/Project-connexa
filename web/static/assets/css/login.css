@@ -1,49 +1,65 @@
 .login-container {
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 20px;
-    border: 1px solid #03fd03e7;
-    border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    background: url("../images/2f06b5ee85794f1a946d.jpg") center center/cover;
-    background-repeat: no-repeat, no-repeat;
-    background-position: bottom left, top right;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    color: var(black);
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  border: 1px solid #03fd03e7;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden; /* Ensure the blur doesn't extend beyond the container */
 }
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("../images/cta-bg.png");
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(20px); /* Adjust the blur radius as needed */
+  z-index: -1; /* Ensure the blurred image is behind the content */
+}
+
 .login-container h2 {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
+
 .login-form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
-.login-form label{
+
+.login-form label {
   font-weight: bold;
 }
 
 .login-form button {
-    padding: 10px 30px;
-    border: none;
-    border-radius: 20px;
-    background-color: #000000;
-    color: rgb(255, 252, 252);
-    cursor: pointer;
-    position: absolute;
-    bottom: 10px; 
-    left: 50%;
-    transform: translateX(-50%);
+  padding: 10px 30px;
+  border: none;
+  border-radius: 20px;
+  background-color: #000000;
+  color: rgb(255, 252, 252);
+  cursor: pointer;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
 }
+
 .login-form button:hover {
-    background-color: #15856e;
+  background-color: #15856e;
 }
+
   body {
     /* Set background image properties */
-    background-image: url("../images/cta-bg.png"); /* Adjust the path to your image */
+    background-image: url("../images/bg_art.png"); /* Adjust the path to your image */
     background-size: cover;      /* Cover the entire viewport */
     background-position: center;  /* Center the image */
     background-repeat: no-repeat; /* Do not repeat the image */
@@ -61,6 +77,26 @@
   border-top-left-radius: 8px; /* Adjust border radius to match the container */
   border-top-right-radius: 8px;
   margin-bottom: 20px; /* Add spacing between the image and the form */
+}
+#registerButton {
+  /* Add styling to position the login button in the corner */
+  position: absolute;  /* Position it relative to the nearest positioned ancestor */
+  top: 63px;           /* Adjust this value to position it from the top */
+  right: 10px;         /* Adjust this value to position it from the right */
+  z-index: 1000;       /* Ensure it stays above other elements on the page */
+}
+
+/* Optional: Add some styles to make it visually appealing */
+#registerButton {
+  background-color: #1EA786; /* Blue background color */
+  color: white;              /* White text color */
+  padding:12px 14px;         /* Padding around the text/icon */
+  border-radius: 20px;        /* Rounded corners */
+  text-decoration: none;     /* Remove underline */
+}
+
+#registerButton:hover {
+  background-color: #16fd95; /* Darker blue on hover */
 }
 
 
