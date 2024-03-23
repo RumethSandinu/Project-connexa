@@ -13,12 +13,8 @@
     color: #1cd341;
     background: url("../images/cta-bg.png") center center/cover;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-   
-  }
-  .Register-container::before{
     position: relative;
-    backdrop-filter: blur(20px); /* Adjust the blur radius as needed */
-    z-index: -1;
+
   }
   .Register-container:hover {
     transform: scale(1.05);
