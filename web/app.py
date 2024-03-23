@@ -451,9 +451,10 @@ def discount():
     # get all records to tuples
     rows = cursor.fetchall()
     default_discount = 5
-
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
+    filt = time_model
+
     return render_template('discount.html', default_discount=default_discount, rows=rows)
 
 
