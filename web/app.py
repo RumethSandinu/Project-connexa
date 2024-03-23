@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import tf_keras as tf
+#import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -19,13 +19,15 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+#sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
 time_model = pd.read_csv('../time_based_analysis/time_model.csv')
 
 app = Flask(__name__)
+app.secret_key = 'hichchi shamal'
+
 
 db_handler = DatabaseHandler()
 cnx = mysql.connector.connect(user='root', password='', host='localhost', database='connexa')
@@ -60,6 +62,7 @@ def login():
     if request.method == 'POST':
         email = request.form.get('username')
         password = request.form.get('password')
+        print(email, password)
 
         # Authenticate user
         user_data = authenticate_user(email, password)
@@ -127,7 +130,9 @@ def register(pbkdf2_sha256=None):
         elif user_type == 'admin':
             result = register_admin(request.form)
         else:
-            print("hello")
+            # Handle unexpected 'userType'
+            result = False  # Or any other appropriate action
+            print("Unexpected userType:", user_type)
 
         if result:
             return redirect(url_for('login'))  # Redirect to login page after successful registration
@@ -271,9 +276,9 @@ def sale_booster_setup(item_id):
         input_data[0, category_index] = 1
 
         # get predictions
-        prediction = sales_pred_model.predict(input_data)
-        prediction = prediction * mean_customers_past_7_days
-        sales.append(prediction[0][0])
+        #prediction = sales_pred_model.predict(input_data)
+        #prediction = prediction * mean_customers_past_7_days
+        #sales.append(prediction[0][0])
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
