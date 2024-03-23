@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-#import tf_keras as tf
+import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -19,7 +19,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-#sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
@@ -40,6 +40,11 @@ else:
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/customer_ui')
+def customer_ui():
+    return render_template('customer_ui.html')
 
 
 @app.route('/about')
@@ -122,7 +127,6 @@ def register(pbkdf2_sha256=None):
     result = None
     if request.method == 'POST':
         user_type = request.form.get('userType')
-
         if user_type == 'customer':
             result = register_customer(request.form, pbkdf2_sha256=pbkdf2_sha256)
         elif user_type == 'staff':
@@ -276,9 +280,9 @@ def sale_booster_setup(item_id):
         input_data[0, category_index] = 1
 
         # get predictions
-        #prediction = sales_pred_model.predict(input_data)
-        #prediction = prediction * mean_customers_past_7_days
-        #sales.append(prediction[0][0])
+        prediction = sales_pred_model.predict(input_data)
+        prediction = prediction * mean_customers_past_7_days
+        sales.append(prediction[0][0])
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
@@ -322,8 +326,6 @@ def blog():
 def item():
     return render_template('staff.html')
 
-# Assuming 'model' is your machine learning model
-
 
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
@@ -331,39 +333,62 @@ def loss_rate_model():
         try:
             # Get form data
             month = int(request.form['Month'])
-            quantity_sold_kg = float(request.form['quantity_sold_kg'])
             unit_selling_price = float(request.form['unit_selling_price_rmb/kg'])
             wholesale_price = float(request.form['wholesale_price_(rmb/kg)'])
-            total_sales = float(request.form['total_sales'])
+
             category_name = request.form['category_name']
             item_name = request.form['item_name']
             discount = request.form['discount']
-            sale_or_return = request.form['sale_or_return']
+
+            column_values = sales_pred_columns.values
+            unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
+
+            # process the input data
+            input_data = np.zeros((1, 155))
+            input_data[0, unit_price_index] = unit_selling_price
+            item_name_index = None
+            category_index = None
+
+            for idx, value in enumerate(column_values):
+                if value == f'item_name_{item_name}':
+                    item_name_index = idx
+                elif value == f'category_name_{category_name}':
+                    category_index = idx
+
+            if item_name_index is None or category_index is None:
+                return render_template('item_not_available.html', item_name=item_name, category=category_name)
+
+            input_data[0, item_name_index] = 1
+            input_data[0, category_index] = 1
+
+            print(input_data)
+
+            # get predictions
+            pred_sale = sales_pred_model.predict(input_data)
+            cursor = cnx.cursor()
+            cursor.execute('SELECT item_id FROM item where item_name = %s and category = %s', (item_name, category_name))
+            item_id = cursor.fetchone()[0]
+            cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
+            mean_customers_past_30_days = cursor.fetchone()[0]
+            total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
+
 
             # Load the column names used during training
             columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names.csv')
             column_loss_rate_values = columns_loss_rate.values.flatten()
-
-            # Debugging print statement to check loaded column names
-            print("Column names used during training:", column_loss_rate_values)
 
             # Adjusting required columns based on encoding
             required_columns = [
                 f'category_name_{category_name}',
                 f'item_name_{item_name}',
                 f'discount_{discount}',
-                f'sale_or_return_{sale_or_return}'
             ]
-
-            # Debugging print statement to check required columns
-            print("Required columns:", required_columns)
 
             # Check if all required columns are present
             if not all(col in column_loss_rate_values for col in required_columns):
                 raise ValueError("One or more required columns not found in the loaded column names.")
 
             # Prepare input data as a NumPy array with zeros
-            print(len(column_loss_rate_values))
             input_data = np.zeros((1, len(column_loss_rate_values)))
 
             # Set the corresponding column values to non-zero based on the form data
@@ -372,31 +397,18 @@ def loss_rate_model():
 
             # Set numerical values in the input data
             input_data[0, 0] = month
-            input_data[0, 1] = quantity_sold_kg
-            input_data[0, 2] = unit_selling_price
-            input_data[0, 3] = wholesale_price
-            input_data[0, 4] = total_sales
-
-            # Debugging print statement to check loaded column names
-            print("Column names used during training:", column_loss_rate_values)
-
-            # Debugging print statement to check received form data
-            print("Received form data:", input_data)
-
-            # Debugging print statements to check missing columns
-            missing_columns = [col for col in required_columns if col not in column_loss_rate_values]
-            print("Missing columns:", missing_columns)
+            input_data[0, 1] = unit_selling_price
+            input_data[0, 2] = wholesale_price
+            input_data[0, 3] = total_sales
 
             # Load the trained model and label encoder
             with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
                 loss_rate_model = pickle.load(file)
+
             # Check if the loaded model is an instance of LinearRegression
             if isinstance(loss_rate_model, LinearRegression):
                 # Perform prediction
                 prediction = loss_rate_model.predict(input_data)
-
-                # Print the prediction
-                print("Prediction:", prediction)
 
                 # Render the result.html template with the predicted value
                 return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0])
@@ -414,7 +426,6 @@ def loss_rate_model():
     elif request.method == 'GET':
         # Code to render the form initially
         return render_template('loss_rate_model.html')
-
 
 @app.route('/staff')
 def staff():
@@ -434,6 +445,7 @@ def delete_staff():
     cnx.commit()
     return redirect(url_for('staff'))
 
+
 @app.route('/update_staff', methods=['POST'])
 def update_staff():
     staff_id = request.form['staff_id']
@@ -449,18 +461,48 @@ def update_staff():
 
     return redirect(url_for('staff'))
 
+
 @app.route('/discount')
 def discount():
+    customer = db_handler.get_customer_email()
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, description, price_kg, stock, discount_rate, image_path FROM item')
-    # get all records to tuples
-    rows = cursor.fetchall()
-    default_discount = 5
+    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase p JOIN item i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1'
+    cursor.execute(query, customer)
+    latest_purchase = cursor.fetchone()
+    cursor.close()
+    if latest_purchase is None:
+        return "No purchase records found."
+
+    item_id, quantity_kg, item_name, category = latest_purchase
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
-    filt = time_model
+    column_values = sales_pred_columns.values
 
-    return render_template('discount.html', default_discount=default_discount, rows=rows)
+    # process the input data
+    input_data = np.zeros((1, 185))
+    input_data[0, 0] = int(current_hour)
+    input_data[0, 1] = int(Decimal(quantity_kg))
+
+    item_name_index = None
+    category_index = None
+    for idx, value in enumerate(column_values):
+        if value == f'item_name_{item_name}':
+            item_name_index = idx
+        elif value == f'category_name_{category}':
+            category_index = idx
+
+    if item_name_index is None or category_index is None:
+        return render_template('item_not_available.html', item_name=item_name, category=category)
+
+    input_data[0, item_name_index] = 1
+    input_data[0, category_index] = 1
+
+    # get predictions
+    prediction = time_based_model.predict(input_data)
+    print(prediction)
+
+    default_discount = 5
+    return render_template('discount.html', default_discount=default_discount)
 
 
 @app.route('/update_discount', methods=['POST'])
@@ -474,81 +516,14 @@ def update_discount_route():
 
     return redirect(url_for('discount'))
 
-# discount_rates = {
-#     0: 0.1,  # Discount rate for cluster 0
-#     1: 0.15,  # Discount rate for cluster 1
-#     2: 0.2,  # Discount rate for cluster 2
-#     3: 0.25  # Discount rate for cluster 3
-# }
-#
-# @app.route('/discount', methods=['GET','POST'])
-# def discount():
-#     if request.method == 'POST':
-#         try:
-#             # Get from data
-#             item_time = int(request.form['time'])
-#             item_quantity_sold_kg = float(request.form['quantity_sold_kg'])
-#             item_category_name = request.form['category_name']
-#             discount_item_name = request.form['item_name']
-#
-#             # Load the column names
-#             item_column_names = pd.read_csv('../time_based_analysis/item_columns_names.csv')
-#             item_column_name_values = item_column_names.values.flatten()
-#
-#             print("Column name used during training:", item_column_name_values)
-#
-#             # Adjust required columns
-#             dis_rate_required_col = [
-#                 f'item_name_{discount_item_name}',
-#                 f'category_name_{item_category_name}'
-#             ]
-#
-#             print("Required columns:", dis_rate_required_col)
-#
-#             if not all(colu in item_column_name_values for colu in dis_rate_required_col):
-#                 raise ValueError("Bla bla")
-#
-#             # Input data as numpy array
-#             print(len(item_column_name_values))
-#             item_input_data = np.zeros((1, len(item_column_name_values)))
-#
-#             for colu in dis_rate_required_col:
-#                 item_input_data[0, np.where(item_column_name_values == colu)[0][0]] = 1
-#
-#             # Set numerical values
-#             item_input_data[0, 0] = item_time
-#             item_input_data[0, 1] = item_quantity_sold_kg
-#
-#             print(" used column name during train:", item_column_name_values)
-#
-#             print("Received data:", item_input_data)
-#
-#             cluster = time_based_model.predict(item_input_data)[0]
-#
-#             # Assign discount rate based on cluster
-#             discount_rate = discount_rates[cluster]
-#
-#             return render_template('discount_rate.html', discount_rate=discount_rate)
-#
-#         except Exception as e:
-#             print(f'Error processing data: {e}')
-#             return render_template("item_error.html")
-#
-#
-#     elif request.method == 'GET':
-#         return render_template('discount.html')
 
-
-@app.route('/discount_package')
-def discount_package():
-    cursor = cnx.cursor() # Getting the latest data
-    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category \
-             FROM purchase p \
-             JOIN item i ON p.item_id = i.item_id \
-             ORDER BY p.sale_date DESC LIMIT 1'
-    cursor.execute(query)
+@app.route('/personalised_discount_package')
+def personalised_discount_package():
+    customer = db_handler.get_customer_email()
+    cursor = cnx.cursor()
+    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase p JOIN item i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1'
+    cursor.execute(query, customer)
     latest_purchase = cursor.fetchone()
-
     if latest_purchase is None:
         return "No purchase records found."
 
@@ -556,7 +531,6 @@ def discount_package():
     purchase = [item_name, category, quantity_kg]
     purchase_array = np.array([purchase])
     pred_cluster = cust_pref_model.predict(purchase_array, categorical=[0, 1])
-
 
     # Selecting ten items randomly using the dataset
     count = 0
@@ -584,7 +558,7 @@ def discount_package():
         else:
             print("An item's details could not be fetched.")
 
-    return render_template('discount_package.html', rows=selected_items)
+    return render_template('personalised_discount_package.html', rows=selected_items)
 
 
 if __name__ == '__main__':
