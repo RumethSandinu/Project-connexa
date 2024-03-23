@@ -79,6 +79,7 @@ body{
     color: white;
     font-size: 18px;
     font-style: italic;
+    font-family: FontAwesome;
 }
 
 .banner-left img{
@@ -96,6 +97,3 @@ body{
     margin-bottom: 10px;
     filter: brightness(120%);
 }
-
-
-

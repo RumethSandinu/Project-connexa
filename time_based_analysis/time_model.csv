@@ -1,0 +1,656 @@
+item_name,category_name,cluster
+green hot peppers,capsicum,0
+yunnan lettuces,flower,0
+xixia mushroom ,mushroom,0
+paopaojiao ,capsicum,0
+red hang pepper,capsicum,0
+luosi pepper,capsicum,0
+jigu mushroom ,mushroom,0
+net lotus root ,aquatic,0
+qinggengsanhua,cabbage,0
+ping mushroom,mushroom,0
+niushou youcai,flower,0
+red pepper ,capsicum,0
+the agaricus bisporus,mushroom,0
+garden chrysanthemum,flower,0
+zhijiang red bolt,flower,0
+millet pepper,capsicum,0
+bell pepper ,capsicum,0
+sweet chinese cabbage,flower,0
+spinach,flower,0
+green line pepper,capsicum,0
+yellow xincai ,flower,0
+yunnan shengcai,flower,0
+caixin,flower,0
+shanghaiqing,flower,0
+needle mushroom ,mushroom,0
+fresh black fungus ,mushroom,0
+eggplant ,solanum,0
+apricot bao mushroom ,mushroom,0
+honghu lotus root powder ,aquatic,0
+water chestnut,aquatic,0
+wawacai,flower,0
+huangbaicai ,flower,0
+haixian mushroom ,mushroom,0
+the red bell pepper ,capsicum,0
+7 colour pepper ,capsicum,0
+green eggplant ,solanum,0
+net lotus root ,aquatic,3
+zhijiang red bolt,flower,3
+paopaojiao ,capsicum,3
+needle mushroom ,mushroom,3
+spinach,flower,3
+yellow xincai ,flower,3
+ping mushroom,mushroom,3
+garden chrysanthemum,flower,3
+red pepper ,capsicum,3
+green line pepper,capsicum,3
+xixia mushroom ,mushroom,3
+eggplant ,solanum,3
+qinggengsanhua,cabbage,3
+niushou youcai,flower,3
+yunnan lettuces,flower,3
+luosi pepper,capsicum,3
+water chestnut,aquatic,3
+7 colour pepper ,capsicum,3
+huangbaicai ,flower,3
+green eggplant ,solanum,3
+caidian quinoa artemisia,flower,3
+fresh black fungus ,mushroom,3
+red hang pepper,capsicum,3
+the red bell pepper ,capsicum,3
+apricot bao mushroom ,mushroom,3
+millet pepper,capsicum,3
+caixin,flower,3
+wawacai,flower,3
+yunnan shengcai,flower,3
+shanghaiqing,flower,3
+haixian mushroom ,mushroom,3
+the agaricus bisporus,mushroom,3
+green hot peppers,capsicum,3
+needle mushroom ,mushroom,1
+xixia mushroom ,mushroom,1
+green eggplant ,solanum,1
+zhijiang red bolt,flower,1
+net lotus root ,aquatic,1
+paopaojiao ,capsicum,1
+garden chrysanthemum,flower,1
+millet pepper,capsicum,1
+ping mushroom,mushroom,1
+qinggengsanhua,cabbage,1
+water chestnut,aquatic,1
+niushou youcai,flower,1
+yunnan lettuces,flower,1
+honghu lotus root powder ,aquatic,1
+green line pepper,capsicum,1
+sweet chinese cabbage,flower,1
+bell pepper ,capsicum,1
+luosi pepper,capsicum,1
+shanghaiqing,flower,1
+caixin,flower,1
+haixian mushroom ,mushroom,1
+dongmenkou xiaobaicai,flower,1
+apricot bao mushroom ,mushroom,1
+eggplant ,solanum,1
+yellow xincai ,flower,1
+green hot peppers,capsicum,1
+spinach,flower,1
+wawacai,flower,1
+yunnan shengcai,flower,1
+jigu mushroom ,mushroom,1
+fresh black fungus ,mushroom,1
+red hang pepper,capsicum,1
+the red bell pepper ,capsicum,1
+spinach,flower,2
+paopaojiao ,capsicum,2
+yunnan lettuces,flower,2
+zhijiang red bolt,flower,2
+xixia mushroom ,mushroom,2
+yunnan shengcai,flower,2
+water chestnut,aquatic,2
+apricot bao mushroom ,mushroom,2
+huangbaicai ,flower,2
+qinggengsanhua,cabbage,2
+luosi pepper,capsicum,2
+niushou youcai,flower,2
+wawacai,flower,2
+millet pepper,capsicum,2
+eggplant ,solanum,2
+green hot peppers,capsicum,2
+honghu lotus root powder ,aquatic,2
+sweet chinese cabbage,flower,2
+7 colour pepper ,capsicum,2
+red pepper ,capsicum,2
+yellow xincai ,flower,2
+jigu mushroom ,mushroom,2
+the agaricus bisporus,mushroom,2
+fresh black fungus ,mushroom,2
+caidian quinoa artemisia,flower,0
+honghu lotus root powder ,aquatic,3
+sweet chinese cabbage,flower,3
+jigu mushroom ,mushroom,3
+red pepper ,capsicum,1
+huangbaicai ,flower,1
+the agaricus bisporus,mushroom,1
+caidian quinoa artemisia,flower,1
+green eggplant ,solanum,2
+needle mushroom ,mushroom,2
+net lotus root ,aquatic,2
+ping mushroom,mushroom,2
+dongmenkou xiaobaicai,flower,2
+green line pepper,capsicum,2
+caixin,flower,2
+shanghaiqing,flower,2
+dongmenkou xiaobaicai,flower,0
+dongmenkou xiaobaicai,flower,3
+tremella ,mushroom,3
+garden chrysanthemum,flower,2
+red hang pepper,capsicum,2
+wild pink lotus root,aquatic,0
+wild pink lotus root,aquatic,3
+7 colour pepper ,capsicum,1
+wild pink lotus root,aquatic,1
+bell pepper ,capsicum,2
+the red bell pepper ,capsicum,2
+bell pepper ,capsicum,3
+tremella ,mushroom,0
+haixian mushroom ,mushroom,2
+tremella ,mushroom,1
+caidian quinoa artemisia,flower,2
+tremella ,mushroom,2
+naibaicai,flower,0
+naibaicai,flower,3
+naibaicai,flower,1
+naibaicai,flower,2
+purple cabbage ,cabbage,3
+zhuyecai,flower,0
+xixia black mushroom ,mushroom,0
+xixia black mushroom ,mushroom,3
+zhuyecai,flower,3
+amaranth,flower,3
+zhuyecai,flower,1
+xixia black mushroom ,mushroom,1
+amaranth,flower,1
+xixia black mushroom ,mushroom,2
+purple cabbage ,cabbage,0
+zhuyecai,flower,2
+purple cabbage ,cabbage,1
+amaranth,flower,0
+muercai,flower,0
+pepper mix,capsicum,0
+muercai,flower,3
+pepper mix,capsicum,3
+amaranth,flower,2
+pepper mix,capsicum,2
+suizhou bubble green,flower,0
+suizhou bubble green,flower,3
+suizhou bubble green,flower,1
+suizhou bubble green,flower,2
+pepper mix,capsicum,1
+muercai,flower,1
+purple cabbage ,cabbage,2
+muercai,flower,2
+chinese caterpillar fungus flowers,mushroom,3
+chinese caterpillar fungus flowers,mushroom,1
+changxianqie,solanum,0
+changxianqie,solanum,3
+changxianqie,solanum,1
+green hangzhou pepper ,capsicum,1
+green hangzhou pepper ,capsicum,2
+radish leaves,flower,0
+green hangzhou pepper ,capsicum,0
+chinese caterpillar fungus flowers,mushroom,0
+radish leaves,flower,3
+green hangzhou pepper ,capsicum,3
+radish leaves,flower,1
+chinese caterpillar fungus flowers,mushroom,2
+changxianqie,solanum,2
+radish leaves,flower,2
+siguajian,flower,0
+the local yellow youcai,flower,3
+hua eggplant,solanum,3
+the local yellow youcai,flower,1
+siguajian,flower,2
+the local yellow youcai,flower,0
+hua eggplant,solanum,0
+hua eggplant,solanum,1
+siguajian,flower,1
+the local yellow youcai,flower,2
+hua eggplant,solanum,2
+siguajian,flower,3
+wuhu green pepper ,capsicum,0
+wuhu green pepper ,capsicum,3
+wuhu green pepper ,capsicum,1
+wuhu green pepper ,capsicum,2
+green hangjiao ,capsicum,0
+high melon ,aquatic,0
+high melon ,aquatic,3
+green hangjiao ,capsicum,2
+xiuzhen mushroom,mushroom,3
+xiuzhen mushroom,mushroom,1
+high melon ,aquatic,1
+xiuzhen mushroom,mushroom,2
+white caitai,flower,0
+white caitai,flower,3
+white caitai,flower,1
+purple beicai,flower,0
+panax notoginseng,flower,1
+panax notoginseng,flower,2
+white caitai,flower,2
+dalong eggplant,solanum,0
+jicai,flower,0
+sichuan red cedar,flower,0
+sichuan red cedar,flower,3
+dalong eggplant,solanum,3
+red hot peppers,capsicum,3
+dalong eggplant,solanum,1
+red hot peppers,capsicum,0
+hongshujian,flower,3
+red hot peppers,capsicum,1
+dalong eggplant,solanum,2
+sichuan red cedar,flower,2
+hongshujian,flower,2
+youcaitai,flower,0
+youcaitai,flower,3
+jicai,flower,1
+purple beicai,flower,1
+youcaitai,flower,1
+perilla,flower,1
+hongshujian,flower,1
+youcaitai,flower,2
+jicai,flower,2
+red hot peppers,capsicum,2
+perilla,flower,2
+purple beicai,flower,3
+sichuan red cedar,flower,1
+perilla,flower,0
+perilla,flower,3
+niushou shengcai,flower,0
+niushou shengcai,flower,3
+niushou shengcai,flower,1
+niushou shengcai,flower,2
+green caitai,flower,0
+green caitai,flower,3
+green caitai,flower,1
+green caitai,flower,2
+panax notoginseng,flower,0
+machixian,flower,3
+panax notoginseng,flower,3
+machixian,flower,2
+machixian,flower,0
+machixian,flower,1
+ganlanye,flower,3
+ganlanye,flower,1
+miantiaocai,flower,1
+purple beicai,flower,2
+miantiaocai,flower,0
+hongshujian,flower,0
+miantiaocai,flower,2
+chinese cabbage,flower,3
+chinese cabbage,flower,1
+high melon ,aquatic,2
+chinese cabbage,flower,0
+chinese cabbage,flower,2
+mint,flower,0
+mint,flower,3
+white jelly mushroom,mushroom,1
+mint,flower,2
+wild lotus root ,aquatic,0
+wild lotus root ,aquatic,3
+wild lotus root ,aquatic,2
+mint,flower,1
+embroidered aureus,mushroom,0
+embroidered aureus,mushroom,3
+local shanghaiqing,flower,0
+local shanghaiqing,flower,3
+local shanghaiqing,flower,1
+local shanghaiqing,flower,2
+hericium ,mushroom,0
+fresh lotus root zone ,aquatic,0
+fresh lotus root zone ,aquatic,1
+fresh lotus root zone ,aquatic,2
+fresh lotus root zone ,aquatic,3
+the white mushroom ,mushroom,2
+the white mushroom ,mushroom,0
+the white mushroom ,mushroom,1
+the white mushroom ,mushroom,3
+honghu lotus root,aquatic,2
+fresh rice dumplings leaves,flower,0
+fresh rice dumplings leaves,flower,3
+fresh rice dumplings leaves,flower,1
+fresh rice dumplings leaves,flower,2
+foreign garland chrysanthemum ,flower,0
+honghu lotus root,aquatic,0
+honghu lotus root,aquatic,3
+foreign garland chrysanthemum ,flower,1
+foreign garland chrysanthemum ,flower,2
+foreign garland chrysanthemum ,flower,3
+black rapeseed,flower,3
+honghu lotus root,aquatic,1
+ice grass,flower,0
+mustard,flower,0
+mustard,flower,3
+ice grass,flower,2
+mustard,flower,2
+ice grass,flower,3
+mustard,flower,1
+ice grass,flower,1
+red line pepper,capsicum,0
+lotus ,aquatic,0
+red line pepper,capsicum,3
+red line pepper,capsicum,1
+red line pepper,capsicum,2
+lotus ,aquatic,1
+lotus ,aquatic,2
+nanguajian,flower,0
+nanguajian,flower,3
+nanguajian,flower,1
+nanguajian,flower,2
+lotus ,aquatic,3
+water chestnut ,aquatic,0
+water chestnut ,aquatic,2
+water chestnut ,aquatic,3
+xiaozhoupi,capsicum,0
+xiaozhoupi,capsicum,3
+xiaozhoupi,capsicum,1
+xiaozhoupi,capsicum,2
+round eggplant,solanum,0
+round eggplant,solanum,3
+water chestnut ,aquatic,1
+round eggplant,solanum,2
+juhua youcai,flower,0
+big broccoli,flower,0
+juhua youcai,flower,3
+juhua youcai,flower,1
+round eggplant,solanum,1
+big broccoli,flower,1
+juhua youcai,flower,2
+big broccoli,flower,2
+naibai caimiao,flower,0
+naibai caimiao,flower,3
+naibai caimiao,flower,1
+naibai caimiao,flower,2
+broccoli,flower,0
+the dandelion,flower,0
+huanghuacai,flower,0
+xiaoqingcai ,flower,0
+xiaoqingcai ,flower,3
+xiaoqingcai ,flower,1
+xiaoqingcai ,flower,2
+yuganjiao,capsicum,0
+yuganjiao,capsicum,3
+yuganjiao,capsicum,1
+yuganjiao,capsicum,2
+lameizi,capsicum,0
+lameizi,capsicum,3
+lameizi,capsicum,1
+lameizi,capsicum,2
+the crab flavor mushroom ,mushroom,0
+the crab flavor mushroom ,mushroom,3
+the crab flavor mushroom ,mushroom,1
+the crab flavor mushroom ,mushroom,2
+the steak mushrooms,mushroom,0
+the steak mushrooms,mushroom,3
+the steak mushrooms,mushroom,1
+the steak mushrooms,mushroom,2
+shuanggou cabbage,flower,2
+shuanggou cabbage,flower,3
+wild lotus root ,aquatic,1
+purple hot peppers,capsicum,0
+purple hot peppers,capsicum,3
+purple hot peppers,capsicum,1
+purple hot peppers,capsicum,2
+caixin ,flower,0
+garden chrysanthemum ,flower,0
+caixin ,flower,3
+yunnan leaf lettuce ,flower,3
+yunnan leaf lettuce ,flower,1
+spinach ,flower,1
+garden chrysanthemum ,flower,1
+shanghai green ,flower,1
+spinach ,flower,2
+shanghai green ,flower,2
+yunnan leaf lettuce ,flower,2
+garden chrysanthemum ,flower,2
+caixin ,flower,2
+yunnan lettuce ,flower,0
+zhijiang red bolt ,flower,0
+yunnan lettuce ,flower,3
+spinach ,flower,3
+shanghai green ,flower,3
+yunnan lettuce ,flower,1
+zhijiang red bolt ,flower,2
+shanghai green ,flower,0
+lotus root tip,aquatic,0
+lotus root tip,aquatic,3
+lotus root tip,aquatic,1
+zhijiang red bolt ,flower,1
+millet pepper ,capsicum,1
+caixin ,flower,1
+millet pepper ,capsicum,2
+yunnan lettuce ,flower,2
+garden chrysanthemum ,flower,3
+spinach ,flower,0
+yunnan leaf lettuce ,flower,0
+millet pepper ,capsicum,3
+millet pepper ,capsicum,0
+zhijiang red bolt ,flower,3
+hongshan caitai,flower,3
+hongshan caitai,flower,1
+hongshan caitai,flower,0
+black porcini ,mushroom,2
+chopped red pine ,mushroom,2
+the pork stomach mushroom ,mushroom,2
+the steak mushrooms ,mushroom,3
+chopped red pine ,mushroom,3
+the pork stomach mushroom ,mushroom,1
+black porcini ,mushroom,1
+the steak mushrooms ,mushroom,0
+chopped red pine ,mushroom,1
+the steak mushrooms ,mushroom,2
+black chicken fir bacteria ,mushroom,0
+the pork stomach mushroom ,mushroom,0
+black chicken fir bacteria ,mushroom,1
+chopped red pine ,mushroom,0
+the pork stomach mushroom ,mushroom,3
+green hot peppers ,capsicum,3
+red bell pepper ,capsicum,0
+red bell pepper ,capsicum,3
+red bell pepper ,capsicum,1
+xiaozhoupi ,capsicum,0
+xiaozhoupi ,capsicum,3
+xiaozhoupi ,capsicum,1
+xiaozhoupi ,capsicum,2
+hongshan caitai,flower,2
+xiangtianhongcaitai ,flower,2
+jigu ,mushroom,1
+jigu ,mushroom,2
+xiangtianhongcaitai ,flower,0
+xiangtianhongcaitai ,flower,1
+xiangtianhongcaitai ,flower,3
+fruit chili,capsicum,0
+fruit chili,capsicum,3
+fruit chili,capsicum,1
+fruit pepper ,capsicum,1
+green line pepper ,capsicum,0
+green line pepper ,capsicum,3
+green hang pepper ,capsicum,0
+agaricus bisporus ,mushroom,0
+jigu ,mushroom,0
+agaricus bisporus ,mushroom,3
+red hang pepper ,capsicum,3
+green hang pepper ,capsicum,3
+jigu ,mushroom,3
+agaricus bisporus ,mushroom,1
+green hang pepper ,capsicum,2
+green line pepper ,capsicum,2
+red hang pepper ,capsicum,2
+red hang pepper ,capsicum,1
+red bell pepper ,capsicum,2
+red hot peppers ,capsicum,3
+red hot peppers ,capsicum,2
+red hot peppers ,capsicum,0
+green hot peppers ,capsicum,0
+green hang pepper ,capsicum,1
+luosi pepper ,capsicum,1
+green hot peppers ,capsicum,1
+luosi pepper ,capsicum,3
+red hot peppers ,capsicum,1
+green hot peppers ,capsicum,2
+luosi pepper ,capsicum,0
+luosi pepper ,capsicum,2
+basil ,flower,0
+the dandelion,flower,2
+the dandelion,flower,1
+red hang pepper ,capsicum,0
+malan head,flower,0
+malan head,flower,1
+malan head,flower,2
+malan head,flower,3
+green line pepper ,capsicum,1
+the steak mushrooms ,mushroom,1
+wandoujian,flower,0
+wandoujian,flower,3
+wandoujian,flower,2
+hericium ,mushroom,2
+basil ,flower,3
+wandoujian,flower,1
+zhuyecai ,flower,0
+fresh sea ,mushroom,0
+fresh sea ,mushroom,3
+zhuyecai ,flower,3
+basil ,flower,1
+fresh sea ,mushroom,1
+xixia xianggu mushroom ,mushroom,0
+zhuyecai ,flower,1
+fresh sea ,mushroom,2
+basil ,flower,2
+ginger and xiaomijiao mix ,capsicum,3
+xixia xianggu mushroom ,mushroom,3
+xixia xianggu mushroom ,mushroom,1
+ginger and xiaomijiao mix ,capsicum,0
+ginger and xiaomijiao mix ,capsicum,1
+zhuyecai ,flower,2
+ginger and xiaomijiao mix ,capsicum,2
+xixia xianggu mushroom ,mushroom,2
+the dandelion,flower,3
+miantiaocai,flower,3
+chuncai,flower,1
+chuncai,flower,0
+hongshujian ,flower,3
+caidian quinoa artemisia ,flower,1
+hongshujian ,flower,1
+hongshujian ,flower,2
+caidian quinoa artemisia ,flower,2
+hongshujian ,flower,0
+chuncai,flower,3
+caidian quinoa artemisia ,flower,0
+caidian quinoa artemisia ,flower,3
+chuncai,flower,2
+red oak leaf,flower,0
+green butter,flower,0
+red coral ,flower,0
+powcan mountain chinese cabbage ,flower,0
+amaranth ,flower,0
+sophora japonica,flower,0
+cabbage stem ,flower,3
+powcan mountain chinese cabbage ,flower,3
+amaranth ,flower,3
+sophora japonica,flower,3
+powcan mountain chinese cabbage ,flower,1
+cabbage stem ,flower,2
+huangxincai ,flower,0
+huangxincai ,flower,3
+huangxincai ,flower,1
+sophora japonica,flower,1
+huangxincai ,flower,2
+powcan mountain chinese cabbage ,flower,2
+chinese cabbage ,flower,0
+chinese cabbage ,flower,1
+cabbage stem ,flower,1
+amaranth ,flower,1
+cabbage stem ,flower,0
+amaranth ,flower,2
+chinese cabbage ,flower,2
+embroidered aureus ,mushroom,2
+sophora japonica,flower,2
+embroidered aureus ,mushroom,3
+red lotus root zone,aquatic,0
+red lotus root zone,aquatic,1
+red lotus root zone,aquatic,3
+zhimaxiancai,flower,0
+zhimaxiancai,flower,3
+zhimaxiancai,flower,1
+zhimaxiancai,flower,2
+xianzongye,flower,0
+xianzongye,flower,3
+xianzongye,flower,1
+xianzongye,flower,2
+xianzongye ,flower,3
+xianzongye ,flower,2
+xianzongye ,flower,0
+xianzongye ,flower,1
+aihao,flower,0
+aihao,flower,2
+purple screw pepper,capsicum,0
+purple screw pepper,capsicum,2
+red lotus root zone,aquatic,2
+zhijiang qinggengsanhua,cabbage,0
+zhijiang qinggengsanhua,cabbage,1
+zhijiang qinggengsanhua,cabbage,2
+zhijiang qinggengsanhua,cabbage,3
+fresh edible fungus ,mushroom,0
+fruit chili,capsicum,2
+fresh edible fungus ,mushroom,2
+fresh edible fungus ,mushroom,1
+hfyg haixian mushroom ,mushroom,0
+hfyg haixian mushroom ,mushroom,3
+hfyg haixian mushroom ,mushroom,1
+hfyg haixian mushroom ,mushroom,2
+fresh edible fungus ,mushroom,3
+honghu lotus ,aquatic,0
+honghu lotus ,aquatic,2
+honghu lotus ,aquatic,3
+green and red hang pepper mix ,capsicum,0
+green and red hang pepper mix ,capsicum,3
+honghu lotus ,aquatic,1
+chinese cabbage ,flower,3
+green and red hang pepper mix ,capsicum,1
+green and red hang pepper mix ,capsicum,2
+black porcini,mushroom,2
+yuxingcao ,flower,0
+yuxingcao ,flower,3
+black porcini,mushroom,1
+yuxingcao ,flower,2
+yuxingcao ,flower,1
+round eggplant ,solanum,0
+round eggplant ,solanum,3
+round eggplant ,solanum,2
+foreign garland chrysanthemum  ,flower,0
+foreign garland chrysanthemum  ,flower,3
+foreign garland chrysanthemum  ,flower,1
+foreign garland chrysanthemum  ,flower,2
+local xiaomao cabbage,flower,0
+local xiaomao cabbage,flower,3
+local xiaomao cabbage,flower,1
+yellow baicai ,flower,1
+local xiaomao cabbage,flower,2
+yellow baicai ,flower,2
+longyacai,flower,0
+yellow baicai ,flower,0
+longyacai,flower,3
+yellow baicai ,flower,3
+longyacai,flower,1
+longyacai,flower,2
+tea tree mushroom ,mushroom,2
+black rapeseed,flower,0
+black rapeseed,flower,1
+tea tree mushroom ,mushroom,0
+tea tree mushroom ,mushroom,1
+tea tree mushroom ,mushroom,3
+black rapeseed,flower,2
+ice grass ,flower,0
+mushroom and leaf mix ,mushroom,0
+mushroom and leaf mix ,mushroom,3
+mushroom and leaf mix ,mushroom,1
+mushroom and leaf mix ,mushroom,2

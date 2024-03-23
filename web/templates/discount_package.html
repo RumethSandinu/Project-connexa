@@ -14,6 +14,7 @@
   <!-- custom css link -->
   <link rel="stylesheet" href="../static/assets/css/main.css">
   <link rel="stylesheet" href="../static/assets/css/home.css">
+  <link rel="stylesheet" href="../static/assets/css/discount_package.css">
 
   <!-- google font link-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,14 +22,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="banner">
+        <div class="banner-left">
+            <img src="../static/assets/images/partner-left-bg.png" alt="bg-art">
+        </div>
+
+        <div class="banner-center">
+            <img src="../static/assets/images/connexa_logo.png" alt="logo">
+            <p>-- Where Loyalty Equals Savings! --</p>
+        </div>
+
+        <div class="banner-right">
+            <img src="../static/assets/images/partner-right-bg.png" alt="bg-art">
+        </div>
+    </div>
+
     <ul class="top-product-list grid-list">
 
-    {% for i in selected_items %}
+    {% for row in rows %}
     <li class="top-product-item">
       <div class="product-card top-product-card">
 
         <figure class="card-banner">
-          <img src="{{ i.image_path }}" width="100" height="100" loading="lazy" alt="{{ i.item_name }}">
+          <img src="/static/assets/product-images/{{ row[2] }}" width="100" height="100" loading="lazy" alt="{{ row[2] }}">
           <div class="btn-wrapper">
 
             <button class="product-btn" aria-label="Add to Wishlist">
@@ -47,11 +63,17 @@
         <div class="card-content">
 
           <h3 class="h4 card-title">
-            <a>{{ i.item_name }}</a> <!--Clickabe link was removed because we are not doing it-->
+            <a>{{ row[0] }}</a> <!--Clickabe link was removed because we are not doing it-->
           </h3>
 
           <div class="price-wrapper">
-            <data class="price" value="{{ i.price_per_kg }}">$ {{ i.price_per_kg }}</data>
+            <del class="price">¥ {{ row[1] }}</del>
+            <script>
+               var originalPrice = {{ row[1] }};
+               var discountedPrice = originalPrice * 0.8;
+               discountedPrice = discountedPrice.toFixed(2);
+               document.write('<data class="price" value="' + discountedPrice + '">¥ ' + discountedPrice + '</data>');
+            </script>
           </div>
 
           <button class="btn btn-primary">Add to Cart</button>

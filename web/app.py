@@ -8,6 +8,7 @@ from decimal import Decimal
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
 from blueprints.db_handler import DatabaseHandler
+import datetime
 
 with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
     cust_pref_model = pickle.load(prf_model_file)
@@ -22,6 +23,7 @@ with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
+time_model = pd.read_csv('../time_based_analysis/time_model.csv')
 
 app = Flask(__name__)
 app.secret_key = 'hichchi shamal'
@@ -450,11 +452,27 @@ def update_staff():
 @app.route('/discount')
 def discount():
     cursor = cnx.cursor()
-    cursor.execute('SELECT item_id, item_name, category, description, price_kg, quantity_kg FROM item')
+    cursor.execute('SELECT item_id, item_name, category, description, price_kg, stock, discount_rate, image_path FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
-    return render_template('discount.html', rows=rows)
+    default_discount = 5
+    current_time = datetime.datetime.now()
+    current_hour = current_time.hour
+    filt = time_model
 
+    return render_template('discount.html', default_discount=default_discount, rows=rows)
+
+
+@app.route('/update_discount', methods=['POST'])
+def update_discount_route():
+    item_id = request.form['item_id']
+    discount_rate = request.form['discount_rate']
+
+    cursor = cnx.cursor()
+    cursor.execute('UPDATE item SET discount_rate=%s WHERE item_id=%s', (discount_rate, item_id))
+    cnx.commit()
+
+    return redirect(url_for('discount'))
 
 # discount_rates = {
 #     0: 0.1,  # Discount rate for cluster 0
@@ -520,38 +538,52 @@ def discount():
 #     elif request.method == 'GET':
 #         return render_template('discount.html')
 
+
 @app.route('/discount_package')
-def discount_section():  #discount_package.html in index?
-    cursor = cnx.cursor() #getting the latest data
-    query = 'SELECT item_name, category, quantity_kg FROM purchase ORDER BY sale_date DESC LIMIT 1'
+def discount_package():
+    cursor = cnx.cursor() # Getting the latest data
+    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category \
+             FROM purchase p \
+             JOIN item i ON p.item_id = i.item_id \
+             ORDER BY p.sale_date DESC LIMIT 1'
     cursor.execute(query)
     latest_purchase = cursor.fetchone()
 
     if latest_purchase is None:
         return "No purchase records found."
 
-    purchase_data = [(latest_purchase['item_name'], latest_purchase['category'], latest_purchase['quantity_kg'])]
+    item_id, quantity_kg, item_name, category = latest_purchase
+    purchase = [item_name, category, quantity_kg]
+    purchase_array = np.array([purchase])
+    pred_cluster = cust_pref_model.predict(purchase_array, categorical=[0, 1])
 
-    # Predict cluster for the purchase data
-    pred_cluster = cust_pref_model.predict(purchase_data)
 
     # Selecting ten items randomly using the dataset
     count = 0
     discount_item_names = []
     while count < 10:
         random_item_name = np.random.choice(cluster_data['item_name'])
-        if (cluster_data[cluster_data['item_name'] == random_item_name]['cluster'].values[0] != pred_cluster) and (
-                random_item_name not in discount_item_names):
+        if (cluster_data[cluster_data['item_name'] == random_item_name]['cluster'].values[0] != pred_cluster) and (random_item_name not in discount_item_names):
             count += 1
             discount_item_names.append(random_item_name)
 
     #the item names are used to get the item from the database
     selected_items= []
     for item_name in discount_item_names:
-        cursor.execute('SELECT item_name, price_kg,image_path FROM item WHERE item_name = %s', (item_name,))
+        cursor.execute('SELECT item_name, price_kg, image_path FROM item WHERE item_name = %s', (item_name,))
         item_data = cursor.fetchone()
         selected_items.append(item_data)
     cursor.close()
+
+    print(f"Fetched {len(selected_items)} items for discounts.")
+    print("Details of selected items for discounts:")
+    for item in selected_items:
+        if item:  # Check if item is not None
+            item_name, price_kg, image_path = item
+            print(f"Item Name: {item_name}, Price/kg: {price_kg}, Image Path: {image_path}")
+        else:
+            print("An item's details could not be fetched.")
+
     return render_template('discount_package.html', rows=selected_items)
 
 
