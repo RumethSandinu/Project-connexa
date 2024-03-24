@@ -59,41 +59,25 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
+                <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
-              <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
+                <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
             </li>
 
             <li>
-              <a href="{{ url_for('about') }}" class="navbar-link">About</a>
+                <a href="{{ url_for('personalised_discount_package') }}" class="navbar-link">Discount Package</a>
             </li>
 
             <li>
-              <a href="{{ url_for('staff') }}" class="navbar-link">Staff</a>
-            </li>
-
-            <li>
-              <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
-            </li>
-
-            <li>
-              <a href="{{ url_for('discount') }}" class="navbar-link">Discount Rate</a>
-            </li>
-
-            <li>
-              <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
-            </li>
-
-            <li>
-              <a href="{{ url_for('personalised_discount_package') }}" class="navbar-link">Discount Package</a>
+                <a href="{{ url_for('about') }}" class="navbar-link">About</a>
             </li>
 
             <a href="{{ url_for('login') }}" class="btn btn-primary" id="loginButton">
               <span class="span">Sign In</span>
             </a>
-
+            
             <a href="{{ url_for('register') }}" class="btn btn-primary" id="registerButton">
               <span class="span">Sign Up</span>
             </a>
@@ -346,7 +330,6 @@
 
         <div class="container">
           <ul class="offers-list has-scrollbar">
-
             <li class="offers-item">
               <a href="{{ url_for('shop') }}" class="offers-card">
                 <figure class="card-banner">
@@ -355,28 +338,12 @@
                 </figure>
                 <div class="card-content">
                   <p class="card-subtitle">Up To 25% Off</p>
-                  <h3 class="h3 card-title">Fresh vegetables package.</h3>
-                  <div class="btn btn-primary">Shop Now</div>
+                  <h3 class="h3 card-title">Personalised discount package</h3>
+                  <div class="btn btn-primary" href="{{ url_for('discount_package') }}">Shop Now</div>
                 </div>
               </a>
             </li>
-
-            <li class="offers-item">
-              <a href="{{ url_for('shop') }}l" class="offers-card">
-                <figure class="card-banner">
-                  <img src="../static/assets/images/offer-2.png" width="336" height="244" loading="lazy"
-                       alt="Healthy & fresh beef" class="w-100">
-                </figure>
-                <div class="card-content">
-                  <p class="card-subtitle">Up To 25% Off</p>
-                  <h3 class="h3 card-title">Healthy & fresh meet.</h3>
-                  <div class="btn btn-primary">Shop Now</div>
-                </div>
-              </a>
-            </li>
-
           </ul>
-
         </div>
 
       </section>

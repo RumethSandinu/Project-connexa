@@ -73,7 +73,6 @@ class DatabaseHandler:
         customer_data = self.get_customer_by_email(email)
 
         print("Customer Data:", customer_data)
-
         if customer_data and len(customer_data) >= 3:
             if self.verify_password(password, customer_data[1], customer_data[2]):
                 return customer_data
@@ -81,6 +80,9 @@ class DatabaseHandler:
                 return None
         else:
             return "You cannot log in. Please check your email and try again."
+
+    def get_customer_email(self):
+        return self.email
 
     def authenticate_staff(self, email, password):
         staff_data = self.get_staff_by_email(email)

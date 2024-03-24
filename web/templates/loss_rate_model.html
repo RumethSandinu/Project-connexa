@@ -10,7 +10,7 @@
   <!-- 
     - favicon
   -->
-  <link rel="shortcut icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="../static/assets/images/favicon.svg" type="image/svg+xml">
 
   <!-- 
     - custom css link
@@ -64,28 +64,33 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="./index.html" class="navbar-link">Home</a>
+              <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
-              <a href="../about.html" class="navbar-link">About</a>
+              <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
             </li>
 
             <li>
-              <a href="../shop.html" class="navbar-link">Shop</a>
+              <a href="{{ url_for('about') }}" class="navbar-link">About</a>
             </li>
 
             <li>
-              <a href="../blog.html" class="navbar-link">Blog</a>
+              <a href="{{ url_for('staff') }}" class="navbar-link">Staff</a>
             </li>
 
             <li>
-              <a href="../shop.html" class="navbar-link">Products</a>
+              <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
             </li>
 
             <li>
-              <a href="../contact.html" class="navbar-link">Contact</a>
+              <a href="{{ url_for('discount') }}" class="navbar-link">Discount Rate</a>
             </li>
+
+            <li>
+              <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
+            </li>
+            
             <a href="login.html" class="btn btn-primary" id="loginButton">
               <span class="span">Sign In</span>
             </a>
@@ -286,6 +291,13 @@
   <body>
     <h2>Loss Rate Prediction</h2>
     <form method="post" action="/loss_rate_model" id="predictionForm">
+
+        <label for="item_name">Item Name</label>
+        <input type="text" id="item_name" name="item_name" required>
+
+        <label for="category_name">Category Name</label>
+        <input type="text" id="category_name" name="category_name" required>
+
         <label for="Month">Month:</label>
         <select id="Month" name="Month" required>
             <option value="1">1</option>
@@ -302,35 +314,11 @@
             <option value="12">12</option>
         </select>
 
-        <label for="quantity_sold_kg">Quantity Sold (kilo)</label>
-        <input type="number" id="quantity_sold_kg" name="quantity_sold_kg" step="0.01" required>
-
         <label for="unit_selling_price_rmb/kg">Unit Selling Price (RMB/kg)</label>
         <input type="number" id="unit_selling_price_rmb/kg" name="unit_selling_price_rmb/kg" step="0.01" required>
 
         <label for="wholesale_price_(rmb/kg)">Wholesale Price (RMB/kg)</label>
         <input type="number" id="wholesale_price_(rmb/kg)" name="wholesale_price_(rmb/kg)" step="0.01" required>
-
-        <label for="total_sales">Total Sales</label>
-        <input type="number" id="total_sales" name="total_sales" step="0.01" readonly>
-
-        <label for="category_name">Category Name</label>
-        <input type="text" id="category_name" name="category_name" required>
-
-        <label for="item_name">Item Name</label>
-        <input type="text" id="item_name" name="item_name" required>
-
-        <label for="discount">Discount (Yes/No)</label>
-        <select id="discount" name="discount" required>
-            <option value="True">Yes</option>
-            <option value="False">No</option>
-        </select>
-
-        <label for="sale_or_return">Sale or Return</label>
-        <select id="sale_or_return" name="sale_or_return" required>
-            <option value="sale">Sale</option>
-            <option value="return">Return</option>
-        </select>
 
         <input type="submit" value="Predict">
         <button type="button" onclick="resetForm()">Reset</button>
@@ -357,162 +345,7 @@
     </script>
   </body>
 
-  <!-- 
-    - #FOOTER
-  -->
-
-  <footer class="footer">
-
-    <div class="footer-top">
-      <div class="container">
-
-        <div class="footer-brand">
-
-          <a href="./index.html" class="logo">Organ<span class="span">ica</span></a>
-
-          <p class="footer-text">
-            It was popularised in the 1960s with the release of Letraset sheets containing Lorem passages and more
-            recently with
-            desktop publishing software like including.
-          </p>
-
-          <ul class="social-list">
-
-            <li>
-              <a href="#" class="social-link">
-                <ion-icon name="logo-facebook"></ion-icon>
-              </a>
-            </li>
-
-            <li>
-              <a href="#" class="social-link">
-                <ion-icon name="logo-twitter"></ion-icon>
-              </a>
-            </li>
-
-            <li>
-              <a href="#" class="social-link">
-                <ion-icon name="logo-skype"></ion-icon>
-              </a>
-            </li>
-
-            <li>
-              <a href="#" class="social-link">
-                <ion-icon name="logo-linkedin"></ion-icon>
-              </a>
-            </li>
-
-          </ul>
-
-        </div>
-
-        <ul class="footer-list">
-
-          <li>
-            <p class="footer-list-title">Company</p>
-          </li>
-
-          <li>
-            <a href="../about.html" class="footer-link">About Us</a>
-          </li>
-
-          <li>
-            <a href="../shop.html" class="footer-link">Shop</a>
-          </li>
-
-          <li>
-            <a href="../blog.html" class="footer-link">Blog</a>
-          </li>
-
-          <li>
-            <a href="../shop.html" class="footer-link">Product</a>
-          </li>
-
-          <li>
-            <a href="../contact.html" class="footer-link">Contact Us</a>
-          </li>
-
-        </ul>
-
-        <ul class="footer-list">
-
-          <li>
-            <p class="footer-list-title">Contact</p>
-          </li>
-
-          <li class="footer-item">
-            <div class="contact-icon">
-              <ion-icon name="location-outline"></ion-icon>
-            </div>
-
-            <address class="contact-link">
-              7 Green Lake Street Crawfordsville, IN 47933
-            </address>
-          </li>
-
-          <li class="footer-item">
-            <div class="contact-icon">
-              <ion-icon name="call-outline"></ion-icon>
-            </div>
-
-            <a href="tel:+1800123456789" class="contact-link">+1 800 123 456 789</a>
-          </li>
-
-          <li class="footer-item">
-            <div class="contact-icon">
-              <ion-icon name="mail-outline"></ion-icon>
-            </div>
-
-            <a href="mailto:organica@help.com" class="contact-link">organica@help.com</a>
-          </li>
-
-        </ul>
-
-        <div class="footer-list">
-
-          <p class="footer-list-title">Newsletter</p>
-
-          <p class="newsletter-text">
-            You will be notified when somthing new will be appear.
-          </p>
-
-          <form action="" class="footer-form">
-            <input type="email" name="email" placeholder="Email Address *" required class="footer-input">
-
-            <button type="submit" class="footer-form-btn" aria-label="Submit">
-              <ion-icon name="mail-outline"></ion-icon>
-            </button>
-          </form>
-
-        </div>
-
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <div class="container">
-
-        <p class="copyright">
-          &copy; 2022 <a href="#" class="copyright-link">codewithsadee</a>. All Rights Reserved.
-        </p>
-
-        <ul class="footer-bottom-list">
-
-          <li>
-            <a href="#" class="footer-bottom-link">Term and Service</a>
-          </li>
-
-          <li>
-            <a href="#" class="footer-bottom-link">Privacy Policy</a>
-          </li>
-
-        </ul>
-
-      </div>
-    </div>
-
-  </footer>
-
+  
 
 
 
