@@ -26,7 +26,7 @@ sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
 time_model = pd.read_csv('../time_based_analysis/time_model.csv')
 
 app = Flask(__name__)
-app.secret_key = 'hichchi shamal'
+app.secret_key = 'Connexa123'
 
 
 db_handler = DatabaseHandler()
