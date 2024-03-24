@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import tf_keras as tf
+#import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -19,7 +19,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+#sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
@@ -75,15 +75,15 @@ def login():
 
         if user_data:
             # User authentication successful, store user data in session
-            session['user_email'] = user_data[0]
+            session['user_email'] = email
             session['user_type'] = determine_user_type(email)
 
             # Redirect to a protected route or dashboard
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('discount'))
 
         # If authentication fails, show an error message
         error_message = "Invalid email or password. Please try again."
-        return render_template('Register.html', error_message=error_message)
+        return render_template('index.html', error_message=error_message)
 
     # If the request method is GET, render the login form
     return render_template('login.html')
@@ -458,7 +458,11 @@ def update_staff():
 
 @app.route('/discount')
 def discount():
-    customer = db_handler.get_customer_email()
+    user_email = session.get('user_email')
+    print(user_email)
+
+    # This assumes you have a function `get_customer_email()` in your `db_handler`
+    customer = db_handler.get_customer_by_email(user_email)
     cursor = cnx.cursor()
     query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase p JOIN item i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1'
     cursor.execute(query, customer)
