@@ -59,9 +59,9 @@
 
   body {
     /* Set background image properties */
-    background-image: url("../images/bg_art.png"); /* Adjust the path to your image */
-    background-size: cover;      /* Cover the entire viewport */
-    background-position: center;  /* Center the image */
+    background-image: url("../images/mart3.jpg"); /* Adjust the path to your image */
+    background-size: auto 65%;      /* Cover the entire viewport */
+    background-position: right center;  /* Center the image */
     background-repeat: no-repeat; /* Do not repeat the image */
     background-attachment: fixed; /* Fixed background */
   }
