@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-#import tf_keras as tf
+import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -19,7 +19,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-#sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
@@ -79,7 +79,7 @@ def login():
             session['user_type'] = determine_user_type(email)
 
             # Redirect to a protected route or dashboard
-            return redirect(url_for('discount'))
+            return redirect(url_for('customer_ui'))
 
         # If authentication fails, show an error message
         error_message = "Invalid email or password. Please try again."
@@ -517,14 +517,13 @@ def update_discount_route():
 
 @app.route('/personalised_discount_package')
 def personalised_discount_package():
-    customer = db_handler.get_customer_email()
+    user_email = session.get('user_email')
     cursor = cnx.cursor()
-    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase p JOIN item i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1'
-    cursor.execute(query, customer)
+    query = "SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase AS p JOIN item AS i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1;"
+    cursor.execute(query, (user_email,))
     latest_purchase = cursor.fetchone()
     if latest_purchase is None:
         return "No purchase records found."
-
     item_id, quantity_kg, item_name, category = latest_purchase
     purchase = [item_name, category, quantity_kg]
     purchase_array = np.array([purchase])
