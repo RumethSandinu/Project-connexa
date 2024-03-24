@@ -27,7 +27,7 @@ time_model = pd.read_csv('../time_based_analysis/time_model.csv')
 columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names')
 
 app = Flask(__name__)
-app.secret_key = 'hichchi shamal'
+app.secret_key = 'Connexa123'
 
 
 db_handler = DatabaseHandler()
