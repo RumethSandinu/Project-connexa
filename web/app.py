@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-#import tf_keras as tf
+import tf_keras as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -19,7 +19,7 @@ with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_f
 with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
     model = pickle.load(file)
 
-#sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
@@ -276,9 +276,9 @@ def sale_booster_setup(item_id):
         input_data[0, category_index] = 1
 
         # get predictions
-        #prediction = sales_pred_model.predict(input_data)
-        #prediction = prediction * mean_customers_past_7_days
-        #sales.append(prediction[0][0])
+        prediction = sales_pred_model.predict(input_data)
+        prediction = prediction * mean_customers_past_7_days
+        sales.append(prediction[0][0])
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
@@ -455,11 +455,43 @@ def discount():
     cursor.execute('SELECT item_id, item_name, category, description, price_kg, stock, discount_rate, image_path FROM item')
     # get all records to tuples
     rows = cursor.fetchall()
-    default_discount = 5
+
+    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase p JOIN item i ON p.item_id = i.item_id ORDER BY p.sale_date DESC LIMIT 1'
+    cursor.execute(query)
+    latest_purchase = cursor.fetchone()
+    cursor.close()
+    if latest_purchase is None:
+        return "No purchase records found."
+
+    item_id, quantity_kg, item_name, category = latest_purchase
     current_time = datetime.datetime.now()
     current_hour = current_time.hour
-    filt = time_model
+    column_values = sales_pred_columns.values
 
+    # process the input data
+    input_data = np.zeros((1, 185))
+    input_data[0, 0] = int(current_hour)
+    input_data[0, 1] = int(Decimal(quantity_kg))
+
+    item_name_index = None
+    category_index = None
+    for idx, value in enumerate(column_values):
+        if value == f'item_name_{item_name}':
+            item_name_index = idx
+        elif value == f'category_name_{category}':
+            category_index = idx
+
+    if item_name_index is None or category_index is None:
+        return render_template('item_not_available.html', item_name=item_name, category=category)
+
+    input_data[0, item_name_index] = 1
+    input_data[0, category_index] = 1
+
+    # get predictions
+    prediction = time_based_model.predict(input_data)
+    print(prediction)
+
+    default_discount = 5
     return render_template('discount.html', default_discount=default_discount, rows=rows)
 
 
@@ -542,13 +574,9 @@ def update_discount_route():
 @app.route('/discount_package')
 def discount_package():
     cursor = cnx.cursor() # Getting the latest data
-    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category \
-             FROM purchase p \
-             JOIN item i ON p.item_id = i.item_id \
-             ORDER BY p.sale_date DESC LIMIT 1'
+    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase p JOIN item i ON p.item_id = i.item_id ORDER BY p.sale_date DESC LIMIT 1'
     cursor.execute(query)
     latest_purchase = cursor.fetchone()
-
     if latest_purchase is None:
         return "No purchase records found."
 

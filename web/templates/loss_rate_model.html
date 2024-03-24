@@ -64,28 +64,33 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="./index.html" class="navbar-link">Home</a>
+              <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
-              <a href="../about.html" class="navbar-link">About</a>
+              <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
             </li>
 
             <li>
-              <a href="../shop.html" class="navbar-link">Shop</a>
+              <a href="{{ url_for('about') }}" class="navbar-link">About</a>
             </li>
 
             <li>
-              <a href="../blog.html" class="navbar-link">Blog</a>
+              <a href="{{ url_for('staff') }}" class="navbar-link">Staff</a>
             </li>
 
             <li>
-              <a href="../shop.html" class="navbar-link">Products</a>
+              <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
             </li>
 
             <li>
-              <a href="../contact.html" class="navbar-link">Contact</a>
+              <a href="{{ url_for('discount') }}" class="navbar-link">Discount Rate</a>
             </li>
+
+            <li>
+              <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
+            </li>
+            
             <a href="login.html" class="btn btn-primary" id="loginButton">
               <span class="span">Sign In</span>
             </a>
