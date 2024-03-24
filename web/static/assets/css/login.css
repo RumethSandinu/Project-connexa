@@ -1,6 +1,6 @@
 .login-container {
   max-width: 400px;
-  margin: 100px auto;
+  margin: 50px auto 100px auto;
   padding: 20px;
   border: 1px solid #03fd03e7;
   border-radius: 15px;
@@ -59,7 +59,7 @@
 
   body {
     /* Set background image properties */
-    background-image: url("../images/mart3.jpg"); /* Adjust the path to your image */
+    background-image: url("../images/baby.png"); /* Adjust the path to your image */
     background-size: auto 65%;      /* Cover the entire viewport */
     background-position: right center;  /* Center the image */
     background-repeat: no-repeat; /* Do not repeat the image */
@@ -72,12 +72,13 @@
 
 .login-image {
   width: 100%; /* Adjust the width as needed */
-  max-height: 150px; /* Adjust the max height as needed */
+  max-height: 100px; /* Adjust the max height as needed */
   object-fit: cover; /* Ensure the image covers the entire container */
   border-top-left-radius: 8px; /* Adjust border radius to match the container */
   border-top-right-radius: 8px;
   margin-bottom: 20px; /* Add spacing between the image and the form */
 }
+
 #registerButton {
   /* Add styling to position the login button in the corner */
   position: absolute;  /* Position it relative to the nearest positioned ancestor */
@@ -97,6 +98,26 @@
 
 #registerButton:hover {
   background-color: #16fd95; /* Darker blue on hover */
+}
+.tomato {
+  position: absolute;
+  bottom: 0; /* Adjust as needed */
+  left: -100px; /* Adjust as needed */
+  width: 400px; /* Adjust width to reduce size */
+  height: auto; /* Maintain aspect ratio */
+  animation: walk 6s linear infinite; /* Adjust animation duration as needed */
+}
+
+@keyframes walk {
+  0% {
+    transform: translateX(-100px);
+  }
+  50% {
+    transform: translateX(100px);
+  }
+  100% {
+    transform: translateX(-100px);
+  }
 }
 
 

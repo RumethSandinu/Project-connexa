@@ -108,7 +108,6 @@ class DatabaseHandler:
     def get_customer_by_email(self, email):
         self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s', (email,))
         customer_data = self.cursor.fetchone()
-        print("shamal")
         return customer_data
 
     def get_staff_by_email(self, email):
