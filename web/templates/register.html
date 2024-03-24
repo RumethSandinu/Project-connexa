@@ -273,12 +273,14 @@
   <body id="tops">
     <!-- User Type Selection -->
     <div class="user-type-selection">
+        <form action="/register" method="POST">
       <label for="userType">Select User Type:</label>
       <select id="userType" name="userType" onchange="showForm()">
         <option value="customer">Customer</option>
         <option value="staff">Staff</option>
         <option value="admin">Admin</option>
       </select>
+        </form>
     </div>
   
     <!-- Customer Registration Form -->
@@ -314,23 +316,19 @@
   
         <label for="confirmPassword">Confirm Password</label>
         <input type="password" id="confirmPassword" name="confirmPassword" required>
-  
-        
-        
-  
+
         <button type="submit">Register</button>
       </form>
     </div>
-  
+
+
+
     <!-- Staff Registration Form -->
     <div class="Register-container" id="staffForm" style="display:none;">
       <h2>Create Your Staff Account</h2>
       <form class="register-form" id="staffRegistrationForm" action="{{ url_for('register') }}" method="post">
         <label for="email_staff">Email</label>
         <input type="email" id="email_staff" name="email_staff" required>
-  
-        <label for="staffId">Staff ID</label>
-        <input type="text" id="staffId" name="staffId" required>
 
         <label for="firstName_staff">First Name</label>
         <input type="text" id="firstName_staff" name="firstName" required>
@@ -343,13 +341,12 @@
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
-  
-        
-
-        <button type="submit">Register</button>
+          <button type="submit">Register</button>
       </form>
     </div>
-  
+
+
+
     <!-- Admin Registration Form -->
     <div class="Register-container" id="adminForm" style="display:none;">
       <h2>Create Your Admin Account</h2>
