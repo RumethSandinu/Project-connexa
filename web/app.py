@@ -440,13 +440,9 @@ def update_staff():
 @app.route('/discount')
 def discount():
     user_email = session.get('user_email')
-    print(user_email)
-
-    # This assumes you have a function `get_customer_email()` in your `db_handler`
-    customer = db_handler.get_customer_by_email(user_email)
     cursor = cnx.cursor()
-    query = 'SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase p JOIN item i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1'
-    cursor.execute(query, customer)
+    query = "SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase AS p JOIN item AS i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1;"
+    cursor.execute(query, ('customer@example.com',))
     latest_purchase = cursor.fetchone()
     cursor.close()
     if latest_purchase is None:
@@ -479,9 +475,7 @@ def discount():
     # get predictions
     prediction = time_based_model.predict(input_data)
     print(prediction)
-
-    default_discount = 5
-    return render_template('discount.html', default_discount=default_discount)
+    return render_template('discount.html')
 
 
 @app.route('/update_discount', methods=['POST'])
