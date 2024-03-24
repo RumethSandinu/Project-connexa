@@ -6,7 +6,6 @@ import numpy as np
 import mysql.connector
 from decimal import Decimal
 from matplotlib import pyplot as plt
-from sklearn.linear_model import LinearRegression
 from blueprints.db_handler import DatabaseHandler
 import datetime
 
@@ -15,9 +14,6 @@ with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_mode
 
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
-
-with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
-    model = pickle.load(file)
 
 sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
 
@@ -92,7 +88,6 @@ def login():
 def authenticate_user(email, password):
     # Determine user type based on the email domain
     user_type = determine_user_type(email)
-
     # Authenticate user based on user type
     if user_type == 'customer':
         return db_handler.authenticate_customer(email, password)
@@ -100,7 +95,6 @@ def authenticate_user(email, password):
         return db_handler.authenticate_staff(email, password)
     elif user_type == 'admin':
         return db_handler.authenticate_admin(email, password)
-
     return None
 
 
@@ -125,7 +119,6 @@ def dashboard():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register(pbkdf2_sha256=None):
-    result = None
     if request.method == 'POST':
         user_type = request.form.get('userType')
         if user_type == 'customer':
@@ -144,9 +137,9 @@ def register(pbkdf2_sha256=None):
 
     elif request.method == 'GET':
         # Code to render the form initially
-        return render_template('Register.html')
+        return render_template('register.html')
 
-    return render_template('Register.html')
+    return render_template('register.html')
 
 
 def register_customer(form_data, pbkdf2_sha256=None):
@@ -331,91 +324,79 @@ def item():
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
     if request.method == 'POST':
-        try:
-            # Get form data
-            item_name = request.form['item_name']
-            category_name = request.form['category_name']
-            month = int(request.form['Month'])
-            unit_selling_price = float(request.form['unit_selling_price_rmb/kg'])
-            wholesale_price = float(request.form['wholesale_price_(rmb/kg)'])
+        # Get form data
+        item_name = request.form['item_name']
+        category_name = request.form['category_name']
+        month = int(request.form['Month'])
+        unit_selling_price = float(request.form['unit_selling_price_rmb/kg'])
+        wholesale_price = float(request.form['wholesale_price_(rmb/kg)'])
 
-            column_values = sales_pred_columns.values
-            unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
+        column_values = sales_pred_columns.values
+        unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
-            # process the input data
-            input_data = np.zeros((1, 155))
-            input_data[0, unit_price_index] = unit_selling_price
-            item_name_index = None
-            category_index = None
+        # process the input data
+        input_data = np.zeros((1, 155))
+        input_data[0, unit_price_index] = unit_selling_price
+        item_name_index = None
+        category_index = None
 
-            for idx, value in enumerate(column_values):
-                if value == f'item_name_{item_name}':
-                    item_name_index = idx
-                elif value == f'category_name_{category_name}':
-                    category_index = idx
+        for idx, value in enumerate(column_values):
+            if value == f'item_name_{item_name}':
+                item_name_index = idx
+            elif value == f'category_name_{category_name}':
+                category_index = idx
 
-            if item_name_index is None or category_index is None:
-                return render_template('item_not_available.html', item_name=item_name, category=category_name)
+        if item_name_index is None or category_index is None:
+            return render_template('item_not_available.html', item_name=item_name, category=category_name)
 
-            input_data[0, item_name_index] = 1
-            input_data[0, category_index] = 1
+        input_data[0, item_name_index] = 1
+        input_data[0, category_index] = 1
 
-            # get predictions
-            pred_sale = sales_pred_model.predict(input_data)
-            cursor = cnx.cursor()
-            cursor.execute('SELECT item_id FROM item where item_name = %s and category = %s', (item_name, category_name))
-            item_id = cursor.fetchone()[0]
-            cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
-            mean_customers_past_30_days = cursor.fetchone()[0]
-            total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
+        # get predictions
+        pred_sale = sales_pred_model.predict(input_data)
+        cursor = cnx.cursor()
+        cursor.execute('SELECT item_id FROM item where item_name = %s and category = %s', (item_name, category_name))
+        item_id = cursor.fetchone()[0]
+        cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
+        mean_customers_past_30_days = cursor.fetchone()[0]
+        total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
 
-            # Load the column names used during training
-            column_loss_rate_values = columns_loss_rate.values
+        # Load the column names used during training
+        column_loss_rate_values = columns_loss_rate.values
 
-            month_index = np.where(column_loss_rate_values == 'Month')[0]
-            unit_price_index = np.where(column_loss_rate_values == 'unit_selling_price_rmb/kg')[0]
-            whole_price_index = np.where(column_loss_rate_values == 'wholesale_price_(rmb/kg)')[0]
-            tot_sales_index = np.where(column_loss_rate_values == 'total_sales')[0]
+        month_index = np.where(column_loss_rate_values == 'Month')[0]
+        unit_price_index = np.where(column_loss_rate_values == 'unit_selling_price_rmb/kg')[0]
+        whole_price_index = np.where(column_loss_rate_values == 'wholesale_price_(rmb/kg)')[0]
+        tot_sales_index = np.where(column_loss_rate_values == 'total_sales')[0]
 
-            input_data = np.zeros((1, 185))
-            input_data[0, month_index] = month
-            input_data[0, unit_price_index] = unit_selling_price
-            input_data[0, whole_price_index] = wholesale_price
-            input_data[0, tot_sales_index] = total_sales
+        input_data = np.zeros((1, 185))
+        input_data[0, month_index] = month
+        input_data[0, unit_price_index] = unit_selling_price
+        input_data[0, whole_price_index] = wholesale_price
+        input_data[0, tot_sales_index] = total_sales
 
-            item_name_index = None
-            category_index = None
+        item_name_index = None
+        category_index = None
 
-            for idx, value in enumerate(column_loss_rate_values):
-                if value == f'item_name_{item_name}':
-                    item_name_index = idx
-                elif value == f'category_name_{category_name}':
-                    category_index = idx
-            if item_name_index is None or category_index is None:
-                return render_template('item_not_available.html', item_name=item_name, category=category_name)
+        for idx, value in enumerate(column_loss_rate_values):
+            if value == f'item_name_{item_name}':
+                item_name_index = idx
+            elif value == f'category_name_{category_name}':
+                category_index = idx
+        if item_name_index is None or category_index is None:
+            return render_template('item_not_available.html', item_name=item_name, category=category_name)
 
-            input_data[0, item_name_index] = 1
-            input_data[0, category_index] = 1
+        input_data[0, item_name_index] = 1
+        input_data[0, category_index] = 1
 
-            print(input_data)
+        with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
+            loss_rate_model = pickle.load(file)
 
-            # Check if the loaded model is an instance of LinearRegression
-            if isinstance(loss_rate_model, LinearRegression):
-                # Perform prediction
-                prediction = loss_rate_model.predict(input_data)
+        # Perform prediction
+        prediction = loss_rate_model.predict(input_data)
 
-                # Render the result.html template with the predicted value
-                return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0])
-
-            else:
-                print("The loaded object is not a LinearRegression model. Check the model file.")
-                # Handle the case where the loaded model is not a LinearRegression model
-                return render_template('error.html', error_message="Invalid model type")
-
-        except Exception as e:
-            # Handle the exception, e.g., log the error, show an error message, or redirect to an error page
-            print(f"Error processing form data: {e}")
-            return render_template('error.html', error_message=str(e))
+        # Render the result.html template with the predicted value
+        return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0])
 
     elif request.method == 'GET':
         # Code to render the form initially
