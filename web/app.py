@@ -24,6 +24,7 @@ sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_mode
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
 time_model = pd.read_csv('../time_based_analysis/time_model.csv')
+columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names')
 
 app = Flask(__name__)
 app.secret_key = 'hichchi shamal'
@@ -332,13 +333,11 @@ def loss_rate_model():
     if request.method == 'POST':
         try:
             # Get form data
+            item_name = request.form['item_name']
+            category_name = request.form['category_name']
             month = int(request.form['Month'])
             unit_selling_price = float(request.form['unit_selling_price_rmb/kg'])
             wholesale_price = float(request.form['wholesale_price_(rmb/kg)'])
-
-            category_name = request.form['category_name']
-            item_name = request.form['item_name']
-            discount = request.form['discount']
 
             column_values = sales_pred_columns.values
             unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
@@ -361,8 +360,6 @@ def loss_rate_model():
             input_data[0, item_name_index] = 1
             input_data[0, category_index] = 1
 
-            print(input_data)
-
             # get predictions
             pred_sale = sales_pred_model.predict(input_data)
             cursor = cnx.cursor()
@@ -372,38 +369,35 @@ def loss_rate_model():
             mean_customers_past_30_days = cursor.fetchone()[0]
             total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
 
-
             # Load the column names used during training
-            columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names.csv')
-            column_loss_rate_values = columns_loss_rate.values.flatten()
+            column_loss_rate_values = columns_loss_rate.values
 
-            # Adjusting required columns based on encoding
-            required_columns = [
-                f'category_name_{category_name}',
-                f'item_name_{item_name}',
-                f'discount_{discount}',
-            ]
+            month_index = np.where(column_loss_rate_values == 'Month')[0]
+            unit_price_index = np.where(column_loss_rate_values == 'unit_selling_price_rmb/kg')[0]
+            whole_price_index = np.where(column_loss_rate_values == 'wholesale_price_(rmb/kg)')[0]
+            tot_sales_index = np.where(column_loss_rate_values == 'total_sales')[0]
 
-            # Check if all required columns are present
-            if not all(col in column_loss_rate_values for col in required_columns):
-                raise ValueError("One or more required columns not found in the loaded column names.")
+            input_data = np.zeros((1, 185))
+            input_data[0, month_index] = month
+            input_data[0, unit_price_index] = unit_selling_price
+            input_data[0, whole_price_index] = wholesale_price
+            input_data[0, tot_sales_index] = total_sales
 
-            # Prepare input data as a NumPy array with zeros
-            input_data = np.zeros((1, len(column_loss_rate_values)))
+            item_name_index = None
+            category_index = None
 
-            # Set the corresponding column values to non-zero based on the form data
-            for col in required_columns:
-                input_data[0, np.where(column_loss_rate_values == col)[0][0]] = 1
+            for idx, value in enumerate(column_loss_rate_values):
+                if value == f'item_name_{item_name}':
+                    item_name_index = idx
+                elif value == f'category_name_{category_name}':
+                    category_index = idx
+            if item_name_index is None or category_index is None:
+                return render_template('item_not_available.html', item_name=item_name, category=category_name)
 
-            # Set numerical values in the input data
-            input_data[0, 0] = month
-            input_data[0, 1] = unit_selling_price
-            input_data[0, 2] = wholesale_price
-            input_data[0, 3] = total_sales
+            input_data[0, item_name_index] = 1
+            input_data[0, category_index] = 1
 
-            # Load the trained model and label encoder
-            with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
-                loss_rate_model = pickle.load(file)
+            print(input_data)
 
             # Check if the loaded model is an instance of LinearRegression
             if isinstance(loss_rate_model, LinearRegression):
