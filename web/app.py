@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import tf_keras as tf
+import tensorflow as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -15,7 +15,7 @@ with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_mode
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
 
-sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model.keras')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
