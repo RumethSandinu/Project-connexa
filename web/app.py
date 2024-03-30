@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import tf_keras as tf
+import tensorflow as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -15,10 +15,10 @@ with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_mode
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
 
-sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model.keras')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
-sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
+sales_pred_columns = pd.read_csv('../sales_analysis/column_names.csv')
 time_model = pd.read_csv('../time_based_analysis/time_model.csv')
 columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names')
 
@@ -255,7 +255,7 @@ def sale_booster_setup(item_id):
         discount_amount = price_per_kg_float * (discount / 100)
 
         # process the input data
-        input_data = np.zeros((1, 155))
+        input_data = np.zeros((1, 131))
         input_data[0, unit_price_index] = price_per_kg_float + discount_amount
 
         item_name_index = None
@@ -335,7 +335,7 @@ def loss_rate_model():
         unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
         # process the input data
-        input_data = np.zeros((1, 155))
+        input_data = np.zeros((1, 131))
         input_data[0, unit_price_index] = unit_selling_price
         item_name_index = None
         category_index = None
@@ -357,7 +357,7 @@ def loss_rate_model():
         cursor = cnx.cursor()
         cursor.execute('SELECT item_id FROM item where item_name = %s and category = %s', (item_name, category_name))
         item_id = cursor.fetchone()[0]
-        cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
+        cursor.execute('SELECT ROUND(COUNT(*) / 30, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
         mean_customers_past_30_days = cursor.fetchone()[0]
         total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
 
@@ -514,7 +514,7 @@ def personalised_discount_package():
             discount_item_names.append(random_item_name)
 
     #the item names are used to get the item from the database
-    selected_items= []
+    selected_items = []
     for item_name in discount_item_names:
         cursor.execute('SELECT item_name, price_kg, image_path FROM item WHERE item_name = %s', (item_name,))
         item_data = cursor.fetchone()
