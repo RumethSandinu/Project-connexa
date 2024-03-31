@@ -43,7 +43,9 @@ def index():
 def customer_ui():
     return render_template('customer_ui.html')
 
-
+@app.route('/staff_ui')
+def staff_ui():
+    return render_template('staff_setting.html')
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -61,33 +63,39 @@ def shop():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error_message = ""  # Initialize error message
+
     if request.method == 'POST':
         email = request.form.get('username')
         password = request.form.get('password')
-        print(email, password)
 
         # Authenticate user
         user_data = authenticate_user(email, password)
+        print("123", user_data)
 
         if user_data:
             # User authentication successful, store user data in session
             session['user_email'] = email
-            session['user_type'] = determine_user_type(email)
+            user_type = determine_user_type(email)
+            session['user_type'] = user_type
 
-            # Redirect to a protected route or dashboard
-            return redirect(url_for('customer_ui'))
+            # Redirect based on user type
+            if user_type == 'customer':
+                return redirect(url_for('customer_ui'))
+            elif user_type == 'staff':
+                return redirect(url_for('staff_ui'))
+        else:
+            # If authentication fails, show an error message
+            error_message = "Invalid email or password. Please try again."
 
-        # If authentication fails, show an error message
-        error_message = "Invalid email or password. Please try again."
-        return render_template('index.html', error_message=error_message)
-
-    # If the request method is GET, render the login form
-    return render_template('login.html')
+    # If the request method is GET or authentication failed, render the login form with error message
+    return render_template('login.html', error_message=error_message)
 
 
 def authenticate_user(email, password):
     # Determine user type based on the email domain
     user_type = determine_user_type(email)
+    print(user_type)
     # Authenticate user based on user type
     if user_type == 'customer':
         return db_handler.authenticate_customer(email, password)
@@ -95,7 +103,7 @@ def authenticate_user(email, password):
         return db_handler.authenticate_staff(email, password)
     elif user_type == 'admin':
         return db_handler.authenticate_admin(email, password)
-    return None
+    return None, "Invalid user type"
 
 
 def determine_user_type(email):
@@ -392,16 +400,29 @@ def loss_rate_model():
         with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
             loss_rate_model = pickle.load(file)
 
-        # Perform prediction
-        prediction = loss_rate_model.predict(input_data)
+            # Perform prediction
+            prediction = loss_rate_model.predict(input_data)
 
-        # Render the result.html template with the predicted value
-        return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0])
+            # Generate discount based on the loss rate prediction
+            discount_percentage = calculate_discount(prediction[0])
+
+            # Render the result.html template with the predicted value and generated discount
+            return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0],
+                                   discount_percentage=discount_percentage)
 
     elif request.method == 'GET':
-        # Code to render the form initially
+    # Code to render the form initially
         return render_template('loss_rate_model.html')
 
+
+def calculate_discount(loss_rate_prediction):
+    # Example logic to generate discount based on the loss rate prediction
+    if loss_rate_prediction > 0.5:
+        return 20  # 20% discount for high predicted loss rate
+    elif loss_rate_prediction > 0.2:
+        return 10  # 10% discount for moderate predicted loss rate
+    else:
+        return 5  # 5% discount for low predicted loss rate
 @app.route('/staff')
 def staff():
     cursor = cnx.cursor()
