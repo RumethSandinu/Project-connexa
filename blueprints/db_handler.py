@@ -22,7 +22,7 @@ class DatabaseHandler:
 
         try:
             self.cursor.execute('''
-                INSERT INTO customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO customer (email, f_name, l_name, dob, user_password, street, city, province, postal_code) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', customer_data)
             self.conn.commit()
             return True  # Success

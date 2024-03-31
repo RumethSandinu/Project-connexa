@@ -126,13 +126,16 @@ def dashboard():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register(pbkdf2_sha256=None):
+def register():
     if request.method == 'POST':
+        print("Form Data:", request.form)
+        register_customer(request.form)
         user_type = request.form.get('userType')
+        print("User Type:", user_type)
         if user_type == 'customer':
-            result = register_customer(request.form, pbkdf2_sha256=pbkdf2_sha256)
+            result = register_customer(request.form)
         elif user_type == 'staff':
-            result = register_staff(request.form, pbkdf2_sha256=pbkdf2_sha256)
+            result = register_staff(request.form)
         elif user_type == 'admin':
             result = register_admin(request.form)
         else:
@@ -142,10 +145,6 @@ def register(pbkdf2_sha256=None):
 
         if result:
             return redirect(url_for('login'))  # Redirect to login page after successful registration
-
-    elif request.method == 'GET':
-        # Code to render the form initially
-        return render_template('register.html')
 
     return render_template('register.html')
 

@@ -31,3 +31,27 @@ function showForm() {
         alert("Invalid user type selected");
     }
 }
+document.getElementById('dateForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting
+
+    // Get the input value
+    var dateInput = document.getElementById('dateInput').value;
+
+    // Regular expression to match the YYYY-MM-DD format
+    var regex = /^\d{4}-\d{2}-\d{2}$/;
+
+    // Check if the input matches the regex pattern
+    if (regex.test(dateInput)) {
+        // Create a Date object from the input
+        var date = new Date(dateInput);
+
+        // Check if the Date object is valid
+        if (!isNaN(date.getTime())) {
+            alert('The date is valid: ' + dateInput);
+        } else {
+            alert('Invalid date format: ' + dateInput);
+        }
+    } else {
+        alert('Invalid date format: ' + dateInput);
+    }
+});
