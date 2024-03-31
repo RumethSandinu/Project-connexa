@@ -9,18 +9,18 @@ from matplotlib import pyplot as plt
 from blueprints.db_handler import DatabaseHandler
 import datetime
 
-with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_model_file:
-    cust_pref_model = pickle.load(prf_model_file)
+# with open('../customer_preference_analysis/models/cluster_model.pkl', 'rb') as prf_model_file:
+#     cust_pref_model = pickle.load(prf_model_file)
 
-with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
+with open('../time_based_analysis/models/xg_model.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
 
-sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model.keras')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/models/sales_prediction_model.keras')
 
-cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
-sales_pred_columns = pd.read_csv('../sales_analysis/column_names.csv')
-time_model = pd.read_csv('../time_based_analysis/time_model.csv')
-columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names')
+# cluster_data = pd.read_csv('../customer_preference_analysis/datasets/model_building.csv')
+sales_pred_columns = pd.read_csv('../sales_analysis/datasets/column_names.csv')
+time_model = pd.read_csv('../time_based_analysis/datasets/column_names.csv')
+columns_loss_rate = pd.read_csv('../loss_rate_analysis/datasets/column_names.csv')
 
 app = Flask(__name__)
 app.secret_key = 'Connexa123'
@@ -263,7 +263,7 @@ def sale_booster_setup(item_id):
         discount_amount = price_per_kg_float * (discount / 100)
 
         # process the input data
-        input_data = np.zeros((1, 131))
+        input_data = np.zeros((1, 110))
         input_data[0, unit_price_index] = price_per_kg_float + discount_amount
 
         item_name_index = None
@@ -343,7 +343,7 @@ def loss_rate_model():
         unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
         # process the input data
-        input_data = np.zeros((1, 131))
+        input_data = np.zeros((1, 101))
         input_data[0, unit_price_index] = unit_selling_price
         item_name_index = None
         category_index = None
