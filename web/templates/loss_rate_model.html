@@ -31,11 +31,7 @@
 </head>
 
 <body id="top">
-
-  <!-- 
-    - #HEADER
-  -->
-
+<!-- - #HEADER-->
   <header class="header" data-header>
 
     <div class="top-bar">
@@ -90,10 +86,6 @@
             <li>
               <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
             </li>
-            
-            <a href="login.html" class="btn btn-primary" id="loginButton">
-              <span class="span">Sign In</span>
-            </a>
             
 
           </ul>
@@ -327,8 +319,8 @@
     <div class="result-box">
       <h2>Prediction Result</h2>
       <p>Predicted Loss Rate: {{ loss_rate_prediction|default("N/A") }}</p>
+      <p>Discount Percentage: {{ discount_percentage|default("N/A") }}</p>
     </div>
-
     <script>
       function resetForm() {
         document.getElementById("predictionForm").reset();

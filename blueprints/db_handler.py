@@ -22,7 +22,7 @@ class DatabaseHandler:
 
         try:
             self.cursor.execute('''
-                INSERT INTO customer VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO customer (email, f_name, l_name, dob, user_password, street, city, province, postal_code) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', customer_data)
             self.conn.commit()
             return True  # Success
@@ -70,27 +70,21 @@ class DatabaseHandler:
             return False  # Failure
 
     def authenticate_customer(self, email, password):
-        customer_data = self.get_customer_by_email(email)
+        customer_data = self.get_customer_by_email(email, password)
 
         print("Customer Data:", customer_data)
-        if customer_data and len(customer_data) >= 3:
-            if self.verify_password(password, customer_data[1], customer_data[2]):
-                return customer_data
-            else:
-                return None
-        else:
-            return "You cannot log in. Please check your email and try again."
+        return customer_data
+
 
     def get_customer_email(self):
         return self.email
 
     def authenticate_staff(self, email, password):
-        staff_data = self.get_staff_by_email(email)
+        staff_data = self.get_staff_by_email(email, password)
 
-        if staff_data and self.verify_password(password, staff_data[1], staff_data[2]):
-            return staff_data
-        else:
-            return None
+        print("Staff Data:", staff_data)
+        return staff_data
+
 
     def authenticate_admin(self, email, password):
         admin_data = self.get_admin_by_email(email)
@@ -105,15 +99,21 @@ class DatabaseHandler:
         print("puka")
         return hashed_password == input_password_hash
 
-    def get_customer_by_email(self, email):
-        self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s', (email,))
+    def get_customer_by_email(self, email, password):
+        self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s AND user_password = %s', (email, password))
         customer_data = self.cursor.fetchone()
-        return customer_data
+        if customer_data is None:
+            print("You cannot login there is no you data")
+        else:
+            return customer_data
 
-    def get_staff_by_email(self, email):
-        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s', (email,))
+    def get_staff_by_email(self, email, password):
+        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s AND user_password', (email, password))
         staff_data = self.cursor.fetchone()
-        return staff_data
+        if staff_data is None:
+            print("you cannot login there is no your data here")
+        else:
+            return staff_data
 
     def get_admin_by_email(self, email):
         self.cursor.execute('SELECT email, password FROM admin WHERE email = %s', (email,))

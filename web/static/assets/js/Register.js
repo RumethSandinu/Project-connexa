@@ -1,32 +1,14 @@
 var staffPassword = "staff";
 var adminPassword = "admin";
 
-function togglePasswordVisibility() {
-  var passwordInput = document.getElementById("password");
-  var confirmPasswordInput = document.getElementById("confirmPassword");
-
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    confirmPasswordInput.type = "text";
-  } else {
-    passwordInput.type = "password";
-    confirmPasswordInput.type = "password";
-  }
-}
-
-function validateEmail(email) {
-  // Regular expression to validate email with domain "@connexa.com"
-  var regex = /^[a-zA-Z0-9._-]+@connexa\.com$/;
-  return regex.test(email);
-}
-
 function showForm() {
-    var userType = document.getElementById("userType").value;
+    var userType = document.getElementById("userType").value; // Get selected user type
+    console.log("Selected User Type:", userType);
     var emailInput = document.getElementById("email");
 
     // Hide all forms
     var forms = document.querySelectorAll(".Register-container");
-    forms.forEach(function (form) {
+    forms.forEach(function(form) {
         form.style.display = "none";
     });
 
@@ -49,4 +31,27 @@ function showForm() {
         alert("Invalid user type selected");
     }
 }
+document.getElementById('dateForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting
 
+    // Get the input value
+    var dateInput = document.getElementById('dateInput').value;
+
+    // Regular expression to match the YYYY-MM-DD format
+    var regex = /^\d{4}-\d{2}-\d{2}$/;
+
+    // Check if the input matches the regex pattern
+    if (regex.test(dateInput)) {
+        // Create a Date object from the input
+        var date = new Date(dateInput);
+
+        // Check if the Date object is valid
+        if (!isNaN(date.getTime())) {
+            alert('The date is valid: ' + dateInput);
+        } else {
+            alert('Invalid date format: ' + dateInput);
+        }
+    } else {
+        alert('Invalid date format: ' + dateInput);
+    }
+});
