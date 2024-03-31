@@ -126,16 +126,13 @@ def dashboard():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register():
+def register(pbkdf2_sha256=None):
     if request.method == 'POST':
-        print("Form Data:", request.form)
-        register_customer(request.form)
         user_type = request.form.get('userType')
-        print("User Type:", user_type)
         if user_type == 'customer':
-            result = register_customer(request.form)
+            result = register_customer(request.form, pbkdf2_sha256=pbkdf2_sha256)
         elif user_type == 'staff':
-            result = register_staff(request.form)
+            result = register_staff(request.form, pbkdf2_sha256=pbkdf2_sha256)
         elif user_type == 'admin':
             result = register_admin(request.form)
         else:
@@ -145,6 +142,10 @@ def register():
 
         if result:
             return redirect(url_for('login'))  # Redirect to login page after successful registration
+
+    elif request.method == 'GET':
+        # Code to render the form initially
+        return render_template('register.html')
 
     return render_template('register.html')
 
@@ -239,7 +240,6 @@ def sale_booster_setup(item_id):
     item_row = cursor.fetchone()
     # unpack values to variables
     item_name, category, price_per_kg = item_row
-
     cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
     mean_customers_past_7_days = cursor.fetchone()[0]
     mean_customers_past_7_days = int(Decimal(mean_customers_past_7_days))
@@ -252,6 +252,7 @@ def sale_booster_setup(item_id):
     sales = []
 
     column_values = sales_pred_columns.values
+    print(column_values)
 
     # Find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
