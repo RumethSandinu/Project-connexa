@@ -239,7 +239,6 @@ def sale_booster_setup(item_id):
     item_row = cursor.fetchone()
     # unpack values to variables
     item_name, category, price_per_kg = item_row
-
     cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
     mean_customers_past_7_days = cursor.fetchone()[0]
     mean_customers_past_7_days = int(Decimal(mean_customers_past_7_days))
@@ -252,6 +251,7 @@ def sale_booster_setup(item_id):
     sales = []
 
     column_values = sales_pred_columns.values
+    print(column_values)
 
     # Find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
