@@ -67,19 +67,26 @@ th {
  /* CSS for styling the search bar */
 #searchInput {
     padding: 10px;
-    width: 100%; /* Set the width of the search input to match the website width */
+    width: 50%; /* Set the width of the search input to match the website width */
     border: 1px solid #ccc;
     border-radius: 5px;
-    margin-bottom: 20px;
+    margin-top: 20px;
     font-size: 16px;
 }
 
 
 #searchInput:focus {
     outline: none; /* Remove outline when focused */
-    border-color: #007bff; /* Change border color when focused */
+    border-color: #007bff;
+    text-align: center;
+    margin-top: 20px;/* Change border color when focused */
 }
 
 #searchInput::placeholder {
     color: #999; /* Set placeholder color */
+}
+h1 {
+    text-align: center;
+    margin-top: 20px;
+
 }

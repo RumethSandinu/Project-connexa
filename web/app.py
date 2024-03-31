@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import tf_keras as tf
+import tensorflow as tf
 import pickle
 import pandas as pd
 import numpy as np
@@ -15,10 +15,10 @@ with open('../customer_preference_analysis/cluster_model.pkl', 'rb') as prf_mode
 with open('../time_based_analysis/TimeBasedAnalysis.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
 
-sales_pred_model = tf.models.load_model('../sales_analysis/sales_prediction_model')
+sales_pred_model = tf.keras.models.load_model('../sales_analysis/sales_prediction_model.keras')
 
 cluster_data = pd.read_csv('../customer_preference_analysis/model_building.csv')
-sales_pred_columns = pd.read_csv('../sales_analysis/column_names')
+sales_pred_columns = pd.read_csv('../sales_analysis/column_names.csv')
 time_model = pd.read_csv('../time_based_analysis/time_model.csv')
 columns_loss_rate = pd.read_csv('../loss_rate_analysis/column_names')
 
@@ -43,7 +43,9 @@ def index():
 def customer_ui():
     return render_template('customer_ui.html')
 
-
+@app.route('/staff_ui')
+def staff_ui():
+    return render_template('staff_setting.html')
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -61,33 +63,39 @@ def shop():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error_message = ""  # Initialize error message
+
     if request.method == 'POST':
         email = request.form.get('username')
         password = request.form.get('password')
-        print(email, password)
 
         # Authenticate user
         user_data = authenticate_user(email, password)
+        print("123", user_data)
 
         if user_data:
             # User authentication successful, store user data in session
             session['user_email'] = email
-            session['user_type'] = determine_user_type(email)
+            user_type = determine_user_type(email)
+            session['user_type'] = user_type
 
-            # Redirect to a protected route or dashboard
-            return redirect(url_for('customer_ui'))
+            # Redirect based on user type
+            if user_type == 'customer':
+                return redirect(url_for('customer_ui'))
+            elif user_type == 'staff':
+                return redirect(url_for('staff_ui'))
+        else:
+            # If authentication fails, show an error message
+            error_message = "Invalid email or password. Please try again."
 
-        # If authentication fails, show an error message
-        error_message = "Invalid email or password. Please try again."
-        return render_template('index.html', error_message=error_message)
-
-    # If the request method is GET, render the login form
-    return render_template('login.html')
+    # If the request method is GET or authentication failed, render the login form with error message
+    return render_template('login.html', error_message=error_message)
 
 
 def authenticate_user(email, password):
     # Determine user type based on the email domain
     user_type = determine_user_type(email)
+    print(user_type)
     # Authenticate user based on user type
     if user_type == 'customer':
         return db_handler.authenticate_customer(email, password)
@@ -95,7 +103,7 @@ def authenticate_user(email, password):
         return db_handler.authenticate_staff(email, password)
     elif user_type == 'admin':
         return db_handler.authenticate_admin(email, password)
-    return None
+    return None, "Invalid user type"
 
 
 def determine_user_type(email):
@@ -232,7 +240,6 @@ def sale_booster_setup(item_id):
     item_row = cursor.fetchone()
     # unpack values to variables
     item_name, category, price_per_kg = item_row
-
     cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);', (item_id,))
     mean_customers_past_7_days = cursor.fetchone()[0]
     mean_customers_past_7_days = int(Decimal(mean_customers_past_7_days))
@@ -245,6 +252,7 @@ def sale_booster_setup(item_id):
     sales = []
 
     column_values = sales_pred_columns.values
+    print(column_values)
 
     # Find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
@@ -255,7 +263,7 @@ def sale_booster_setup(item_id):
         discount_amount = price_per_kg_float * (discount / 100)
 
         # process the input data
-        input_data = np.zeros((1, 155))
+        input_data = np.zeros((1, 131))
         input_data[0, unit_price_index] = price_per_kg_float + discount_amount
 
         item_name_index = None
@@ -335,7 +343,7 @@ def loss_rate_model():
         unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
         # process the input data
-        input_data = np.zeros((1, 155))
+        input_data = np.zeros((1, 131))
         input_data[0, unit_price_index] = unit_selling_price
         item_name_index = None
         category_index = None
@@ -357,7 +365,7 @@ def loss_rate_model():
         cursor = cnx.cursor()
         cursor.execute('SELECT item_id FROM item where item_name = %s and category = %s', (item_name, category_name))
         item_id = cursor.fetchone()[0]
-        cursor.execute('SELECT ROUND(COUNT(*) / 7, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
+        cursor.execute('SELECT ROUND(COUNT(*) / 30, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
         mean_customers_past_30_days = cursor.fetchone()[0]
         total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
 
@@ -392,16 +400,29 @@ def loss_rate_model():
         with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
             loss_rate_model = pickle.load(file)
 
-        # Perform prediction
-        prediction = loss_rate_model.predict(input_data)
+            # Perform prediction
+            prediction = loss_rate_model.predict(input_data)
 
-        # Render the result.html template with the predicted value
-        return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0])
+            # Generate discount based on the loss rate prediction
+            discount_percentage = calculate_discount(prediction[0])
+
+            # Render the result.html template with the predicted value and generated discount
+            return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0],
+                                   discount_percentage=discount_percentage)
 
     elif request.method == 'GET':
-        # Code to render the form initially
+    # Code to render the form initially
         return render_template('loss_rate_model.html')
 
+
+def calculate_discount(loss_rate_prediction):
+    # Example logic to generate discount based on the loss rate prediction
+    if loss_rate_prediction > 0.5:
+        return 20  # 20% discount for high predicted loss rate
+    elif loss_rate_prediction > 0.2:
+        return 10  # 10% discount for moderate predicted loss rate
+    else:
+        return 5  # 5% discount for low predicted loss rate
 @app.route('/staff')
 def staff():
     cursor = cnx.cursor()
@@ -514,7 +535,7 @@ def personalised_discount_package():
             discount_item_names.append(random_item_name)
 
     #the item names are used to get the item from the database
-    selected_items= []
+    selected_items = []
     for item_name in discount_item_names:
         cursor.execute('SELECT item_name, price_kg, image_path FROM item WHERE item_name = %s', (item_name,))
         item_data = cursor.fetchone()

@@ -1,32 +1,14 @@
 var staffPassword = "staff";
 var adminPassword = "admin";
 
-function togglePasswordVisibility() {
-  var passwordInput = document.getElementById("password");
-  var confirmPasswordInput = document.getElementById("confirmPassword");
-
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    confirmPasswordInput.type = "text";
-  } else {
-    passwordInput.type = "password";
-    confirmPasswordInput.type = "password";
-  }
-}
-
-function validateEmail(email) {
-  // Regular expression to validate email with domain "@connexa.com"
-  var regex = /^[a-zA-Z0-9._-]+@connexa\.com$/;
-  return regex.test(email);
-}
-
 function showForm() {
-    var userType = document.getElementById("userType").value;
+    var userType = document.getElementById("userType").value; // Get selected user type
+    console.log("Selected User Type:", userType);
     var emailInput = document.getElementById("email");
 
     // Hide all forms
     var forms = document.querySelectorAll(".Register-container");
-    forms.forEach(function (form) {
+    forms.forEach(function(form) {
         form.style.display = "none";
     });
 
@@ -49,4 +31,3 @@ function showForm() {
         alert("Invalid user type selected");
     }
 }
-
