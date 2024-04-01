@@ -1,3 +1,6 @@
+import hashlib
+import secrets
+
 from flask import Flask, render_template, request, url_for, redirect, session
 import tensorflow as tf
 import pickle
@@ -125,20 +128,30 @@ def dashboard():
         return redirect(url_for('login'))
 
 
+def pbkdf2_sha256(input_password, salt):
+    return hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), salt, 128)
+
 @app.route('/register', methods=['GET', 'POST'])
-def register(pbkdf2_sha256=None):
+def register():
     if request.method == 'POST':
-        user_type = request.form.get('userType')
-        if user_type == 'customer':
-            result = register_customer(request.form, pbkdf2_sha256=pbkdf2_sha256)
-        elif user_type == 'staff':
-            result = register_staff(request.form, pbkdf2_sha256=pbkdf2_sha256)
-        elif user_type == 'admin':
+        # Generate a new salt for each registration
+        salt = secrets.token_bytes(16)
+
+        # Check if the form contains necessary fields for any user type
+        if 'email_customer' in request.form:
+            # If email_customer field is present, assume customer registration
+            result = register_customer(request.form, pbkdf2_sha256)
+
+        elif 'email_staff' in request.form:
+            # If email_staff field is present, assume staff registration
+            result = register_staff(request.form, pbkdf2_sha256)
+        elif 'email_admin' in request.form:
+            # If email_admin field is present, assume admin registration
             result = register_admin(request.form)
         else:
-            # Handle unexpected 'userType'
+            # Handle case where none of the expected fields are present
             result = False  # Or any other appropriate action
-            print("Unexpected userType:", user_type)
+            print("Unexpected form data for registration")
 
         if result:
             return redirect(url_for('login'))  # Redirect to login page after successful registration
@@ -150,40 +163,44 @@ def register(pbkdf2_sha256=None):
     return render_template('register.html')
 
 
-def register_customer(form_data, pbkdf2_sha256=None):
+def register_customer(form_data, pbkdf2_sha256):
     print("Form Data in register_customer function:", form_data)
 
     email = form_data.get('email_customer')
-    password = form_data.get('password_customer')
+    password = form_data.get('password')
     confirm_password = form_data.get('confirmPassword')
-    first_name = form_data.get('firstName_customer')
-    last_name = form_data.get('lastName_customer')
-    dob = form_data.get('dob_customer')
-    street = form_data.get('street_customer')
-    city = form_data.get('city_customer')
-    province = form_data.get('province_customer')
-    postal_code = form_data.get('postalCode_customer')
+    first_name = form_data.get('firstName')
+    last_name = form_data.get('lastName')
+    dob = form_data.get('dob')
+    street = form_data.get('street')
+    city = form_data.get('city')
+    province = form_data.get('province')
+    postal_code = form_data.get('postalCode')
 
+    if pbkdf2_sha256 is not None:  # Check if pbkdf2_sha256 object is provided
+        if password == confirm_password:
+            hashed_password = pbkdf2_sha256.hash(password)
 
-    if password == confirm_password:
-        hashed_password = pbkdf2_sha256.hash(password)
+            customer = {
+                'email': email,
+                'password': hashed_password,
+                'f_name': first_name,
+                'l_name': last_name,
+                'dob': dob,
+                'street': street,
+                'city': city,
+                'province': province,
+                'postal_code': postal_code
+            }
+            print(customer)
 
-        customer = {
-            'email': email,
-            'password': hashed_password,
-            'f_name': first_name,
-            'l_name': last_name,
-            'dob': dob,
-            'street': street,
-            'city': city,
-            'province': province,
-            'postal_code': postal_code
-        }
-        print(customer)
-
-        return db_handler.insert_customer(customer)
+            return db_handler.insert_customer(customer)
+        else:
+            # Passwords do not match
+            return False
     else:
-        # Passwords do not match
+        # Handle the case when pbkdf2_sha256 object is not provided
+        print("pbkdf2_sha256 object is not provided")
         return False
 
 
@@ -376,7 +393,7 @@ def loss_rate_model():
         unit_price_index = np.where(column_loss_rate_values == 'unit_selling_price_rmb/kg')[0]
         tot_sales_index = np.where(column_loss_rate_values == 'total_sales')[0]
 
-        input_data = np.zeros((1, 156))
+        input_data = np.zeros((1, 159))
         input_data[0, month_index] = month
         input_data[0, unit_price_index] = unit_selling_price
         input_data[0, tot_sales_index] = total_sales
@@ -395,7 +412,7 @@ def loss_rate_model():
         input_data[0, item_name_index] = 1
         input_data[0, category_index] = 1
 
-        with open('../loss_rate_analysis/models/lossRatemodel.pickle', 'rb') as file:
+        with open('../loss_rate_analysis/models/loss_rate_model.pickle', 'rb') as file:
             loss_rate_model = pickle.load(file)
 
             # Perform prediction
@@ -403,6 +420,14 @@ def loss_rate_model():
 
             # Generate discount based on the loss rate prediction
             discount_percentage = calculate_discount(prediction[0])
+
+            # Prepend the discount percentage with a minus sign
+            discount_percentage_with_minus = -discount_percentage
+
+            # Insert the discount into the item table
+            cursor.execute('UPDATE item SET discount_rate = %s WHERE item_name = %s AND category = %s',
+                           (discount_percentage_with_minus, item_name, category_name))
+            cnx.commit()
 
             # Render the result.html template with the predicted value and generated discount
             return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0],
@@ -416,11 +441,11 @@ def loss_rate_model():
 def calculate_discount(loss_rate_prediction):
     # Example logic to generate discount based on the loss rate prediction
     if loss_rate_prediction > 0.5:
-        return 20  # 20% discount for high predicted loss rate
+        return 15  # 20% discount for high predicted loss rate
     elif loss_rate_prediction > 0.2:
-        return 10  # 10% discount for moderate predicted loss rate
+        return 5  # 10% discount for moderate predicted loss rate
     else:
-        return 5  # 5% discount for low predicted loss rate
+        return 3  # 5% discount for low predicted loss rate
 @app.route('/staff')
 def staff():
     cursor = cnx.cursor()
