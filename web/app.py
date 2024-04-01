@@ -9,15 +9,15 @@ from matplotlib import pyplot as plt
 from blueprints.db_handler import DatabaseHandler
 import datetime
 
-# with open('../customer_preference_analysis/models/cluster_model.pkl', 'rb') as prf_model_file:
-#     cust_pref_model = pickle.load(prf_model_file)
+with open('../customer_preference_analysis/models/cluster_model.pkl', 'rb') as prf_model_file:
+    cust_pref_model = pickle.load(prf_model_file)
 
 with open('../time_based_analysis/models/xg_model.pickle', 'rb') as tb_model_file:
     time_based_model = pickle.load(tb_model_file)
 
 sales_pred_model = tf.keras.models.load_model('../sales_analysis/models/sales_prediction_model.keras')
 
-# cluster_data = pd.read_csv('../customer_preference_analysis/datasets/model_building.csv')
+cluster_data = pd.read_csv('../customer_preference_analysis/datasets/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/datasets/column_names.csv')
 time_model = pd.read_csv('../time_based_analysis/datasets/column_names.csv')
 columns_loss_rate = pd.read_csv('../loss_rate_analysis/datasets/column_names.csv')
@@ -343,7 +343,7 @@ def loss_rate_model():
         unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
         # process the input data
-        input_data = np.zeros((1, 101))
+        input_data = np.zeros((1, 110))
         input_data[0, unit_price_index] = unit_selling_price
         item_name_index = None
         category_index = None
@@ -374,13 +374,11 @@ def loss_rate_model():
 
         month_index = np.where(column_loss_rate_values == 'Month')[0]
         unit_price_index = np.where(column_loss_rate_values == 'unit_selling_price_rmb/kg')[0]
-        whole_price_index = np.where(column_loss_rate_values == 'wholesale_price_(rmb/kg)')[0]
         tot_sales_index = np.where(column_loss_rate_values == 'total_sales')[0]
 
-        input_data = np.zeros((1, 185))
+        input_data = np.zeros((1, 156))
         input_data[0, month_index] = month
         input_data[0, unit_price_index] = unit_selling_price
-        input_data[0, whole_price_index] = wholesale_price
         input_data[0, tot_sales_index] = total_sales
 
         item_name_index = None
@@ -397,7 +395,7 @@ def loss_rate_model():
         input_data[0, item_name_index] = 1
         input_data[0, category_index] = 1
 
-        with open('../loss_rate_analysis/lossRatemodel.pickle', 'rb') as file:
+        with open('../loss_rate_analysis/models/lossRatemodel.pickle', 'rb') as file:
             loss_rate_model = pickle.load(file)
 
             # Perform prediction
