@@ -1,4 +1,5 @@
 import hashlib
+import secrets
 
 import mysql.connector
 
@@ -96,8 +97,12 @@ class DatabaseHandler:
 
     def verify_password(self, input_password, hashed_password, salt):
         input_password_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), salt, 128)
-        print("puka")
         return hashed_password == input_password_hash
+
+    def hash_password(self, password):
+        salt = secrets.token_bytes(16)  # Generate a random salt
+        password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 128)
+        return password_hash, salt
 
     def get_customer_by_email(self, email, password):
         self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s AND user_password = %s', (email, password))
@@ -108,7 +113,7 @@ class DatabaseHandler:
             return customer_data
 
     def get_staff_by_email(self, email, password):
-        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s AND user_password', (email, password))
+        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s AND user_password = %s', (email, password))
         staff_data = self.cursor.fetchone()
         if staff_data is None:
             print("you cannot login there is no your data here")
