@@ -397,9 +397,9 @@ def time_sales_plot(item_id):
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
     plt.plot(hour_list, sales, marker='o', linestyle='-', color='b')
-    plt.xlabel('Additional Price Percentage (%)')
+    plt.xlabel('Time')
     plt.ylabel('Sales (kg)')
-    plt.title('Sales vs Additional Price Percentage')
+    plt.title('Time Vs Quantity Selling KG')
     plt.grid(True)
     integer_ticks = np.arange(np.ceil(hour_list.min()), np.floor(hour_list.max()) + 1, dtype=int)
     plt.xticks(integer_ticks)
