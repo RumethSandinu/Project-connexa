@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        /* CSS styles for the table */
+        #itemsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #itemsTable th, #itemsTable td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        #itemsTable th {
+            background-color: #f2f2f2;
+        }
+
+        /* CSS styles for the search input field */
+        #searchInput {
+            padding: 8px;
+            width: 300px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* CSS styles for the boost button */
+        .boostButton {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .boostButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sales Within Today Summary</h1>
+
+    <!-- Add search input field -->
+    <input type="text" id="searchInput" placeholder="Search by item name">
+
+    <table id="itemsTable">
+        <thead>
+            <tr>
+                <th>Item ID</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Price(RMB/KG)</th>
+                <th>Stock(KG)</th>
+                <th>Discount Rate</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>
+                    <a href="{{ url_for('time_sales_plot', item_id=row[0]) }}" class="boostButton">Watch</a>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        // JavaScript for filtering table rows based on item name
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const table = document.getElementById('itemsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            searchInput.addEventListener('input', function() {
+                const searchText = searchInput.value.toLowerCase();
+
+                // Loop through all table rows and hide those that don't match the search query
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const itemName = row.getElementsByTagName('td')[1]; // Assuming item name is in the second column
+
+                    if (itemName) {
+                        const itemNameText = itemName.textContent.toLowerCase();
+                        if (itemNameText.includes(searchText)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
