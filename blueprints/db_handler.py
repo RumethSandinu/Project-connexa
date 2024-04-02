@@ -82,20 +82,18 @@ class DatabaseHandler:
             print(customer_data)
             print(password)
             print(hashed_password_db)
-        return email_db
-        #     salt = b''
-        #     hashed_password_input = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 90)
-        #     print(hashed_password_input)
-        #     # Compare the hashed input password with the hashed password retrieved from the database
-        #     if hashed_password_input == hashed_password_db:
-        #         print("sucess")
-        #         return email_db  # Authentication successful
-        #     else:
-        #         print("fail")
-        #         return None  # Authentication failed
-        # else:
-        #     print("user no")
-        #     return None  # User not found
+            hashed_password_input = password
+            print(hashed_password_input)
+            # Compare the hashed input password with the hashed password retrieved from the database
+            if hashed_password_input == hashed_password_db:
+                print("sucess")
+                return email_db  # Authentication successful
+            else:
+                print("fail")
+                return None  # Authentication failed
+        else:
+            print("user no")
+        return None  # User not found
 
     def authenticate_staff(self, email, password):
         # Retrieve the hashed password and salt from the database for the given email
@@ -104,17 +102,18 @@ class DatabaseHandler:
 
         if staff_data:
             email_db, hashed_password_db= staff_data
-        return email_db
-            # Hash the input password using SHA-256 with the retrieved salt
-        #     hashed_password_input = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'))
-        #
-        #     # Compare the hashed input password with the hashed password retrieved from the database
-        #     if hashed_password_input == hashed_password_db:
-        #         return email_db  # Authentication successful
-        #     else:
-        #         return None  # Authentication failed
-        # else:
-        #     return None  # User not found
+            hashed_password_input = password
+            print(hashed_password_input)
+            # Compare the hashed input password with the hashed password retrieved from the database
+            if hashed_password_input == hashed_password_db:
+                print("sucess")
+                return email_db  # Authentication successful
+            else:
+                print("fail")
+                return None  # Authentication failed
+        else:
+            print("user no")
+        return None  # User not found
 
     def authenticate_admin(self, email, password):
         # Retrieve the hashed password and salt from the database for the given email
@@ -123,23 +122,25 @@ class DatabaseHandler:
 
         if admin_data:
             email_db, hashed_password_db = admin_data
-            # Hash the input password using SHA-256 with the retrieved salt
-            hashed_password_input = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'))
-
+            hashed_password_input = password
+            print(hashed_password_input)
             # Compare the hashed input password with the hashed password retrieved from the database
             if hashed_password_input == hashed_password_db:
+                print("sucess")
                 return email_db  # Authentication successful
             else:
+                print("fail")
                 return None  # Authentication failed
         else:
-            return None  # User not found
+            print("user no")
+        return None  # User not found
 
     def verify_password(self, input_password, hashed_password):
-        input_password_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'))
-        return hashed_password == input_password_hash
+        input_password_hash = hashlib.sha256(input_password.encode('utf-8')).hexdigest()
+        return input_password_hash == hashed_password
 
     def hash_password(self, password):
-        password_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'))
+        password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
         return password_hash
 
     def get_customer_by_email(self, email, password):
