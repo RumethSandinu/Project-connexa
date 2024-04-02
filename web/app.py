@@ -1,7 +1,7 @@
 import hashlib
 import secrets
 
-from flask import Flask, render_template, request, url_for, redirect, session
+from flask import Flask, render_template, request, url_for, redirect, session, flash
 import tensorflow as tf
 import pickle
 import pandas as pd
@@ -63,17 +63,20 @@ def shop():
     cursor.close()
     return render_template('shop.html', rows=rows)
 
+def sha256_hash(input_password):
+    return hashlib.sha256(input_password.encode('utf-8')).hexdigest()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_message = ""  # Initialize error message
-
     if request.method == 'POST':
         email = request.form.get('username')
         password = request.form.get('password')
-
+        print("APP",email, password)
+        # Hash the password
+        hashed_password = sha256_hash(password)
         # Authenticate user
-        user_data = authenticate_user(email, password)
+        user_data = authenticate_user(email, hashed_password)
         print("123", user_data)
 
         if user_data:
@@ -81,7 +84,8 @@ def login():
             session['user_email'] = email
             user_type = determine_user_type(email)
             session['user_type'] = user_type
-
+            # Show message box after successful login
+            flash('Login successful!', 'success')
             # Redirect based on user type
             if user_type == 'customer':
                 return redirect(url_for('customer_ui'))
@@ -128,42 +132,7 @@ def dashboard():
         return redirect(url_for('login'))
 
 
-def pbkdf2_sha256(input_password, salt):
-    return hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), salt, 128)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        # Generate a new salt for each registration
-        salt = secrets.token_bytes(16)
-
-        # Check if the form contains necessary fields for any user type
-        if 'email_customer' in request.form:
-            # If email_customer field is present, assume customer registration
-            result = register_customer(request.form, pbkdf2_sha256)
-
-        elif 'email_staff' in request.form:
-            # If email_staff field is present, assume staff registration
-            result = register_staff(request.form, pbkdf2_sha256)
-        elif 'email_admin' in request.form:
-            # If email_admin field is present, assume admin registration
-            result = register_admin(request.form)
-        else:
-            # Handle case where none of the expected fields are present
-            result = False  # Or any other appropriate action
-            print("Unexpected form data for registration")
-
-        if result:
-            return redirect(url_for('login'))  # Redirect to login page after successful registration
-
-    elif request.method == 'GET':
-        # Code to render the form initially
-        return render_template('register.html')
-
-    return render_template('register.html')
-
-
-def register_customer(form_data, pbkdf2_sha256):
+def register_customer(form_data, sha256_hash):
     print("Form Data in register_customer function:", form_data)
 
     email = form_data.get('email_customer')
@@ -177,53 +146,139 @@ def register_customer(form_data, pbkdf2_sha256):
     province = form_data.get('province')
     postal_code = form_data.get('postalCode')
 
-    if pbkdf2_sha256 is not None:  # Check if pbkdf2_sha256 object is provided
+    if sha256_hash is not None:
         if password == confirm_password:
-            hashed_password = pbkdf2_sha256.hash(password)
+            # Check if the email already exists
+            cursor = cnx.cursor(dictionary=True)
+            check_email_query = "SELECT COUNT(*) AS count FROM customer WHERE email = %s"
+            cursor.execute(check_email_query, (email,))
+            result = cursor.fetchone()
+            if result['count'] > 0:
+                # Email already exists, return False and provide a message
+                return False, "Email already registered. Please use a different email address."
 
-            customer = {
-                'email': email,
-                'password': hashed_password,
-                'f_name': first_name,
-                'l_name': last_name,
-                'dob': dob,
-                'street': street,
-                'city': city,
-                'province': province,
-                'postal_code': postal_code
-            }
-            print(customer)
+            # Hash the password
+            hashed_password = sha256_hash(password)
 
-            return db_handler.insert_customer(customer)
+            # SQL query to insert customer data
+            add_customer = ("INSERT INTO customer "
+                            "(email, f_name, l_name, dob, user_password, street, city, province, postal_code) "
+                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+
+            customer_data = (email, first_name, last_name, dob, hashed_password, street, city, province, postal_code)
+
+            try:
+                cursor.execute(add_customer, customer_data)
+                cnx.commit()
+                print("Customer inserted successfully")
+                return True, None
+            except mysql.connector.Error as err:
+                print("Error inserting customer:", err)
+                return False, "Error inserting customer. Please try again."
+            finally:
+                cursor.close()
         else:
             # Passwords do not match
-            return False
+            return False, "Passwords do not match."
     else:
         # Handle the case when pbkdf2_sha256 object is not provided
         print("pbkdf2_sha256 object is not provided")
-        return False
+        return False, "Internal server error."
 
 
-def register_staff(form_data, pbkdf2_sha256=None):
+def register_staff(form_data, sha256_hash):
+    print(form_data)
     email = form_data.get('email_staff')
-    staff_id = form_data.get('staffId')
-    password = form_data.get('password')
-    first_name = form_data.get('firstName_staff')
+    first_name = form_data.get('firstName')
     last_name = form_data.get('lastName')
     dob = form_data.get('dob')
+    password = form_data.get('password')
 
-    hashed_password = pbkdf2_sha256.hash(password)
 
-    staff = {
-        'email': email,
-        'staff_id': staff_id,
-        'password': hashed_password,
-        'f_name': first_name,
-        'l_name': last_name,
-        'dob': dob
-    }
+    if sha256_hash is not None:
+        cursor = cnx.cursor(dictionary=True)
+        check_email_query = "SELECT COUNT(*) AS count FROM staff WHERE email = %s"
+        cursor.execute(check_email_query, (email,))
+        result = cursor.fetchone()
+        if result['count'] > 0:
+            # Email already exists, return False and provide a message
+            return False, "Email already registered. Please use a different email address."
 
-    return db_handler.insert_staff(staff)
+        hashed_password = sha256_hash(password)
+
+        cursor = cnx.cursor()
+
+        # SQL query to insert staff data
+        add_staff = ("INSERT INTO staff "
+                     "(email, user_password, f_name, l_name, dob) "
+                     "VALUES (%s, %s, %s, %s, %s)")
+
+        staff_data = (email, hashed_password, first_name, last_name, dob)
+        print(staff_data)
+
+        try:
+            cursor.execute(add_staff, staff_data)
+            cnx.commit()
+            print("Staff inserted successfully")
+            return True, None
+        except mysql.connector.Error as err:
+            print("Error inserting staff:", err)
+            return False, "Error inserting staff. Please try again."
+        finally:
+            cursor.close()
+            # cnx.close()  # Don't close the connection here to avoid issues with other operations
+
+    else:
+        # Handle the case when pbkdf2_sha256 object is not provided
+        print("pbkdf2_sha256 object is not provided")
+        return False, "Internal server error."
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        # Generate a new salt for each registration
+        salt = secrets.token_bytes(16)
+
+        # Check if the form contains necessary fields for any user type
+        if 'email_customer' in request.form:
+            # If email_customer field is present, assume customer registration
+            result, message = register_customer(request.form, sha256_hash)
+
+        elif 'email_staff' in request.form:
+            # If email_staff field is present, assume staff registration
+            result, message = register_staff(request.form, sha256_hash)
+        elif 'email_admin' in request.form:
+            # If email_admin field is present, assume admin registration
+            result = register_admin(request.form)
+        else:
+            # Handle case where none of the expected fields are present
+            result = False  # Or any other appropriate action
+            message = "Unexpected form data for registration"
+            print(message)
+
+        if result:
+            # Display success message using JavaScript alert box
+            return '''
+                    <script>
+                        alert("Registration successful! You can now login.");
+                        window.location.href = "/login";  // Redirect to login page
+                    </script>
+                    '''
+        else:
+            # Display error message in a message box using JavaScript
+            return '''
+                    <script>
+                        alert("Error registering: {}");
+                        window.location.href = "/register";  // Redirect to registration page
+                    </script>
+                    '''.format(message)
+
+    elif request.method == 'GET':
+        # Code to render the form initially
+        return render_template('register.html')
+
+    return render_template('register.html')
 
 
 def register_admin(form_data):
@@ -414,9 +469,9 @@ def time_sales_plot(item_id):
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
     plt.plot(hour_list, sales, marker='o', linestyle='-', color='b')
-    plt.xlabel('Additional Price Percentage (%)')
+    plt.xlabel('Time')
     plt.ylabel('Sales (kg)')
-    plt.title('Sales vs Additional Price Percentage')
+    plt.title('Time Vs Quantity Selling KG')
     plt.grid(True)
     integer_ticks = np.arange(np.ceil(hour_list.min()), np.floor(hour_list.max()) + 1, dtype=int)
     plt.xticks(integer_ticks)
@@ -432,11 +487,10 @@ def time_sales_plot(item_id):
 def loss_rate_model():
     if request.method == 'POST':
         # Get form data
-        item_name = request.form['item_name']
-        category_name = request.form['category_name']
+        item_name = request.form['item_name'].lower()
+        category_name = request.form['category_name'].lower()
         month = int(request.form['Month'])
         unit_selling_price = float(request.form['unit_selling_price_rmb/kg'])
-        wholesale_price = float(request.form['wholesale_price_(rmb/kg)'])
 
         column_values = sales_pred_columns.values
         unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
