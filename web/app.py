@@ -452,7 +452,7 @@ def time_sales_plot(item_id):
             category_index = idx
 
     if item_name_index is None or category_index is None:
-        return render_template('item_not_available.html', item_name=item_name, category=category)
+        return render_template('summary_item_not_available.html', item_name=item_name, category=category)
 
     input_data[0, item_name_index] = 1
     input_data[0, category_index] = 1
@@ -480,8 +480,6 @@ def time_sales_plot(item_id):
     plt.close()
 
     return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category)
-
-
 
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
