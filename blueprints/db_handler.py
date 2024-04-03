@@ -87,33 +87,34 @@ class DatabaseHandler:
             # Compare the hashed input password with the hashed password retrieved from the database
             if hashed_password_input == hashed_password_db:
                 print("sucess")
-                return email_db  # Authentication successful
+                return email_db, "Login Successful"  # Authentication successful
             else:
                 print("fail")
-                return None  # Authentication failed
+                return None, "Incorrect email or password"  # Authentication failed
         else:
             print("user no")
-        return None  # User not found
+        return None, "Incorrect email or password"  # User not found
 
     def authenticate_staff(self, email, password):
         # Retrieve the hashed password and salt from the database for the given email
         self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s', (email,))
         staff_data = self.cursor.fetchone()
+        print(staff_data)
 
         if staff_data:
-            email_db, hashed_password_db= staff_data
+            email_db, hashed_password_db = staff_data
             hashed_password_input = password
             print(hashed_password_input)
             # Compare the hashed input password with the hashed password retrieved from the database
             if hashed_password_input == hashed_password_db:
                 print("sucess")
-                return email_db  # Authentication successful
+                return email_db, "Login Successful"  # Authentication successful
             else:
                 print("fail")
-                return None  # Authentication failed
+                return None, "Incorrect email or password"  # Authentication failed
         else:
             print("user no")
-        return None  # User not found
+        return None, "Incorrect email or password"  # User not found
 
     def authenticate_admin(self, email, password):
         # Retrieve the hashed password and salt from the database for the given email
