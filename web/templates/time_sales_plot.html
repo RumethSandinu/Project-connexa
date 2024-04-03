@@ -28,15 +28,15 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet">
     <style>
+        /* Add custom CSS styles */
         body {
             font-family: Arial, sans-serif;
             background-color: transparent;
             background-image: url("../static/assets/images/farmer1.gif");
-            background-size: auto 60%; /* Set width to auto and height to 100% */
-            background-position: left center; /* Align background image to the left and center vertically */
+            background-size: auto 60%;
+            background-position: left center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-
         }
 
         h1 {
@@ -73,12 +73,13 @@
             color: #333;
         }
 
-        input[type="number"] {
+        select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            margin-bottom: 10px; /* Add margin below the dropdown */
         }
 
         button[type="submit"] {
@@ -357,18 +358,20 @@
 
     </aside>
 </body>
+
 <body>
-    <h1>Boost Item</h1>
+    <h1>{{ item_name|capitalize }} Summary Of Selling</h1>
+    <p>Unit Selling Price: {{ price_per_kg }} RMB/KG</p>
+</body>
+
+<body>
     <img src="../static/assets/images/time_vs_sales.png" width="1500" height="600">
     <br>
     <br>
-    <p>Please enter - values for discounts</p>
     <form action="/update_discount" method="post">
-    <input type="hidden" name="item_id" value="{{ item_id }}">
-    <label for="discount_percentage">Price Change Percentage:
-        <input type="number" name="discount_percentage" id="discount_percentage" required>
-    </label>
-    <button type="submit">Boost</button>
-</form>
+      <label for="discount_rate" style="font-weight: bold;">Enter Discount Rate:</label>
+      <input type="number" name="discount_rate" id="discount_rate" placeholder="Discount rate" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;">
+      <button type="submit" style="margin-top: 10px;">Watch</button>
+    </form>
 </body>
 </html>
