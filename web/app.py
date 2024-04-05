@@ -93,6 +93,7 @@ def login():
                 return redirect(url_for('staff_ui'))
         else:
             # If authentication fails, show an error message
+            flash(error_message, 'error')
             error_message = "Invalid email or password. Please try again."
 
     # If the request method is GET or authentication failed, render the login form with error message
@@ -237,9 +238,6 @@ def register_staff(form_data, sha256_hash):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Generate a new salt for each registration
-        salt = secrets.token_bytes(16)
-
         # Check if the form contains necessary fields for any user type
         if 'email_customer' in request.form:
             # If email_customer field is present, assume customer registration
