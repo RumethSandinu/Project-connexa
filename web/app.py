@@ -22,7 +22,7 @@ sales_pred_model = tf.keras.models.load_model('../sales_analysis/models/sales_pr
 
 cluster_data = pd.read_csv('../customer_preference_analysis/datasets/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/datasets/column_names.csv')
-time_model = pd.read_csv('../time_based_analysis/datasets/column_names.csv')
+time_model_columns = pd.read_csv('../time_based_analysis/datasets/column_names.csv')
 columns_loss_rate = pd.read_csv('../loss_rate_analysis/datasets/column_names.csv')
 
 app = Flask(__name__)
@@ -358,7 +358,7 @@ def sale_booster_setup(item_id):
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
-    plt.plot(discount_range, sales, marker='o', linestyle='-', color='b')
+    plt.plot(discount_range, sales, linestyle='-', color='b')
     plt.xlabel('Additional Price Percentage (%)')
     plt.ylabel('Sales (kg)')
     plt.title('Sales vs Additional Price Percentage')
@@ -397,6 +397,88 @@ def blog():
 @app.route('/item')
 def item():
     return render_template('staff.html')
+
+@app.route('/time_sales')
+def time_sales():
+    cursor = cnx.cursor()
+    cursor.execute('SELECT item_id, item_name, category, price_kg, stock, discount_rate FROM item')
+    # get all records to tuples
+    rows = cursor.fetchall()
+    # Close the cursor
+    cursor.close()
+    return render_template('time_forcasting.html', rows=rows)
+
+@app.route('/time_sales_plot/<int:item_id>')
+def time_sales_plot(item_id):
+    cursor = cnx.cursor()
+    # %s --> placeholder for item_id (prevent from SQL injection)
+    cursor.execute('SELECT item_name, category, price_kg FROM item WHERE item_id = %s', (item_id,))
+    item_row = cursor.fetchone()
+    # unpack values to variables
+    item_name, category, price_per_kg = item_row
+    # Capture current month
+    current_month = datetime.date.today().month
+    # Capture current date
+    current_day = datetime.date.today().day
+
+
+
+    sales = []
+
+    column_values = time_model_columns.values
+
+    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
+    month_index = np.where(column_values == 'month')[0][0]
+    day_index = np.where(column_values == 'day')[0][0]
+    time_index = np.where(column_values == 'time')[0][0]
+
+    # process the input data
+    input_data = np.zeros((1, 113))
+    input_data[0, unit_price_index] = price_per_kg
+    input_data[0, month_index] = current_month
+    input_data[0, day_index] = current_day + 1
+
+
+    item_name_index = None
+    category_index = None
+
+    for idx, value in enumerate(column_values):
+        if value == f'item_name_{item_name}':
+            item_name_index = idx
+        elif value == f'category_name_{category}':
+            category_index = idx
+
+    if item_name_index is None or category_index is None:
+        return render_template('item_not_available.html', item_name=item_name, category=category)
+
+    input_data[0, item_name_index] = 1
+    input_data[0, category_index] = 1
+    hour_list = np.arange(9,23)
+
+    for hour in hour_list:
+        input_data[0, time_index] = hour
+
+        # get predictions
+        prediction = time_based_model.predict(input_data)
+        print(prediction)
+        sales.append(prediction[0])
+
+    # plot sales with discount percentage
+    plt.figure(figsize=(15, 6))
+    plt.plot(hour_list, sales, marker='o', linestyle='-', color='b')
+    plt.xlabel('Time')
+    plt.ylabel('Sales (kg)')
+    plt.title('Time Vs Quantity Selling KG')
+    plt.grid(True)
+    integer_ticks = np.arange(np.ceil(hour_list.min()), np.floor(hour_list.max()) + 1, dtype=int)
+    plt.xticks(integer_ticks)
+    # save the plot
+    plt.savefig('static/assets/images/time_vs_sales.png')
+    plt.close()
+
+    return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category)
+
 
 
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
