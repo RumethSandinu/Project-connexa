@@ -1,6 +1,4 @@
 import hashlib
-import secrets
-
 from flask import Flask, render_template, request, url_for, redirect, session, flash
 import tensorflow as tf
 import pickle
@@ -324,7 +322,7 @@ def sale_booster_setup(item_id):
     column_values = sales_pred_columns.values
     print(column_values)
 
-    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    # find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
     for discount in discount_range:
@@ -428,7 +426,7 @@ def time_sales_plot(item_id):
 
     column_values = time_model_columns.values
 
-    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    # find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
     month_index = np.where(column_values == 'month')[0][0]
     day_index = np.where(column_values == 'day')[0][0]
@@ -504,6 +502,7 @@ def time_sales_plot(item_id):
 
     return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category, price_per_kg=price_per_kg)
 
+
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
     if request.method == 'POST':
@@ -539,9 +538,9 @@ def loss_rate_model():
         cursor = cnx.cursor()
         cursor.execute('SELECT item_id FROM item where item_name = %s and category = %s', (item_name, category_name))
         item_id = cursor.fetchone()[0]
-        cursor.execute('SELECT ROUND(COUNT(*) / 30, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
-        mean_customers_past_30_days = cursor.fetchone()[0]
-        total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
+        cursor.execute('SELECT ROUND(COUNT(*), 0) AS orders_past_30_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
+        orders_past_30_days = cursor.fetchone()[0]
+        total_sales = pred_sale * int(Decimal(orders_past_30_days))
 
         # Load the column names used during training
         column_loss_rate_values = columns_loss_rate.values
