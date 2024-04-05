@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request, url_for, redirect, session
+import hashlib
+import secrets
+
+from flask import Flask, render_template, request, url_for, redirect, session, flash
 import tensorflow as tf
 import pickle
 import pandas as pd
@@ -19,7 +22,7 @@ sales_pred_model = tf.keras.models.load_model('../sales_analysis/models/sales_pr
 
 cluster_data = pd.read_csv('../customer_preference_analysis/datasets/model_building.csv')
 sales_pred_columns = pd.read_csv('../sales_analysis/datasets/column_names.csv')
-time_model = pd.read_csv('../time_based_analysis/datasets/column_names.csv')
+time_model_columns = pd.read_csv('../time_based_analysis/datasets/column_names.csv')
 columns_loss_rate = pd.read_csv('../loss_rate_analysis/datasets/column_names.csv')
 
 app = Flask(__name__)
@@ -60,17 +63,20 @@ def shop():
     cursor.close()
     return render_template('shop.html', rows=rows)
 
+def sha256_hash(input_password):
+    return hashlib.sha256(input_password.encode('utf-8')).hexdigest()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_message = ""  # Initialize error message
-
     if request.method == 'POST':
         email = request.form.get('username')
         password = request.form.get('password')
-
+        print("APP",email, password)
+        # Hash the password
+        hashed_password = sha256_hash(password)
         # Authenticate user
-        user_data = authenticate_user(email, password)
+        user_data = authenticate_user(email, hashed_password)
         print("123", user_data)
 
         if user_data:
@@ -78,7 +84,8 @@ def login():
             session['user_email'] = email
             user_type = determine_user_type(email)
             session['user_type'] = user_type
-
+            # Show message box after successful login
+            flash('Login successful!', 'success')
             # Redirect based on user type
             if user_type == 'customer':
                 return redirect(url_for('customer_ui'))
@@ -86,6 +93,7 @@ def login():
                 return redirect(url_for('staff_ui'))
         else:
             # If authentication fails, show an error message
+            flash(error_message, 'error')
             error_message = "Invalid email or password. Please try again."
 
     # If the request method is GET or authentication failed, render the login form with error message
@@ -125,88 +133,150 @@ def dashboard():
         return redirect(url_for('login'))
 
 
+def register_customer(form_data, sha256_hash):
+    print("Form Data in register_customer function:", form_data)
+
+    email = form_data.get('email_customer')
+    password = form_data.get('password')
+    confirm_password = form_data.get('confirmPassword')
+    first_name = form_data.get('firstName')
+    last_name = form_data.get('lastName')
+    dob = form_data.get('dob')
+    street = form_data.get('street')
+    city = form_data.get('city')
+    province = form_data.get('province')
+    postal_code = form_data.get('postalCode')
+
+    if sha256_hash is not None:
+        if password == confirm_password:
+            # Check if the email already exists
+            cursor = cnx.cursor(dictionary=True)
+            check_email_query = "SELECT COUNT(*) AS count FROM customer WHERE email = %s"
+            cursor.execute(check_email_query, (email,))
+            result = cursor.fetchone()
+            if result['count'] > 0:
+                # Email already exists, return False and provide a message
+                return False, "Email already registered. Please use a different email address."
+
+            # Hash the password
+            hashed_password = sha256_hash(password)
+
+            # SQL query to insert customer data
+            add_customer = ("INSERT INTO customer "
+                            "(email, f_name, l_name, dob, user_password, street, city, province, postal_code) "
+                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+
+            customer_data = (email, first_name, last_name, dob, hashed_password, street, city, province, postal_code)
+
+            try:
+                cursor.execute(add_customer, customer_data)
+                cnx.commit()
+                print("Customer inserted successfully")
+                return True, None
+            except mysql.connector.Error as err:
+                print("Error inserting customer:", err)
+                return False, "Error inserting customer. Please try again."
+            finally:
+                cursor.close()
+        else:
+            # Passwords do not match
+            return False, "Passwords do not match."
+    else:
+        # Handle the case when pbkdf2_sha256 object is not provided
+        print("pbkdf2_sha256 object is not provided")
+        return False, "Internal server error."
+
+
+def register_staff(form_data, sha256_hash):
+    print(form_data)
+    email = form_data.get('email_staff')
+    first_name = form_data.get('firstName')
+    last_name = form_data.get('lastName')
+    dob = form_data.get('dob')
+    password = form_data.get('password')
+
+
+    if sha256_hash is not None:
+        cursor = cnx.cursor(dictionary=True)
+        check_email_query = "SELECT COUNT(*) AS count FROM staff WHERE email = %s"
+        cursor.execute(check_email_query, (email,))
+        result = cursor.fetchone()
+        if result['count'] > 0:
+            # Email already exists, return False and provide a message
+            return False, "Email already registered. Please use a different email address."
+
+        hashed_password = sha256_hash(password)
+
+        cursor = cnx.cursor()
+
+        # SQL query to insert staff data
+        add_staff = ("INSERT INTO staff "
+                     "(email, user_password, f_name, l_name, dob) "
+                     "VALUES (%s, %s, %s, %s, %s)")
+
+        staff_data = (email, hashed_password, first_name, last_name, dob)
+        print(staff_data)
+
+        try:
+            cursor.execute(add_staff, staff_data)
+            cnx.commit()
+            print("Staff inserted successfully")
+            return True, None
+        except mysql.connector.Error as err:
+            print("Error inserting staff:", err)
+            return False, "Error inserting staff. Please try again."
+        finally:
+            cursor.close()
+            # cnx.close()  # Don't close the connection here to avoid issues with other operations
+
+    else:
+        # Handle the case when pbkdf2_sha256 object is not provided
+        print("pbkdf2_sha256 object is not provided")
+        return False, "Internal server error."
+
+
 @app.route('/register', methods=['GET', 'POST'])
-def register(pbkdf2_sha256=None):
+def register():
     if request.method == 'POST':
-        user_type = request.form.get('userType')
-        if user_type == 'customer':
-            result = register_customer(request.form, pbkdf2_sha256=pbkdf2_sha256)
-        elif user_type == 'staff':
-            result = register_staff(request.form, pbkdf2_sha256=pbkdf2_sha256)
-        elif user_type == 'admin':
+        # Check if the form contains necessary fields for any user type
+        if 'email_customer' in request.form:
+            # If email_customer field is present, assume customer registration
+            result, message = register_customer(request.form, sha256_hash)
+
+        elif 'email_staff' in request.form:
+            # If email_staff field is present, assume staff registration
+            result, message = register_staff(request.form, sha256_hash)
+        elif 'email_admin' in request.form:
+            # If email_admin field is present, assume admin registration
             result = register_admin(request.form)
         else:
-            # Handle unexpected 'userType'
+            # Handle case where none of the expected fields are present
             result = False  # Or any other appropriate action
-            print("Unexpected userType:", user_type)
+            message = "Unexpected form data for registration"
+            print(message)
 
         if result:
-            return redirect(url_for('login'))  # Redirect to login page after successful registration
+            # Display success message using JavaScript alert box
+            return '''
+                    <script>
+                        alert("Registration successful! You can now login.");
+                        window.location.href = "/login";  // Redirect to login page
+                    </script>
+                    '''
+        else:
+            # Display error message in a message box using JavaScript
+            return '''
+                    <script>
+                        alert("Error registering: {}");
+                        window.location.href = "/register";  // Redirect to registration page
+                    </script>
+                    '''.format(message)
 
     elif request.method == 'GET':
         # Code to render the form initially
         return render_template('register.html')
 
     return render_template('register.html')
-
-
-def register_customer(form_data, pbkdf2_sha256=None):
-    print("Form Data in register_customer function:", form_data)
-
-    email = form_data.get('email_customer')
-    password = form_data.get('password_customer')
-    confirm_password = form_data.get('confirmPassword')
-    first_name = form_data.get('firstName_customer')
-    last_name = form_data.get('lastName_customer')
-    dob = form_data.get('dob_customer')
-    street = form_data.get('street_customer')
-    city = form_data.get('city_customer')
-    province = form_data.get('province_customer')
-    postal_code = form_data.get('postalCode_customer')
-
-
-    if password == confirm_password:
-        hashed_password = pbkdf2_sha256.hash(password)
-
-        customer = {
-            'email': email,
-            'password': hashed_password,
-            'f_name': first_name,
-            'l_name': last_name,
-            'dob': dob,
-            'street': street,
-            'city': city,
-            'province': province,
-            'postal_code': postal_code
-        }
-        print(customer)
-
-        return db_handler.insert_customer(customer)
-    else:
-        # Passwords do not match
-        return False
-
-
-def register_staff(form_data, pbkdf2_sha256=None):
-    email = form_data.get('email_staff')
-    staff_id = form_data.get('staffId')
-    password = form_data.get('password')
-    first_name = form_data.get('firstName_staff')
-    last_name = form_data.get('lastName')
-    dob = form_data.get('dob')
-
-    hashed_password = pbkdf2_sha256.hash(password)
-
-    staff = {
-        'email': email,
-        'staff_id': staff_id,
-        'password': hashed_password,
-        'f_name': first_name,
-        'l_name': last_name,
-        'dob': dob
-    }
-
-    return db_handler.insert_staff(staff)
 
 
 def register_admin(form_data):
@@ -288,7 +358,7 @@ def sale_booster_setup(item_id):
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
-    plt.plot(discount_range, sales, marker='o', linestyle='-', color='b')
+    plt.plot(discount_range, sales, linestyle='-', color='b')
     plt.xlabel('Additional Price Percentage (%)')
     plt.ylabel('Sales (kg)')
     plt.title('Sales vs Additional Price Percentage')
@@ -328,16 +398,120 @@ def blog():
 def item():
     return render_template('staff.html')
 
+@app.route('/time_sales')
+def time_sales():
+    cursor = cnx.cursor()
+    cursor.execute('SELECT item_id, item_name, category, price_kg, stock, discount_rate FROM item')
+    # get all records to tuples
+    rows = cursor.fetchall()
+    # Close the cursor
+    cursor.close()
+    return render_template('time_forcasting.html', rows=rows)
+
+@app.route('/time_sales_plot/<int:item_id>', methods=['GET', 'POST'])
+def time_sales_plot(item_id):
+    cursor = cnx.cursor()
+    # %s --> placeholder for item_id (prevent from SQL injection)
+    cursor.execute('SELECT item_name, category, price_kg FROM item WHERE item_id = %s', (item_id,))
+    item_row = cursor.fetchone()
+    # unpack values to variables
+    item_name, category, price_per_kg = item_row
+    # Capture current month
+    current_month = datetime.date.today().month
+    # Capture current date
+    current_day = datetime.date.today().day
+
+
+
+    sales = []
+    dis_sales = []
+
+    column_values = time_model_columns.values
+
+    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
+    month_index = np.where(column_values == 'month')[0][0]
+    day_index = np.where(column_values == 'day')[0][0]
+    time_index = np.where(column_values == 'time')[0][0]
+
+    # process the input data
+    input_data = np.zeros((1, 113))
+    input_data[0, unit_price_index] = price_per_kg
+    input_data[0, month_index] = current_month
+    input_data[0, day_index] = current_day + 1
+
+
+    item_name_index = None
+    category_index = None
+
+    for idx, value in enumerate(column_values):
+        if value == f'item_name_{item_name}':
+            item_name_index = idx
+        elif value == f'category_name_{category}':
+            category_index = idx
+
+    if item_name_index is None or category_index is None:
+        return render_template('summary_item_not_available.html', item_name=item_name, category=category)
+
+    input_data[0, item_name_index] = 1
+    input_data[0, category_index] = 1
+    hour_list = np.arange(9,23)
+
+    for hour in hour_list:
+        input_data[0, time_index] = hour
+
+        # get predictions
+        prediction = time_based_model.predict(input_data)
+        print(prediction)
+        sales.append(prediction[0])
+
+    if request.method == 'POST':
+        discount_rate = float(request.form['discount_rate'])
+        # Calculate discounted price
+        price_per_kg = float(Decimal(price_per_kg))
+        discounted_price =price_per_kg - (price_per_kg * (discount_rate / 100))
+        print(discounted_price)
+        input_data[0, unit_price_index] = discounted_price
+        for hour in hour_list:
+            input_data[0, time_index] = hour
+            # get predictions
+            prediction = time_based_model.predict(input_data)
+            print(prediction)
+            dis_sales.append(prediction[0])
+
+        plt.plot(hour_list, sales, marker='o', linestyle='-', color='b', label='Original Price')
+        # Plot sales with discounted price
+        plt.plot(hour_list, dis_sales, linestyle='--', color='r', label='Discounted Price')
+        # Add legend
+        plt.legend()
+        # Save the plot
+        plt.savefig('static/assets/images/time_vs_sales.png')
+        plt.close()
+        return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category, price_per_kg=price_per_kg)
+
+    # plot sales with discount percentage
+    plt.figure(figsize=(15, 6))
+    plt.plot(hour_list, sales, marker='o', linestyle='-', color='b')
+    plt.xlabel('Time')
+    plt.ylabel('Sales (kg)')
+    plt.title('Time Vs Quantity Selling KG')
+    plt.grid(True)
+    integer_ticks = np.arange(np.ceil(hour_list.min()), np.floor(hour_list.max()) + 1, dtype=int)
+    plt.xticks(integer_ticks)
+    # save the plot
+    plt.savefig('static/assets/images/time_vs_sales.png')
+    plt.close()
+
+    return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category, price_per_kg=price_per_kg)
 
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
     if request.method == 'POST':
         # Get form data
-        item_name = request.form['item_name']
-        category_name = request.form['category_name']
+        item_name = request.form['item_name'].lower()
+        category_name = request.form['category_name'].lower()
         month = int(request.form['Month'])
         unit_selling_price = float(request.form['unit_selling_price_rmb/kg'])
-        wholesale_price = float(request.form['wholesale_price_(rmb/kg)'])
 
         column_values = sales_pred_columns.values
         unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
@@ -376,7 +550,7 @@ def loss_rate_model():
         unit_price_index = np.where(column_loss_rate_values == 'unit_selling_price_rmb/kg')[0]
         tot_sales_index = np.where(column_loss_rate_values == 'total_sales')[0]
 
-        input_data = np.zeros((1, 156))
+        input_data = np.zeros((1, 159))
         input_data[0, month_index] = month
         input_data[0, unit_price_index] = unit_selling_price
         input_data[0, tot_sales_index] = total_sales
@@ -395,7 +569,7 @@ def loss_rate_model():
         input_data[0, item_name_index] = 1
         input_data[0, category_index] = 1
 
-        with open('../loss_rate_analysis/models/lossRatemodel.pickle', 'rb') as file:
+        with open('../loss_rate_analysis/models/loss_rate_model.pickle', 'rb') as file:
             loss_rate_model = pickle.load(file)
 
             # Perform prediction
@@ -403,6 +577,14 @@ def loss_rate_model():
 
             # Generate discount based on the loss rate prediction
             discount_percentage = calculate_discount(prediction[0])
+
+            # Prepend the discount percentage with a minus sign
+            discount_percentage_with_minus = -discount_percentage
+
+            # Insert the discount into the item table
+            cursor.execute('UPDATE item SET discount_rate = %s WHERE item_name = %s AND category = %s',
+                           (discount_percentage_with_minus, item_name, category_name))
+            cnx.commit()
 
             # Render the result.html template with the predicted value and generated discount
             return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0],
@@ -416,11 +598,11 @@ def loss_rate_model():
 def calculate_discount(loss_rate_prediction):
     # Example logic to generate discount based on the loss rate prediction
     if loss_rate_prediction > 0.5:
-        return 20  # 20% discount for high predicted loss rate
+        return 15  # 20% discount for high predicted loss rate
     elif loss_rate_prediction > 0.2:
-        return 10  # 10% discount for moderate predicted loss rate
+        return 5  # 10% discount for moderate predicted loss rate
     else:
-        return 5  # 5% discount for low predicted loss rate
+        return 3  # 5% discount for low predicted loss rate
 @app.route('/staff')
 def staff():
     cursor = cnx.cursor()

@@ -1,4 +1,5 @@
 import hashlib
+import secrets
 
 import mysql.connector
 
@@ -70,34 +71,78 @@ class DatabaseHandler:
             return False  # Failure
 
     def authenticate_customer(self, email, password):
-        customer_data = self.get_customer_by_email(email, password)
+        # Retrieve the hashed password and salt from the database for the given email
+        self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s', (email,))
+        print("DB", email, password)
+        customer_data = self.cursor.fetchone()
+        print("hi", customer_data)
 
-        print("Customer Data:", customer_data)
-        return customer_data
-
-
-    def get_customer_email(self):
-        return self.email
+        if customer_data:
+            email_db, hashed_password_db = customer_data
+            print(customer_data)
+            print(password)
+            print(hashed_password_db)
+            hashed_password_input = password
+            print(hashed_password_input)
+            # Compare the hashed input password with the hashed password retrieved from the database
+            if hashed_password_input == hashed_password_db:
+                print("sucess")
+                return email_db, "Login Successful"  # Authentication successful
+            else:
+                print("fail")
+                return None, "Incorrect email or password"  # Authentication failed
+        else:
+            print("user no")
+        return None, "Incorrect email or password"  # User not found
 
     def authenticate_staff(self, email, password):
-        staff_data = self.get_staff_by_email(email, password)
+        # Retrieve the hashed password and salt from the database for the given email
+        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s', (email,))
+        staff_data = self.cursor.fetchone()
+        print(staff_data)
 
-        print("Staff Data:", staff_data)
-        return staff_data
-
+        if staff_data:
+            email_db, hashed_password_db = staff_data
+            hashed_password_input = password
+            print(hashed_password_input)
+            # Compare the hashed input password with the hashed password retrieved from the database
+            if hashed_password_input == hashed_password_db:
+                print("sucess")
+                return email_db, "Login Successful"  # Authentication successful
+            else:
+                print("fail")
+                return None, "Incorrect email or password"  # Authentication failed
+        else:
+            print("user no")
+        return None, "Incorrect email or password"  # User not found
 
     def authenticate_admin(self, email, password):
-        admin_data = self.get_admin_by_email(email)
+        # Retrieve the hashed password and salt from the database for the given email
+        self.cursor.execute('SELECT email, password, salt FROM admin WHERE email = %s', (email,password))
+        admin_data = self.cursor.fetchone()
 
-        if admin_data and self.verify_password(password, admin_data[1], admin_data[2]):
-            return admin_data
+        if admin_data:
+            email_db, hashed_password_db = admin_data
+            hashed_password_input = password
+            print(hashed_password_input)
+            # Compare the hashed input password with the hashed password retrieved from the database
+            if hashed_password_input == hashed_password_db:
+                print("sucess")
+                return email_db  # Authentication successful
+            else:
+                print("fail")
+                return None  # Authentication failed
         else:
-            return None
+            print("user no")
+        return None  # User not found
 
-    def verify_password(self, input_password, hashed_password, salt):
-        input_password_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), salt, 128)
-        print("puka")
-        return hashed_password == input_password_hash
+    def verify_password(self, input_password, hashed_password):
+        input_password_hash = hashlib.sha256(input_password.encode('utf-8')).hexdigest()
+        return input_password_hash == hashed_password
+
+    def hash_password(self, password):
+        password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        return password_hash
 
     def get_customer_by_email(self, email, password):
         self.cursor.execute('SELECT email, user_password FROM customer WHERE email = %s AND user_password = %s', (email, password))
@@ -108,7 +153,7 @@ class DatabaseHandler:
             return customer_data
 
     def get_staff_by_email(self, email, password):
-        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s AND user_password', (email, password))
+        self.cursor.execute('SELECT email, user_password FROM staff WHERE email = %s AND user_password = %s', (email, password))
         staff_data = self.cursor.fetchone()
         if staff_data is None:
             print("you cannot login there is no your data here")
