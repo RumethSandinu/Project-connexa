@@ -637,48 +637,6 @@ def update_staff():
 
     return redirect(url_for('staff'))
 
-
-@app.route('/discount')
-def discount():
-    user_email = session.get('user_email')
-    cursor = cnx.cursor()
-    query = "SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase AS p JOIN item AS i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1;"
-    cursor.execute(query, ('customer@example.com',))
-    latest_purchase = cursor.fetchone()
-    cursor.close()
-    if latest_purchase is None:
-        return "No purchase records found."
-
-    item_id, quantity_kg, item_name, category = latest_purchase
-    current_time = datetime.datetime.now()
-    current_hour = current_time.hour
-    column_values = sales_pred_columns.values
-
-    # process the input data
-    input_data = np.zeros((1, 185))
-    input_data[0, 0] = int(current_hour)
-    input_data[0, 1] = int(Decimal(quantity_kg))
-
-    item_name_index = None
-    category_index = None
-    for idx, value in enumerate(column_values):
-        if value == f'item_name_{item_name}':
-            item_name_index = idx
-        elif value == f'category_name_{category}':
-            category_index = idx
-
-    if item_name_index is None or category_index is None:
-        return render_template('item_not_available.html', item_name=item_name, category=category)
-
-    input_data[0, item_name_index] = 1
-    input_data[0, category_index] = 1
-
-    # get predictions
-    prediction = time_based_model.predict(input_data)
-    print(prediction)
-    return render_template('discount.html')
-
-
 @app.route('/update_discount', methods=['POST'])
 def update_discount_route():
     item_id = request.form['item_id']
