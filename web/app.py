@@ -93,6 +93,7 @@ def login():
                 return redirect(url_for('staff_ui'))
         else:
             # If authentication fails, show an error message
+            flash(error_message, 'error')
             error_message = "Invalid email or password. Please try again."
 
     # If the request method is GET or authentication failed, render the login form with error message
@@ -237,9 +238,6 @@ def register_staff(form_data, sha256_hash):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Generate a new salt for each registration
-        salt = secrets.token_bytes(16)
-
         # Check if the form contains necessary fields for any user type
         if 'email_customer' in request.form:
             # If email_customer field is present, assume customer registration
@@ -410,7 +408,7 @@ def time_sales():
     cursor.close()
     return render_template('time_forcasting.html', rows=rows)
 
-@app.route('/time_sales_plot/<int:item_id>')
+@app.route('/time_sales_plot/<int:item_id>', methods=['GET', 'POST'])
 def time_sales_plot(item_id):
     cursor = cnx.cursor()
     # %s --> placeholder for item_id (prevent from SQL injection)
@@ -426,6 +424,7 @@ def time_sales_plot(item_id):
 
 
     sales = []
+    dis_sales = []
 
     column_values = time_model_columns.values
 
@@ -452,7 +451,7 @@ def time_sales_plot(item_id):
             category_index = idx
 
     if item_name_index is None or category_index is None:
-        return render_template('item_not_available.html', item_name=item_name, category=category)
+        return render_template('summary_item_not_available.html', item_name=item_name, category=category)
 
     input_data[0, item_name_index] = 1
     input_data[0, category_index] = 1
@@ -465,6 +464,30 @@ def time_sales_plot(item_id):
         prediction = time_based_model.predict(input_data)
         print(prediction)
         sales.append(prediction[0])
+
+    if request.method == 'POST':
+        discount_rate = float(request.form['discount_rate'])
+        # Calculate discounted price
+        price_per_kg = float(Decimal(price_per_kg))
+        discounted_price =price_per_kg - (price_per_kg * (discount_rate / 100))
+        print(discounted_price)
+        input_data[0, unit_price_index] = discounted_price
+        for hour in hour_list:
+            input_data[0, time_index] = hour
+            # get predictions
+            prediction = time_based_model.predict(input_data)
+            print(prediction)
+            dis_sales.append(prediction[0])
+
+        plt.plot(hour_list, sales, marker='o', linestyle='-', color='b', label='Original Price')
+        # Plot sales with discounted price
+        plt.plot(hour_list, dis_sales, linestyle='--', color='r', label='Discounted Price')
+        # Add legend
+        plt.legend()
+        # Save the plot
+        plt.savefig('static/assets/images/time_vs_sales.png')
+        plt.close()
+        return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category, price_per_kg=price_per_kg)
 
     # plot sales with discount percentage
     plt.figure(figsize=(15, 6))
@@ -479,9 +502,7 @@ def time_sales_plot(item_id):
     plt.savefig('static/assets/images/time_vs_sales.png')
     plt.close()
 
-    return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category)
-
-
+    return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category, price_per_kg=price_per_kg)
 
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
