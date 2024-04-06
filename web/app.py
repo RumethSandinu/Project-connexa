@@ -63,7 +63,6 @@ def shop():
 
 def sha256_hash(input_password):
     return hashlib.sha256(input_password.encode('utf-8')).hexdigest()
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_message = ""  # Initialize error message
@@ -584,27 +583,41 @@ def loss_rate_model():
             # Generate discount based on the loss rate prediction
             discount_percentage = calculate_discount(prediction[0])
 
-            # Prepend the discount percentage with a minus sign
-            discount_percentage_with_minus = -discount_percentage
-
-            # Insert the discount into the item table
-            cursor.execute('UPDATE item SET discount_rate = %s WHERE item_name = %s AND category = %s',
-                           (discount_percentage_with_minus, item_name, category_name))
-            cnx.commit()
 
             # Render the result.html template with the predicted value and generated discount
             return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0],
-                                   discount_percentage=discount_percentage)
+                                   discount_percentage=discount_percentage, item_name=item_name, category_name=category_name)
 
     elif request.method == 'GET':
     # Code to render the form initially
         return render_template('loss_rate_model.html')
+@app.route('/add_discount', methods=['POST'])
+def add_discount():
+    # Retrieve data from the request
+    data = request.json
+    item_name = data.get('item_name')
+    category_name = data.get('category_name')
+    discount_percentage = data.get('discount_percentage')
+    print(discount_percentage, category_name, item_name)
+
+    try:
+        # Execute SQL query to update discount in the item table
+        with cnx.cursor() as cursor:
+            # Ensure that the discount rate is negative
+            discount_percentage_with_minus = -1 * abs(float(discount_percentage))
+            cursor.execute('UPDATE item SET discount_rate = %s WHERE item_name = %s AND category = %s',
+                           (discount_percentage_with_minus, item_name, category_name))
+        # Commit the transaction
+        cnx.commit()
+        return {'message': 'Discount added successfully'}, 200
+    except Exception as e:
+        return {'error': str(e)}, 500
 
 
 def calculate_discount(loss_rate_prediction):
     # Example logic to generate discount based on the loss rate prediction
     if loss_rate_prediction > 0.5:
-        return 15  # 20% discount for high predicted loss rate
+        return 10  # 20% discount for high predicted loss rate
     elif loss_rate_prediction > 0.2:
         return 5  # 10% discount for moderate predicted loss rate
     else:
