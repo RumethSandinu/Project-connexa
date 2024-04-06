@@ -315,16 +315,60 @@
         <input type="submit" value="Predict">
         <button type="button" onclick="resetForm()">Reset</button>
     </form>
-
+    <button onclick="addDiscount()" class="add-discount-button">Add Discount</button>
     <div class="result-box">
       <h2>Prediction Result</h2>
       <p>Predicted Loss Rate: {{ loss_rate_prediction|default("N/A") }}</p>
       <p>Discount Percentage: {{ discount_percentage|default("N/A") }}</p>
+      <p>Item Name: {{ item_name|default("N/A") }}</p>
+      <p>Category: {{ category_name|default("N/A") }}</p>
     </div>
     <script>
-      function resetForm() {
-        document.getElementById("predictionForm").reset();
+      function addDiscount() {
+          // Get the prediction result box
+          var resultBox = document.querySelector('.result-box');
+
+          // Get the discount percentage
+          var discountPercentage = parseFloat(resultBox.querySelector('p:nth-of-type(2)').textContent.split(':')[1].trim());
+
+          // Get the item name
+          var itemName = resultBox.querySelector('p:nth-of-type(3)').textContent.split(':')[1].trim();
+
+          // Get the category
+          var category = resultBox.querySelector('p:nth-of-type(4)').textContent.split(':')[1].trim();
+
+          // Check if the discount percentage is not NaN
+          if (!isNaN(discountPercentage)) {
+              // Send AJAX request to add the discount percentage to the database
+              fetch('/add_discount', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                          discount_percentage: discountPercentage,
+                          item_name: itemName,
+                          category_name: category
+                      })
+                  })
+                  .then(response => {
+                      if (response.ok) {
+                          alert('Discount percentage added successfully!');
+                      } else {
+                          throw new Error('Failed to add discount percentage');
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      alert('Failed to add discount percentage');
+                  });
+          } else {
+              alert('No discount percentage to add');
+          }
       }
+
+
+
       // JavaScript to auto-generate total sales based on Quantity Sold and Unit Selling Price
       document.addEventListener('input', function (e) {
         if (e.target.name === 'quantity_sold_kg' || e.target.name === 'unit_selling_price_rmb/kg') {
