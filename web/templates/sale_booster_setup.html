@@ -1,42 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONNEXA</title>
-  
-    <!-- 
-      - favicon
-    -->
-    <link rel="shortcut icon" href="../static/assets/images/favicon.svg" type="image/svg+xml">
-  
-    <!-- 
-      - custom css link
-    -->
-    <link rel="stylesheet" href="../static/assets/css/main.css">
-    <link rel="stylesheet" href="../static/assets/css/home.css">
- 
-  
-  
-    <!-- 
-      - google font link
-    -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:wght@400;500;700&display=swap"
-      rel="stylesheet">
-    <style>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONNEXA</title>
+
+  <!--
+    - favicon
+  -->
+  <link rel="shortcut icon" href="../static/assets/images/favicon.svg" type="image/svg+xml">
+
+  <!--
+    - custom css link
+  -->
+  <link rel="stylesheet" href="../static/assets/css/main.css">
+  <link rel="stylesheet" href="../static/assets/css/home.css">
+
+
+  <!--
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body id="top">
+<!-- - #HEADER-->
+  <header class="header" data-header>
+
+    <div class="top-bar">
+      <div class="container">
+        <p>Get membership and enjoy unlimited personalized discounts</p>
+      </div>
+    </div>
+
+    <div class="nav-wrapper">
+      <div class="container">
+
+        <h1 class="h1">
+          <a href="./index.html" class="logo">CONN<span class="span">EXA</span></a>
+        </h1>
+
+        <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
+          <ion-icon name="menu-outline"></ion-icon>
+        </button>
+
+        <nav class="navbar" data-navbar>
+
+          <button class="nav-close-btn" aria-label="Close Menu" data-nav-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
+          <ul class="navbar-list">
+
+            <li>
+              <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('about') }}" class="navbar-link">About</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('staff') }}" class="navbar-link">Staff</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('discount') }}" class="navbar-link">Discount Rate</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
+            </li>
+
+
+          </ul>
+
+        </nav>
+
+        <div class="header-action">
+
+          <div class="search-wrapper" data-search-wrapper>
+
+            <button class="header-action-btn" aria-label="Toggle search" data-search-btn>
+              <ion-icon name="search-outline" class="search-icon"></ion-icon>
+              <ion-icon name="close-outline" class="close-icon"></ion-icon>
+            </button>
+
+            <div class="input-wrapper">
+              <input type="search" name="search" placeholder="Search here" class="search-input">
+
+              <button class="search-submit" aria-label="Submit search">
+                <ion-icon name="search-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <button class="header-action-btn" aria-label="Open whishlist" data-panel-btn="whishlist">
+            <ion-icon name="heart-outline"></ion-icon>
+            <data class="btn-badge" value="3">03</data>
+          </button>
+
+          <button class="header-action-btn" aria-label="Open shopping cart" data-panel-btn="cart">
+            <ion-icon name="basket-outline"></ion-icon>
+            <data class="btn-badge" value="2">02</data>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+
+
+
+
+  <!--
+    - #ASIDE
+  -->
+
+  <aside class="aside">
+
+    <div class="side-panel" data-side-panel="whishlist">
+
+      <button class="panel-close-btn" aria-label="Close whishlist" data-panel-btn="whishlist">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+
+      <ul class="panel-list">
+
+        <li class="panel-item">
+          <a href="../product-details.html" class="panel-card">
+
+            <figure class="item-banner">
+              <img src="../static/assets/images/product-small-1.jpg" width="46" height="46" loading="lazy"
+                   alt="Bright Side Vegetarian">
+            </figure>
+
+            <div>
+              <p class="item-title">Bright Side Vegetarian</p>
+
+              <span class="item-value">$20.15x1</span>
+            </div>
+
+            <button class="item-close-btn" aria-label="Remove item">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+          </a>
+        </li>
+
+        <li class="panel-item">
+          <a href="../product-details.html" class="panel-card">
+
+            <figure class="item-banner">
+              <img src="../static/assets/images/product-small-2.jpg" width="46" height="46" loading="lazy" alt="Eco Vegetable">
+            </figure>
+
+            <div>
+              <p class="item-title">Eco Vegetable</p>
+
+              <span class="item-value">$13.25x2</span>
+            </div>
+
+            <button class="item-close-btn" aria-label="Remove item">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+          </a>
+        </li>
+
+        <li class="panel-item">
+          <a href="../product-details.html" class="panel-card">
+
+            <figure class="item-banner">
+              <img src="../static/assets/images/product-small-3.jpg" width="46" height="46" loading="lazy"
+                   alt="House of Veggies">
+            </figure>
+
+            <div>
+              <p class="item-title">House of Veggies</p>
+
+              <span class="item-value">$20.15x1</span>
+            </div>
+
+            <button class="item-close-btn" aria-label="Remove item">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+          </a>
+        </li>
+
+      </ul>
+
+      <div class="subtotal">
+        <p class="subtotal-text">Subtotal:</p>
+
+        <data class="subtotal-value" value="215.14">$215.14</data>
+      </div>
+
+      <a href="../whishlist.html" class="panel-btn">View Whishlist</a>
+
+    </div>
+
+    <div class="side-panel" data-side-panel="cart">
+
+      <button class="panel-close-btn" aria-label="Close cart" data-panel-btn="cart">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+
+      <ul class="panel-list">
+
+        <li class="panel-item">
+          <a href="../product-details.html" class="panel-card">
+
+            <figure class="item-banner">
+              <img src="../static/assets/images/product-small-1.jpg" width="46" height="46" loading="lazy"
+                   alt="Bright Side Vegetarian">
+            </figure>
+
+            <div>
+              <p class="item-title">Bright Side Vegetarian</p>
+
+              <span class="item-value">$20.15x1</span>
+            </div>
+
+            <button class="item-close-btn" aria-label="Remove item">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+          </a>
+        </li>
+
+        <li class="panel-item">
+          <a href="../product-details.html" class="panel-card">
+
+            <figure class="item-banner">
+              <img src="../static/assets/images/product-small-2.jpg" width="46" height="46" loading="lazy" alt="Eco Vegetable">
+            </figure>
+
+            <div>
+              <p class="item-title">Eco Vegetable</p>
+
+              <span class="item-value">$13.25x2</span>
+            </div>
+
+            <button class="item-close-btn" aria-label="Remove item">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+          </a>
+        </li>
+
+      </ul>
+
+      <div class="subtotal">
+        <p class="subtotal-text">Subtotal:</p>
+
+        <data class="subtotal-value" value="215.14">$215.14</data>
+      </div>
+
+      <a href="../cart.html" class="panel-btn">View Cart</a>
+
+    </div>
+
+  </aside>
+  <body>
+    <h1>Boost Item</h1>
+    <img src="../static/assets/images/sales_vs_discount.png" width="1500" height="600">
+    <br>
+    <br>
+    <p>Please enter - values for discounts</p>
+    <form action="/update_discount" method="post">
+    <input type="hidden" name="item_id" value="{{ item_id }}">
+    <label for="discount_percentage">Price Change Percentage:
+        <input type="number" name="discount_percentage" id="discount_percentage" required>
+    </label>
+    <button type="submit">Boost</button>
+    </form>
+  </body>
+<style>
         body {
             font-family: Arial, sans-serif;
             background-color: transparent;
             background-image: url("../static/assets/images/farmer1.gif");
             background-size: auto 60%; /* Set width to auto and height to 100% */
             background-position: left center; /* Align background image to the left and center vertically */
-            background-repeat: no-repeat; 
-            background-attachment: fixed; 
-            
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
         }
 
         h1 {
@@ -97,278 +363,37 @@
             background-color: #45a049;
         }
     </style>
-</head>
-<body id="top">
 
-    <!-- 
-      - #HEADER
-    -->
-  
-    <header class="header" data-header>
-  
-      <div class="top-bar">
-        <div class="container">
-          <p>Get membership and enjoy unlimited personalized discounts</p>
-        </div>
-      </div>
-  
-      <div class="nav-wrapper">
-        <div class="container">
-  
-          <h1 class="h1">
-            <a href="./index.html" class="logo">Conne<span class="span">Xa</span></a>
-          </h1>
-  
-          <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
-            <ion-icon name="menu-outline"></ion-icon>
-          </button>
-  
-          <nav class="navbar" data-navbar>
-  
-            <button class="nav-close-btn" aria-label="Close Menu" data-nav-close-btn>
-              <ion-icon name="close-outline"></ion-icon>
-            </button>
-  
-            <ul class="navbar-list">
-  
-              <li>
-                <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
-              </li>
-  
-              <li>
-                <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
-              </li>
-  
-              <li>
-                <a href="{{ url_for('about') }}" class="navbar-link">About</a>
-              </li>
-  
-              <li>
-                <a href="{{ url_for('staff') }}" class="navbar-link">Staff</a>
-              </li>
-  
-              <li>
-                <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
-              </li>
-  
-              <li>
-                <a href="{{ url_for('discount') }}" class="navbar-link">Discount Rate</a>
-              </li>
-  
-              <li>
-                <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
-              </li>
-              
-              <a href="login.html" class="btn btn-primary" id="loginButton">
-                <span class="span">Sign In</span>
-              </a>
-              
-  
-            </ul>
-  
-          </nav>
-  
-          <div class="header-action">
-  
-            <div class="search-wrapper" data-search-wrapper>
-  
-              <button class="header-action-btn" aria-label="Toggle search" data-search-btn>
-                <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                <ion-icon name="close-outline" class="close-icon"></ion-icon>
-              </button>
-  
-              <div class="input-wrapper">
-                <input type="search" name="search" placeholder="Search here" class="search-input">
-  
-                <button class="search-submit" aria-label="Submit search">
-                  <ion-icon name="search-outline"></ion-icon>
-                </button>
-              </div>
-            </div>
-  
-            <button class="header-action-btn" aria-label="Open whishlist" data-panel-btn="whishlist">
-              <ion-icon name="heart-outline"></ion-icon>
-              <data class="btn-badge" value="3">03</data>
-            </button>
-  
-            <button class="header-action-btn" aria-label="Open shopping cart" data-panel-btn="cart">
-              <ion-icon name="basket-outline"></ion-icon>
-              <data class="btn-badge" value="2">02</data>
-            </button>
-  
-          </div>
-        </div>
-      </div>
-  
-    </header>
-  
-  
-  
-  
-  
-    <!-- 
-      - #ASIDE
-    -->
-  
-    <aside class="aside">
-  
-      <div class="side-panel" data-side-panel="whishlist">
-  
-        <button class="panel-close-btn" aria-label="Close whishlist" data-panel-btn="whishlist">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-  
-        <ul class="panel-list">
-  
-          <li class="panel-item">
-            <a href="../product-details.html" class="panel-card">
-  
-              <figure class="item-banner">
-                <img src="../static/assets/images/product-small-1.jpg" width="46" height="46" loading="lazy"
-                     alt="Bright Side Vegetarian">
-              </figure>
-  
-              <div>
-                <p class="item-title">Bright Side Vegetarian</p>
-  
-                <span class="item-value">$20.15x1</span>
-              </div>
-  
-              <button class="item-close-btn" aria-label="Remove item">
-                <ion-icon name="close-outline"></ion-icon>
-              </button>
-  
-            </a>
-          </li>
-  
-          <li class="panel-item">
-            <a href="../product-details.html" class="panel-card">
-  
-              <figure class="item-banner">
-                <img src="../static/assets/images/product-small-2.jpg" width="46" height="46" loading="lazy" alt="Eco Vegetable">
-              </figure>
-  
-              <div>
-                <p class="item-title">Eco Vegetable</p>
-  
-                <span class="item-value">$13.25x2</span>
-              </div>
-  
-              <button class="item-close-btn" aria-label="Remove item">
-                <ion-icon name="close-outline"></ion-icon>
-              </button>
-  
-            </a>
-          </li>
-  
-          <li class="panel-item">
-            <a href="../product-details.html" class="panel-card">
-  
-              <figure class="item-banner">
-                <img src="../static/assets/images/product-small-3.jpg" width="46" height="46" loading="lazy"
-                     alt="House of Veggies">
-              </figure>
-  
-              <div>
-                <p class="item-title">House of Veggies</p>
-  
-                <span class="item-value">$20.15x1</span>
-              </div>
-  
-              <button class="item-close-btn" aria-label="Remove item">
-                <ion-icon name="close-outline"></ion-icon>
-              </button>
-  
-            </a>
-          </li>
-  
-        </ul>
-  
-        <div class="subtotal">
-          <p class="subtotal-text">Subtotal:</p>
-  
-          <data class="subtotal-value" value="215.14">$215.14</data>
-        </div>
-  
-        <a href="../whishlist.html" class="panel-btn">View Whishlist</a>
-  
-      </div>
-  
-      <div class="side-panel" data-side-panel="cart">
-  
-        <button class="panel-close-btn" aria-label="Close cart" data-panel-btn="cart">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-  
-        <ul class="panel-list">
-  
-          <li class="panel-item">
-            <a href="../product-details.html" class="panel-card">
-  
-              <figure class="item-banner">
-                <img src="../static/assets/images/product-small-1.jpg" width="46" height="46" loading="lazy"
-                     alt="Bright Side Vegetarian">
-              </figure>
-  
-              <div>
-                <p class="item-title">Bright Side Vegetarian</p>
-  
-                <span class="item-value">$20.15x1</span>
-              </div>
-  
-              <button class="item-close-btn" aria-label="Remove item">
-                <ion-icon name="close-outline"></ion-icon>
-              </button>
-  
-            </a>
-          </li>
-  
-          <li class="panel-item">
-            <a href="../product-details.html" class="panel-card">
-  
-              <figure class="item-banner">
-                <img src="../static/assets/images/product-small-2.jpg" width="46" height="46" loading="lazy" alt="Eco Vegetable">
-              </figure>
-  
-              <div>
-                <p class="item-title">Eco Vegetable</p>
-  
-                <span class="item-value">$13.25x2</span>
-              </div>
-  
-              <button class="item-close-btn" aria-label="Remove item">
-                <ion-icon name="close-outline"></ion-icon>
-              </button>
-  
-            </a>
-          </li>
-  
-        </ul>
-  
-        <div class="subtotal">
-          <p class="subtotal-text">Subtotal:</p>
-  
-          <data class="subtotal-value" value="215.14">$215.14</data>
-        </div>
-  
-        <a href="../cart.html" class="panel-btn">View Cart</a>
-  
-      </div>
-  
-    </aside>
+
+
+
+
+
+  <!--
+    - #BACK TO TOP
+  -->
+
+  <a href="#top" class="back-to-top" aria-label="Back to Top" data-back-top-btn>
+    <ion-icon name="arrow-up-outline"></ion-icon>
+  </a>
+
+
+
+
+
+  <!--
+    - custom js link
+  -->
+  <script src="../static/assets/js/script.js"></script>
+  <script src="../static/assets/js/Register.js"></script>
+
+
+  <!--
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
 </body>
-<body>
-    <h1>Boost Item</h1>
-    <img src="../static/assets/images/sales_vs_discount.png" width="1500" height="600">
-    <br>
-    <br>
-    <p>Please enter - values for discounts</p>
-    <form action="/update_discount" method="post">
-    <input type="hidden" name="item_id" value="{{ item_id }}">
-    <label for="discount_percentage">Price Change Percentage:
-        <input type="number" name="discount_percentage" id="discount_percentage" required>
-    </label>
-    <button type="submit">Boost</button>
-</form>
-</body>
+
 </html>
