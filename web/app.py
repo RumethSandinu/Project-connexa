@@ -508,7 +508,6 @@ def time_sales_plot(item_id):
 
     return render_template('time_sales_plot.html', item_id=item_id, item_name=item_name, category=category, price_per_kg=price_per_kg)
 
-
 @app.route('/loss_rate_model', methods=['GET', 'POST'])
 def loss_rate_model():
     if request.method == 'POST':
