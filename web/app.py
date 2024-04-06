@@ -418,8 +418,6 @@ def time_sales_plot(item_id):
     # Capture current date
     current_day = datetime.date.today().day
 
-
-
     sales = []
     dis_sales = []
 
@@ -464,6 +462,11 @@ def time_sales_plot(item_id):
 
     if request.method == 'POST':
         discount_rate = float(request.form['discount_rate'])
+
+        # Save discount rate to the database
+        cursor.execute("UPDATE item SET discount_rate = %s WHERE item_id = %s", (discount_rate, item_id))
+        cnx.commit()
+
         # Calculate discounted price
         price_per_kg = float(Decimal(price_per_kg))
         discounted_price =price_per_kg - (price_per_kg * (discount_rate / 100))
@@ -476,9 +479,13 @@ def time_sales_plot(item_id):
             print(prediction)
             dis_sales.append(prediction[0])
 
+        plt.figure(figsize=(15, 6))
         plt.plot(hour_list, sales, marker='o', linestyle='-', color='b', label='Original Price')
         # Plot sales with discounted price
         plt.plot(hour_list, dis_sales, linestyle='--', color='r', label='Discounted Price')
+        plt.grid(True)
+        int_ticks = np.arange(np.ceil(hour_list.min()), np.floor(hour_list.max()) + 1, dtype=int)
+        plt.xticks(int_ticks)
         # Add legend
         plt.legend()
         # Save the plot
