@@ -56,15 +56,19 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
+                <a href="{{ url_for('customer_ui') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
-              <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
+                <a href="{{ url_for('customer_shop') }}" class="navbar-link">Shop</a>
             </li>
 
             <li>
-              <a href="{{ url_for('about') }}" class="navbar-link">About</a>
+                <a href="{{ url_for('personalised_discount_package') }}" class="navbar-link">Discount Package</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('about') }}" class="navbar-link">About</a>
             </li>
 
 
