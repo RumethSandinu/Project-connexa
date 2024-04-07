@@ -319,7 +319,6 @@ def sale_booster_setup(item_id):
     sales = []
 
     column_values = sales_pred_columns.values
-    print(column_values)
 
     # find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
