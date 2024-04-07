@@ -382,7 +382,7 @@ def sale_booster_setup(item_id):
     plt.savefig('static/assets/images/sales_vs_discount.png')
     plt.close()
 
-    return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category, unit_price_index=unit_price_index)
+    return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category, price_per_kg=price_per_kg)
 
 
 @app.route('/update_discount', methods=['POST'])
