@@ -319,7 +319,6 @@ def sale_booster_setup(item_id):
     sales = []
 
     column_values = sales_pred_columns.values
-    print(column_values)
 
     # find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
@@ -366,7 +365,7 @@ def sale_booster_setup(item_id):
     plt.savefig('static/assets/images/sales_vs_discount.png')
     plt.close()
 
-    return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category)
+    return render_template('sale_booster_setup.html', item_id=item_id, item_name=item_name, category=category, unit_price_index=unit_price_index)
 
 
 @app.route('/update_discount', methods=['POST'])
