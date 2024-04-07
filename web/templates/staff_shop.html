@@ -56,15 +56,27 @@
           <ul class="navbar-list">
 
             <li>
-              <a href="{{ url_for('index') }}" class="navbar-link">Home</a>
+                <a href="{{ url_for('staff_ui') }}" class="navbar-link">Home</a>
             </li>
 
             <li>
-              <a href="{{ url_for('shop') }}" class="navbar-link">Shop</a>
+                <a href="{{ url_for('about') }}" class="navbar-link">About</a>
             </li>
 
             <li>
-              <a href="{{ url_for('about') }}" class="navbar-link">About</a>
+                <a href="{{ url_for('staff') }}" class="navbar-link">Staff</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('loss_rate_model') }}" class="navbar-link">Loss Rate Predictor</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('time_sales') }}" class="navbar-link">Time Sales</a>
             </li>
 
 
