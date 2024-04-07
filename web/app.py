@@ -51,6 +51,23 @@ def staff_ui():
 def about():
     return render_template('about.html')
 
+@app.route('/customer_shop')
+def customer_shop():
+    cursor = cnx.cursor()
+    query = 'SELECT item_name, price_kg, image_path FROM item'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    cursor.close()
+    return render_template('customer_shop.html', rows=rows)
+@app.route('/staff_shop')
+def staff_shop():
+    cursor = cnx.cursor()
+    query = 'SELECT item_name, price_kg, image_path FROM item'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    cursor.close()
+    return render_template('staff_shop.html', rows=rows)
+
 
 @app.route('/shop')
 def shop():
