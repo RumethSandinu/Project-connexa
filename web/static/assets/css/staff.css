@@ -1,10 +1,4 @@
-body {
-    font-family: Arial, sans-serif;
-    background-size: cover;
-    background-position: center;
-    margin: 0;
-    padding: 0;
-}
+
 
 h1 {
     text-align: center;
@@ -81,3 +75,27 @@ input[type="date"] {
 }
 
 
+
+.nav-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.navbar-list {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  list-style-type: none;
+  padding: 0;
+}
+
+.navbar-list li {
+  margin: 0 10px; /* Adjust spacing between list items as needed */
+}
+
+.navbar-link {
+  text-decoration: none;
+  color: #000000; /* Adjust link color as needed */
+  font-size: 16px; /* Adjust font size as needed */
+  /* Add any other styling you want */
+}
