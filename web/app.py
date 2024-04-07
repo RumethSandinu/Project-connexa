@@ -1,6 +1,4 @@
 import hashlib
-import secrets
-
 from flask import Flask, render_template, request, url_for, redirect, session, flash
 import tensorflow as tf
 import pickle
@@ -65,7 +63,6 @@ def shop():
 
 def sha256_hash(input_password):
     return hashlib.sha256(input_password.encode('utf-8')).hexdigest()
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_message = ""  # Initialize error message
@@ -322,9 +319,8 @@ def sale_booster_setup(item_id):
     sales = []
 
     column_values = sales_pred_columns.values
-    print(column_values)
 
-    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    # find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
 
     for discount in discount_range:
@@ -421,14 +417,12 @@ def time_sales_plot(item_id):
     # Capture current date
     current_day = datetime.date.today().day
 
-
-
     sales = []
     dis_sales = []
 
     column_values = time_model_columns.values
 
-    # Find the index of 'unit_selling_price_rmb/kg' in the array
+    # find the index of 'unit_selling_price_rmb/kg' in the array
     unit_price_index = np.where(column_values == 'unit_selling_price_rmb/kg')[0][0]
     month_index = np.where(column_values == 'month')[0][0]
     day_index = np.where(column_values == 'day')[0][0]
@@ -467,6 +461,11 @@ def time_sales_plot(item_id):
 
     if request.method == 'POST':
         discount_rate = float(request.form['discount_rate'])
+
+        # Save discount rate to the database
+        cursor.execute("UPDATE item SET discount_rate = %s WHERE item_id = %s", (discount_rate, item_id))
+        cnx.commit()
+
         # Calculate discounted price
         price_per_kg = float(Decimal(price_per_kg))
         discounted_price =price_per_kg - (price_per_kg * (discount_rate / 100))
@@ -479,9 +478,13 @@ def time_sales_plot(item_id):
             print(prediction)
             dis_sales.append(prediction[0])
 
+        plt.figure(figsize=(15, 6))
         plt.plot(hour_list, sales, marker='o', linestyle='-', color='b', label='Original Price')
         # Plot sales with discounted price
         plt.plot(hour_list, dis_sales, linestyle='--', color='r', label='Discounted Price')
+        plt.grid(True)
+        int_ticks = np.arange(np.ceil(hour_list.min()), np.floor(hour_list.max()) + 1, dtype=int)
+        plt.xticks(int_ticks)
         # Add legend
         plt.legend()
         # Save the plot
@@ -539,9 +542,9 @@ def loss_rate_model():
         cursor = cnx.cursor()
         cursor.execute('SELECT item_id FROM item where item_name = %s and category = %s', (item_name, category_name))
         item_id = cursor.fetchone()[0]
-        cursor.execute('SELECT ROUND(COUNT(*) / 30, 0) AS mean_orders_count_past_7_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
-        mean_customers_past_30_days = cursor.fetchone()[0]
-        total_sales = pred_sale * int(Decimal(mean_customers_past_30_days))
+        cursor.execute('SELECT ROUND(COUNT(*), 0) AS orders_past_30_days FROM purchase WHERE item_id = %s AND sale_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);',(item_id,))
+        orders_past_30_days = cursor.fetchone()[0]
+        total_sales = pred_sale * int(Decimal(orders_past_30_days))
 
         # Load the column names used during training
         column_loss_rate_values = columns_loss_rate.values
@@ -578,27 +581,41 @@ def loss_rate_model():
             # Generate discount based on the loss rate prediction
             discount_percentage = calculate_discount(prediction[0])
 
-            # Prepend the discount percentage with a minus sign
-            discount_percentage_with_minus = -discount_percentage
-
-            # Insert the discount into the item table
-            cursor.execute('UPDATE item SET discount_rate = %s WHERE item_name = %s AND category = %s',
-                           (discount_percentage_with_minus, item_name, category_name))
-            cnx.commit()
 
             # Render the result.html template with the predicted value and generated discount
             return render_template('loss_rate_model.html', loss_rate_prediction=prediction[0],
-                                   discount_percentage=discount_percentage)
+                                   discount_percentage=discount_percentage, item_name=item_name, category_name=category_name)
 
     elif request.method == 'GET':
     # Code to render the form initially
         return render_template('loss_rate_model.html')
+@app.route('/add_discount', methods=['POST'])
+def add_discount():
+    # Retrieve data from the request
+    data = request.json
+    item_name = data.get('item_name')
+    category_name = data.get('category_name')
+    discount_percentage = data.get('discount_percentage')
+    print(discount_percentage, category_name, item_name)
+
+    try:
+        # Execute SQL query to update discount in the item table
+        with cnx.cursor() as cursor:
+            # Ensure that the discount rate is negative
+            discount_percentage_with_minus = -1 * abs(float(discount_percentage))
+            cursor.execute('UPDATE item SET discount_rate = %s WHERE item_name = %s AND category = %s',
+                           (discount_percentage_with_minus, item_name, category_name))
+        # Commit the transaction
+        cnx.commit()
+        return {'message': 'Discount added successfully'}, 200
+    except Exception as e:
+        return {'error': str(e)}, 500
 
 
 def calculate_discount(loss_rate_prediction):
     # Example logic to generate discount based on the loss rate prediction
     if loss_rate_prediction > 0.5:
-        return 15  # 20% discount for high predicted loss rate
+        return 10  # 20% discount for high predicted loss rate
     elif loss_rate_prediction > 0.2:
         return 5  # 10% discount for moderate predicted loss rate
     else:
@@ -643,7 +660,7 @@ def discount():
     user_email = session.get('user_email')
     cursor = cnx.cursor()
     query = "SELECT p.item_id, p.quantity_kg, i.item_name, i.category FROM purchase AS p JOIN item AS i ON p.item_id = i.item_id WHERE p.email = %s ORDER BY p.sale_date DESC LIMIT 1;"
-    cursor.execute(query, ('customer@example.com',))
+    cursor.execute(query, (user_email,))
     latest_purchase = cursor.fetchone()
     cursor.close()
     if latest_purchase is None:

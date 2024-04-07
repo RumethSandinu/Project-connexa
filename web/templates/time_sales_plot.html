@@ -97,6 +97,32 @@
         button[type="submit"]:hover {
             background-color: #45a049;
         }
+        /* Button container */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px; /* Add some space above the button container */
+        }
+
+        /* Watch button styles */
+        button[type="submit"],
+        .add-button {
+            flex: 1;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px; /* Add some space between the buttons */
+        }
+
+        /* Watch button hover state */
+        button[type="submit"]:hover,
+        .add-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body id="top">
@@ -362,6 +388,7 @@
 <body>
     <h1>{{ item_name|capitalize }} Summary Of Selling</h1>
     <p>Unit Selling Price: {{ price_per_kg }} RMB/KG</p>
+    <p>Item ID: {{ item_id }}</p>
 </body>
 
 <body>
@@ -370,8 +397,10 @@
     <br>
     <form action="{{ url_for('time_sales_plot', item_id=item_id) }}" method="post">
       <label for="discount_rate" style="font-weight: bold;">Enter Discount Rate:</label>
-      <input type="number" name="discount_rate" id="discount_rate" placeholder="Discount rate" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;">
-      <button type="submit" style="margin-top: 10px;">Watch</button>
+      <input type="number" name="discount_rate" id="discount_rate" placeholder="Discount rate" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;"  min="0" max="100" required>
+      <div class="button-container">
+            <button type="submit">Watch</button>
+      </div>
     </form>
 </body>
 </html>
