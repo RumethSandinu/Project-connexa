@@ -79,11 +79,11 @@
             </li>
 
             <li>
-              <a href="{{ url_for('discount') }}" class="navbar-link">Discount Rate</a>
+              <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
             </li>
 
             <li>
-              <a href="{{ url_for('sale_booster') }}" class="navbar-link">Booster</a>
+              <a href="{{ url_for('time_sales') }}" class="navbar-link">Time Sales</a>
             </li>
 
 
@@ -281,6 +281,10 @@
   </aside>
   <body>
     <h1>Boost Item</h1>
+    <p>Item ID: {{ item_id }}</p>
+    <p>Item Name: {{ item_name }}</p>
+    <p>Item Category: {{ item_category }}</p>
+    <p>Unit Selling Price: {{ unit_price_index }} RMB/KG</p>
     <img src="../static/assets/images/sales_vs_discount.png" width="1500" height="600">
     <br>
     <br>
@@ -293,6 +297,8 @@
     <button type="submit">Boost</button>
     </form>
   </body>
+
+
 <style>
         body {
             font-family: Arial, sans-serif;
