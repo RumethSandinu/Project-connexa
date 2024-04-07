@@ -480,7 +480,7 @@ def time_sales_plot(item_id):
         discount_rate = float(request.form['discount_rate'])
 
         # Save discount rate to the database
-        cursor.execute("UPDATE item SET discount_rate = %s WHERE item_id = %s", (discount_rate, item_id))
+        cursor.execute("UPDATE item SET discount_rate = %s WHERE item_id = %s", (-1 * discount_rate, item_id))
         cnx.commit()
 
         # Calculate discounted price
